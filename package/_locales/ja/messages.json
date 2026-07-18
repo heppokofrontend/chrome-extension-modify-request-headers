@@ -1,0 +1,8 @@
+{
+  "extName": {
+    "message": "リクエストヘッダを書き換えるやつ"
+  },
+  "extDesc": {
+    "message": "リクエストヘッダを書き換える Google Chrome 拡張機能です。"
+  }
+}

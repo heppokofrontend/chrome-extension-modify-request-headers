@@ -1,0 +1,8 @@
+{
+  "extName": {
+    "message": "Modify Request Headers"
+  },
+  "extDesc": {
+    "message": "This is a Google Chrome extension that modifies request headers."
+  }
+}
