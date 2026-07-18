@@ -1,8 +1,199 @@
 {
+  "extDesc": {
+    "message": "This is a Google Chrome extension that modifies request headers."
+  },
   "extName": {
     "message": "Modify Request Headers"
   },
-  "extDesc": {
-    "message": "This is a Google Chrome extension that modifies request headers."
+  "layout_contentsJumpForForm": {
+    "message": "Jump to form"
+  },
+  "layout_heading_form": {
+    "message": "Add / edit rule"
+  },
+  "layout_heading_rules": {
+    "message": "Rule list"
+  },
+  "filter_inputLabel": {
+    "message": "Filter"
+  },
+  "filter_resultCount": {
+    "message": "Showing: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "filter_selectLabel": {
+    "message": "Status"
+  },
+  "filter_statusActive": {
+    "message": "has active rules"
+  },
+  "filter_statusAll": {
+    "message": "all"
+  },
+  "filter_statusInactive": {
+    "message": "has inactive rules"
+  },
+  "status_patternsAndRules": {
+    "message": "Patterns: $PATTERNS$ / Rules: $RULES$ ($ACTIVE$ active)",
+    "placeholders": {
+      "patterns": {
+        "content": "$1"
+      },
+      "rules": {
+        "content": "$2"
+      },
+      "active": {
+        "content": "$3"
+      }
+    }
+  },
+  "status_sending": {
+    "message": "Will apply on this tab: $SENDING$",
+    "placeholders": {
+      "sending": {
+        "content": "$1"
+      }
+    }
+  },
+  "rule_header_allDeleteButton": {
+    "message": "Delete all"
+  },
+  "rule_header_allDeleteButtonLabel": {
+    "message": "Delete all rules matched by $TARGET$",
+    "placeholders": {
+      "target": {
+        "content": "$1"
+      }
+    }
+  },
+  "rule_header_patternSeparator": {
+    "message": ": "
+  },
+  "rule_header_toggleActiveLabel": {
+    "message": "Toggle active/inactive for all rules matched by $TARGET$",
+    "placeholders": {
+      "target": {
+        "content": "$1"
+      }
+    }
+  },
+  "rule_table_active": {
+    "message": " (active)"
+  },
+  "rule_table_edit": {
+    "message": "Edit $HEADER_NAME$",
+    "placeholders": {
+      "header_name": {
+        "content": "$1"
+      }
+    }
+  },
+  "rule_table_inactive": {
+    "message": " (inactive)"
+  },
+  "form_buttonDelete": {
+    "message": "Delete"
+  },
+  "form_buttonEditAbort": {
+    "message": "Cancel"
+  },
+  "form_buttonSave": {
+    "message": "Save"
+  },
+  "form_buttonUpdate": {
+    "message": "Update"
+  },
+  "form_confirmOverwriteRule": {
+    "message": "A rule for this header on this target already exists.\nOverwrite it?"
+  },
+  "form_errInvalidHeaderName": {
+    "message": "Header name must use ASCII letters, digits, or !#$%&'*+-.^_`|~ only"
+  },
+  "form_errInvalidHeaderValue": {
+    "message": "Header value cannot contain line breaks"
+  },
+  "form_errInvalidOrigin": {
+    "message": "Enter a valid origin, e.g. https://api.example.com"
+  },
+  "form_errInvalidRegexp": {
+    "message": "Enter a valid regular expression using ASCII characters only"
+  },
+  "form_errInvalidUrl": {
+    "message": "Enter a valid absolute URL, e.g. https://api.example.com/v1/users"
+  },
+  "form_errNonAsciiUrl": {
+    "message": "Exact URL cannot contain non-ASCII characters (use punycode / percent-encoding)"
+  },
+  "form_errSaveFailed": {
+    "message": "Failed to save. Please try again later."
+  },
+  "form_errUnsupportedRegexp": {
+    "message": "This pattern is valid JavaScript regex syntax, but Chrome's rule engine (RE2) does not support it (e.g. lookbehind, backreferences)"
+  },
+  "form_labelIsActive": {
+    "message": "Status"
+  },
+  "form_labelMatchType": {
+    "message": "Match by"
+  },
+  "form_labelRegexp": {
+    "message": "Regular expression"
+  },
+  "form_labelUrl": {
+    "message": "Exact URL"
+  },
+  "form_matchTypeOrigin": {
+    "message": "Origin"
+  },
+  "form_matchTypeRegexp": {
+    "message": "Regular expression"
+  },
+  "form_matchTypeUrl": {
+    "message": "URL match"
+  },
+  "form_operationAppend": {
+    "message": "append"
+  },
+  "form_operationRemove": {
+    "message": "remove"
+  },
+  "form_operationSet": {
+    "message": "set (overwrite)"
+  },
+  "form_statusActive": {
+    "message": "✅ active"
+  },
+  "form_statusInactive": {
+    "message": "❌ inactive"
+  },
+  "modal_asIs": {
+    "message": "Current"
+  },
+  "modal_cancelButton": {
+    "message": "Cancel"
+  },
+  "modal_confirmButton": {
+    "message": "OK"
+  },
+  "modal_heading": {
+    "message": "Confirm"
+  },
+  "modal_messageConfirmDelete": {
+    "message": "Delete all $COUNT$ rule(s) matched by this pattern?",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "modal_messageConfirmDeleteRule": {
+    "message": "Delete this rule?"
+  },
+  "modal_toBe": {
+    "message": "New"
   }
 }

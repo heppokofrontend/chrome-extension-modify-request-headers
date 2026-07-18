@@ -1,0 +1,124 @@
+import { describe, it, expect, beforeEach } from 'vitest';
+
+import { STATE } from '@/contexts/popup/state';
+import { findDuplicateRule } from '@/contexts/popup/utils';
+import type { HeaderRule, SaveDataType } from '@/types';
+import { getDefaultSaveData } from '@/utils';
+
+const formState: SaveDataType['formState'] = {
+  matchType: 'url',
+  operation: 'set',
+};
+const makeRule = (
+  overrides: Partial<HeaderRule> & Pick<HeaderRule, 'id' | 'matchType'>,
+): HeaderRule => ({
+  url: '',
+  origin: '',
+  regexp: '',
+  headerName: 'X-Test',
+  operation: 'set',
+  value: '',
+  isActive: true,
+  ...overrides,
+});
+
+describe('findDuplicateRule', () => {
+  beforeEach(() => {
+    STATE.saveData = getDefaultSaveData();
+  });
+
+  it('finds an existing rule with the same matchType, matching value, and headerName', () => {
+    const existing = makeRule({
+      id: 'a',
+      matchType: 'origin',
+      origin: 'https://example.com',
+      headerName: 'X-Foo',
+    });
+    STATE.saveData = { rules: [existing], formState };
+
+    const candidate = makeRule({
+      id: 'b',
+      matchType: 'origin',
+      origin: 'https://example.com',
+      headerName: 'X-Foo',
+    });
+
+    expect(findDuplicateRule(candidate)).toBe(existing);
+  });
+
+  it('excludes the rule itself (same id) from being reported as its own duplicate', () => {
+    const rule = makeRule({
+      id: 'a',
+      matchType: 'origin',
+      origin: 'https://example.com',
+      headerName: 'X-Foo',
+    });
+    STATE.saveData = { rules: [rule], formState };
+
+    expect(findDuplicateRule(rule)).toBeUndefined();
+  });
+
+  it('does not match when matchType differs, even with the same matching value', () => {
+    STATE.saveData = {
+      rules: [
+        makeRule({ id: 'a', matchType: 'url', url: 'https://example.com', headerName: 'X-Foo' }),
+      ],
+      formState,
+    };
+
+    const candidate = makeRule({
+      id: 'b',
+      matchType: 'origin',
+      origin: 'https://example.com',
+      headerName: 'X-Foo',
+    });
+
+    expect(findDuplicateRule(candidate)).toBeUndefined();
+  });
+
+  it('does not match when the matching value differs', () => {
+    STATE.saveData = {
+      rules: [
+        makeRule({
+          id: 'a',
+          matchType: 'origin',
+          origin: 'https://a.example.com',
+          headerName: 'X-Foo',
+        }),
+      ],
+      formState,
+    };
+
+    const candidate = makeRule({
+      id: 'b',
+      matchType: 'origin',
+      origin: 'https://b.example.com',
+      headerName: 'X-Foo',
+    });
+
+    expect(findDuplicateRule(candidate)).toBeUndefined();
+  });
+
+  it('does not match when headerName differs', () => {
+    STATE.saveData = {
+      rules: [
+        makeRule({
+          id: 'a',
+          matchType: 'origin',
+          origin: 'https://example.com',
+          headerName: 'X-Foo',
+        }),
+      ],
+      formState,
+    };
+
+    const candidate = makeRule({
+      id: 'b',
+      matchType: 'origin',
+      origin: 'https://example.com',
+      headerName: 'X-Bar',
+    });
+
+    expect(findDuplicateRule(candidate)).toBeUndefined();
+  });
+});

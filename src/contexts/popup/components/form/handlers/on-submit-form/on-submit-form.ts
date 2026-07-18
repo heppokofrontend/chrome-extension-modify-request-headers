@@ -1,0 +1,97 @@
+import { setCustomValidities } from '@/contexts/popup/components/form/effects';
+import { getNormalizedUrl } from '@/contexts/popup/components/form/utils';
+import { UI } from '@/contexts/popup/constants';
+import { STATE } from '@/contexts/popup/state';
+import type { OperationType, HeaderRule, MatchType } from '@/types';
+import { getMessage, isMatchType, isOperationType } from '@/utils';
+import { isRegexSupportedByEngine } from '@/validators';
+
+import { saveRule } from './save-rule';
+
+const resolveNewRule = ({
+  matchType,
+  url,
+  origin,
+  regexp,
+  headerName,
+  operation,
+  value,
+  isActive,
+}: {
+  matchType: MatchType;
+  url: string;
+  origin: string;
+  regexp: string;
+  headerName: string;
+  operation: OperationType;
+  value: string;
+  isActive: boolean;
+}): HeaderRule => {
+  return {
+    id: STATE.editingId || crypto.randomUUID(),
+    matchType,
+    // matchType が何であっても、3種類すべての入力値をそのまま保持する
+    // （フラグを切り替えても入力し直さずに済むようにするため）。
+    url: getNormalizedUrl.asHref(url) ?? url,
+    origin: getNormalizedUrl.asOrigin(origin) ?? origin,
+    regexp,
+    headerName,
+    operation,
+    value,
+    isActive,
+  };
+};
+
+export const onSubmitForm = async (e: SubmitEvent) => {
+  e.preventDefault();
+
+  const matchType = UI.matchTypeSelect.value;
+
+  if (!isMatchType(matchType)) {
+    return;
+  }
+
+  const operation = UI.operationSelect.value;
+
+  // required 属性だけでは拾えない「入力はあるが値としてパースできない」ケースを
+  // カスタムメッセージでネイティブのバリデーションUIに乗せる。有効な matchType 側のみ検証する。
+  setCustomValidities();
+
+  if (!UI.form.reportValidity()) {
+    return;
+  }
+
+  // isValidRegexp（JSのRegExpで通るか）は通っても、RE2構文では拒否される場合がある
+  // （lookbehind・後方参照など）。その場合 worker 側が該当ルールを黙ってスキップし
+  // 「保存できるのに効かない」状態になるため、保存直前に検証専用APIで最終チェックする。
+  if (matchType === 'regexp') {
+    const isSupported = await isRegexSupportedByEngine(UI.regexpInput.value.trim());
+
+    if (!isSupported) {
+      UI.regexpInput.setCustomValidity(getMessage('form_errUnsupportedRegexp'));
+      UI.form.reportValidity();
+      return;
+    }
+
+    UI.regexpInput.setCustomValidity('');
+  }
+
+  const headerName = UI.headerNameInput.value.trim();
+
+  if (!headerName || !isOperationType(operation)) {
+    return;
+  }
+
+  const newRule = resolveNewRule({
+    matchType,
+    url: UI.urlInput.value.trim(),
+    origin: UI.originInput.value.trim(),
+    regexp: UI.regexpInput.value.trim(),
+    headerName,
+    operation,
+    value: UI.valueInput.value,
+    isActive: UI.isActiveSelect.value === 'true',
+  });
+
+  await saveRule(newRule);
+};

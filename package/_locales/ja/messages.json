@@ -1,8 +1,199 @@
 {
+  "extDesc": {
+    "message": "リクエストヘッダを書き換える Google Chrome 拡張機能です。"
+  },
   "extName": {
     "message": "リクエストヘッダを書き換えるやつ"
   },
-  "extDesc": {
-    "message": "リクエストヘッダを書き換える Google Chrome 拡張機能です。"
+  "layout_contentsJumpForForm": {
+    "message": "入力フォームへ移動"
+  },
+  "layout_heading_form": {
+    "message": "ルールの追加・編集"
+  },
+  "layout_heading_rules": {
+    "message": "ルール一覧"
+  },
+  "filter_inputLabel": {
+    "message": "絞り込み"
+  },
+  "filter_resultCount": {
+    "message": "表示件数：$COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "filter_selectLabel": {
+    "message": "有効/無効"
+  },
+  "filter_statusActive": {
+    "message": "有効な"
+  },
+  "filter_statusAll": {
+    "message": "すべての"
+  },
+  "filter_statusInactive": {
+    "message": "無効な"
+  },
+  "status_patternsAndRules": {
+    "message": "パターン数: $PATTERNS$ / ルール数: $RULES$（有効$ACTIVE$件）",
+    "placeholders": {
+      "patterns": {
+        "content": "$1"
+      },
+      "rules": {
+        "content": "$2"
+      },
+      "active": {
+        "content": "$3"
+      }
+    }
+  },
+  "status_sending": {
+    "message": "このタブに適用されるルール: $SENDING$件",
+    "placeholders": {
+      "sending": {
+        "content": "$1"
+      }
+    }
+  },
+  "rule_header_allDeleteButton": {
+    "message": "すべて削除"
+  },
+  "rule_header_allDeleteButtonLabel": {
+    "message": "$TARGET$にマッチするルールをすべて削除する",
+    "placeholders": {
+      "target": {
+        "content": "$1"
+      }
+    }
+  },
+  "rule_header_patternSeparator": {
+    "message": "："
+  },
+  "rule_header_toggleActiveLabel": {
+    "message": "$TARGET$にマッチするルールすべての有効/無効を切り替える",
+    "placeholders": {
+      "target": {
+        "content": "$1"
+      }
+    }
+  },
+  "rule_table_active": {
+    "message": "（有効）"
+  },
+  "rule_table_edit": {
+    "message": "$HEADER_NAME$を編集する",
+    "placeholders": {
+      "header_name": {
+        "content": "$1"
+      }
+    }
+  },
+  "rule_table_inactive": {
+    "message": "（無効）"
+  },
+  "form_buttonDelete": {
+    "message": "ルールを削除"
+  },
+  "form_buttonEditAbort": {
+    "message": "編集を中止"
+  },
+  "form_buttonSave": {
+    "message": "保存"
+  },
+  "form_buttonUpdate": {
+    "message": "上書き保存"
+  },
+  "form_confirmOverwriteRule": {
+    "message": "同じ対象・ヘッダー名のルールが既に存在します。\n上書きしますか？"
+  },
+  "form_errInvalidHeaderName": {
+    "message": "ヘッダー名にはASCIIの英数字と !#$%&'*+-.^_`|~ のみ使えます"
+  },
+  "form_errInvalidHeaderValue": {
+    "message": "ヘッダーの値に改行は使えません"
+  },
+  "form_errInvalidOrigin": {
+    "message": "有効な origin を入力してください（例: https://api.example.com）"
+  },
+  "form_errInvalidRegexp": {
+    "message": "有効な正規表現を、ASCII文字のみで入力してください"
+  },
+  "form_errInvalidUrl": {
+    "message": "有効な絶対URLを入力してください（例: https://api.example.com/v1/users）"
+  },
+  "form_errNonAsciiUrl": {
+    "message": "Exact URL に非ASCII文字は使えません（punycode / パーセントエンコーディングを使ってください）"
+  },
+  "form_errSaveFailed": {
+    "message": "保存に失敗しました。時間をおいて再度お試しください。"
+  },
+  "form_errUnsupportedRegexp": {
+    "message": "JavaScriptの正規表現としては有効ですが、Chromeのルールエンジン（RE2）が対応していない構文です（後読み・後方参照など）"
+  },
+  "form_labelIsActive": {
+    "message": "有効/無効"
+  },
+  "form_labelMatchType": {
+    "message": "一致条件"
+  },
+  "form_labelRegexp": {
+    "message": "Regexp"
+  },
+  "form_labelUrl": {
+    "message": "URL"
+  },
+  "form_matchTypeOrigin": {
+    "message": "origin"
+  },
+  "form_matchTypeRegexp": {
+    "message": "正規表現"
+  },
+  "form_matchTypeUrl": {
+    "message": "URL一致"
+  },
+  "form_operationAppend": {
+    "message": "append（追記）"
+  },
+  "form_operationRemove": {
+    "message": "remove（送信しない）"
+  },
+  "form_operationSet": {
+    "message": "set（上書き）"
+  },
+  "form_statusActive": {
+    "message": "✅ 有効"
+  },
+  "form_statusInactive": {
+    "message": "❌ 無効"
+  },
+  "modal_asIs": {
+    "message": "現在"
+  },
+  "modal_cancelButton": {
+    "message": "キャンセル"
+  },
+  "modal_confirmButton": {
+    "message": "OK"
+  },
+  "modal_heading": {
+    "message": "ご確認"
+  },
+  "modal_messageConfirmDelete": {
+    "message": "このパターンにマッチする$COUNT$件のルールをすべて削除しますか？",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "modal_messageConfirmDeleteRule": {
+    "message": "このルールを削除しますか？"
+  },
+  "modal_toBe": {
+    "message": "変更後"
   }
 }

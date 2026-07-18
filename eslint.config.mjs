@@ -41,6 +41,7 @@ export default [
       },
     },
     rules: {
+      '@typescript-eslint/strict-boolean-expressions': 'error',
       '@typescript-eslint/restrict-template-expressions': [
         'error',
         {
@@ -69,19 +70,14 @@ export default [
         {
           patterns: [
             {
-              regex: String.raw`^\.\.?(/|$)`,
-              message: 'Use the "@/..." alias instead of a relative import.',
+              // 同階層（./foo）は許容し、親ディレクトリ越え（../foo）だけ弾く。
+              // ディレクトリ境界を跨ぐ参照はエイリアスで書かせて、ファイル移動に強くする。
+              regex: String.raw`^\.\.(/|$)`,
+              message: 'Use the "@/..." alias instead of a parent-relative import.',
             },
           ],
         },
       ],
-    },
-  },
-  {
-    // バレルファイルは同一ディレクトリの再エクスポートのみのため相対パスを許容する。
-    files: ['**/index.ts'],
-    rules: {
-      'no-restricted-imports': 'off',
     },
   },
   prettier,

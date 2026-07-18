@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title data-i18n="extName">Modify Request Headers</title>
+    <link rel="stylesheet" href="styles/popup.css" />
+  </head>
+  <body>
+    <div class="l-container">
+      <h1 class="l-container__heading" data-i18n="extName">loading...</h1>
+
+      <p class="l-container__contents-jump">
+        <a href="#form" data-i18n="layout_contentsJumpForForm"> loading... </a>
+      </p>
+
+      <main class="l-main">
+        <div class="l-main__primary">
+          <div class="l-main__heading">
+            <h2 class="heading-l2" data-i18n="layout_heading_rules">Rule list</h2>
+          </div>
+
+          <div class="filter">
+            <fieldset>
+              <legend class="filter__title">
+                <label for="filter-input" data-i18n="filter_inputLabel">loading...</label>
+                <span class="filter__result" aria-live="polite" id="filter-result"></span>
+              </legend>
+              <div class="filter__content">
+                <p>
+                  <select
+                    id="filter-select"
+                    aria-label="Status"
+                    data-i18n-aria-label="filter_selectLabel"
+                  >
+                    <option value="all" data-i18n="filter_statusAll">all</option>
+                    <option value="active" data-i18n="filter_statusActive">active</option>
+                    <option value="inactive" data-i18n="filter_statusInactive">inactive</option>
+                  </select>
+                </p>
+
+                <p>
+                  <input type="search" id="filter-input" />
+                </p>
+              </div>
+            </fieldset>
+          </div>
+
+          <p class="status" id="status"></p>
+
+          <div id="rules"></div>
+        </div>
+
+        <div class="l-main__secondary">
+          <div class="l-main__heading">
+            <h2 class="heading-l2" data-i18n="layout_heading_form">loading....</h2>
+          </div>
+
+          <form class="form" id="form" data-mode="create">
+            <p>
+              <label>
+                <span class="label" data-i18n="form_labelMatchType">Match by</span>
+                <select id="select-matchType">
+                  <option value="url" data-i18n="form_matchTypeUrl">url</option>
+                  <option value="origin" data-i18n="form_matchTypeOrigin">origin</option>
+                  <option value="regexp" data-i18n="form_matchTypeRegexp">regexp</option>
+                </select>
+              </label>
+            </p>
+
+            <p class="field-url">
+              <label>
+                <span class="label" data-i18n="form_labelUrl">Exact URL</span>
+                <input
+                  type="text"
+                  id="input-url"
+                  placeholder="https://api.example.com/v1/users"
+                  autocomplete="off"
+                  required
+                />
+              </label>
+            </p>
+
+            <p class="field-origin">
+              <label>
+                <span class="label">Origin</span>
+                <input
+                  type="text"
+                  id="input-origin"
+                  placeholder="http://localhost:3000"
+                  autocomplete="off"
+                />
+              </label>
+            </p>
+
+            <p class="field-regexp">
+              <label>
+                <span class="label" data-i18n="form_labelRegexp">loading...</span>
+                <input
+                  type="text"
+                  id="input-regexp"
+                  placeholder="^https://.*\.example\.com/"
+                  autocomplete="off"
+                />
+              </label>
+            </p>
+            <p>
+              <label>
+                <span class="label">Header name</span>
+                <input
+                  type="text"
+                  id="input-headerName"
+                  placeholder="X-Custom-Header"
+                  autocomplete="off"
+                  required
+                />
+              </label>
+            </p>
+
+            <p>
+              <label>
+                <span class="label">Operation</span>
+                <select id="select-operation">
+                  <option value="set" data-i18n="form_operationSet">set</option>
+                  <option value="append" data-i18n="form_operationAppend">append</option>
+                  <option value="remove" data-i18n="form_operationRemove">remove</option>
+                </select>
+              </label>
+            </p>
+
+            <p class="field-value">
+              <label>
+                <span class="label">Value</span>
+                <textarea id="textarea-value" autocomplete="off" placeholder="1"></textarea>
+              </label>
+            </p>
+
+            <p>
+              <label>
+                <span class="label" data-i18n="form_labelIsActive">Status</span>
+                <select id="select-isActive">
+                  <option value="true" data-i18n="form_statusActive">loading...</option>
+                  <option value="false" data-i18n="form_statusInactive">loading...</option>
+                </select>
+              </label>
+            </p>
+
+            <div class="form__actions">
+              <button type="submit" data-action="save">
+                <span data-i18n="form_buttonSave">loading...</span>
+                <span data-i18n="form_buttonUpdate">loading...</span>
+              </button>
+              <button type="button" data-action="edit-abort" data-i18n="form_buttonEditAbort">
+                loading...
+              </button>
+              <button type="button" data-action="delete" data-i18n="form_buttonDelete">
+                loading...
+              </button>
+            </div>
+          </form>
+        </div>
+      </main>
+    </div>
+
+    <dialog
+      id="modal"
+      class="modal"
+      closedby="none"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="modal-label"
+    >
+      <h2 class="modal__heading" id="modal-label" data-i18n="modal_heading">loading...</h2>
+      <div class="modal__data" id="modal-data"></div>
+      <p class="modal__message" id="modal-message"></p>
+      <p class="modal__action" id="modal-buttons"></p>
+    </dialog>
+
+    <script src="./i18n.js"></script>
+    <script src="./popup.js"></script>
+  </body>
+</html>
