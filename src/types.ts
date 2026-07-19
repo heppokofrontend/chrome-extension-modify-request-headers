@@ -5,35 +5,10 @@ export type OperationType = (typeof HEADER_OPERATIONS)[number];
 export type MatchType = (typeof MATCH_TYPES)[number];
 
 /**
- * declarativeNetRequest の HeaderOperation にそのまま対応する、1件のヘッダ書き換えルール。
- * `id` は編集・rename・削除のための安定した識別子（origin / headerName は
- * ユーザーが後から書き換える対象であり、キーには使えない）。
- * `remove` は value を送信に使わないが、入力欄の値自体は保存データ上で保持し続ける。
- *
- * `matchType` はマッチ方式の切り替えフラグ。url / origin / regexp の
- * 3つの値はどれが選ばれていても常にすべて保持する（フラグを切り替えても
- * 入力し直さずに済むようにするため）。実際にルールへ使われるのは
- * `matchType` が指す値のみ。
- *
- * - `url`: 入力した URL 文字列にマッチしたときだけ適用（末尾スラッシュの有無は区別しない。
- *   保存時に urlFilter の `|...^|` アンカーへ変換する）
- * - `origin`: ドメイン全体に適用（`https://api.example.com` のような形をそのまま入力）
- * - `regexp`: 正規表現（RE2 構文）でマッチ
- *
- * @example
- * ```ts
- * const rule: HeaderRule = {
- *   id: 'a1b2c3',
- *   matchType: 'origin',
- *   url: '',
- *   origin: 'https://api.example.com',
- *   regexp: '',
- *   headerName: 'Authorization',
- *   operation: 'set',
- *   value: 'Bearer xxx',
- *   isActive: true,
- * };
- * ```
+ * declarativeNetRequest の HeaderOperation に対応する1件のヘッダ書き換えルール。
+ * id は安定識別子（origin/headerName はユーザーが書き換える対象のためキーに使えない）。
+ * matchType が url/origin/regexp のどれでも、3値は常にすべて保持する
+ * （切り替え時に入力し直さずに済むように）。実際に使われるのは matchType が指す値のみ。
  */
 export type HeaderRule = {
   id: string;
