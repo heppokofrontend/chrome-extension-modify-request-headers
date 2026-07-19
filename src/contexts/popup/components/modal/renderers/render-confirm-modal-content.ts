@@ -2,7 +2,14 @@ import type { ModalData } from '@/contexts/popup/components/modal/types';
 import { UI } from '@/contexts/popup/constants';
 import { getMessage } from '@/utils';
 
-export const renderData = (data: ModalData | undefined) => {
+interface Params {
+  message: string;
+  data: ModalData | undefined;
+}
+
+export const renderConfirmModalContent = ({ message, data }: Params) => {
+  UI.modalMessage.textContent = message;
+  UI.modalButtonsContainer.replaceChildren();
   UI.modalData.replaceChildren();
 
   if (data === undefined) {
