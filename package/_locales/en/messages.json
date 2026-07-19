@@ -125,9 +125,6 @@
   "form_errInvalidUrl": {
     "message": "Enter a valid absolute URL, e.g. https://api.example.com/v1/users"
   },
-  "form_errNonAsciiUrl": {
-    "message": "Exact URL cannot contain non-ASCII characters (use punycode / percent-encoding)"
-  },
   "form_errSaveFailed": {
     "message": "Failed to save. Please try again later."
   },

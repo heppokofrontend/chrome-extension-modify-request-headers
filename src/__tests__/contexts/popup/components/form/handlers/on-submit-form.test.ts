@@ -109,14 +109,24 @@ describe('form/handlers/on-submit-form/on-submit-form', () => {
     });
   });
 
-  it('normalizes a bare origin url to include the trailing slash a real request would have', async () => {
+  it('keeps the raw url input as-is, without adding a trailing slash (normalization happens at match/apply time)', async () => {
     UI.matchTypeSelect.value = 'url';
     UI.urlInput.value = 'https://heppokofrontend.dev';
     UI.headerNameInput.value = 'X-New';
 
     await submit();
 
-    expect(STATE.saveData.rules[0]?.url).toBe('https://heppokofrontend.dev/');
+    expect(STATE.saveData.rules[0]?.url).toBe('https://heppokofrontend.dev');
+  });
+
+  it('keeps a non-ASCII url input human-readable instead of saving the punycode-normalized form', async () => {
+    UI.matchTypeSelect.value = 'url';
+    UI.urlInput.value = 'https://例え.com';
+    UI.headerNameInput.value = 'X-New';
+
+    await submit();
+
+    expect(STATE.saveData.rules[0]?.url).toBe('https://例え.com');
   });
 
   it('reuses STATE.editingId as the saved rule id instead of generating a new one', async () => {

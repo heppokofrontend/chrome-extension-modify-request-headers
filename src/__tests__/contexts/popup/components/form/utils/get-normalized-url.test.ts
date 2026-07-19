@@ -3,31 +3,6 @@ import { describe, it, expect } from 'vitest';
 import { getNormalizedUrl } from '@/contexts/popup/components/form/utils/get-normalized-url';
 
 describe('getNormalizedUrl', () => {
-  describe('asHref', () => {
-    it('adds the trailing slash a browser would add for a bare origin', () => {
-      expect(getNormalizedUrl.asHref('https://heppokofrontend.dev')).toBe(
-        'https://heppokofrontend.dev/',
-      );
-    });
-
-    it('leaves an already-canonical URL unchanged', () => {
-      expect(getNormalizedUrl.asHref('https://example.com/path')).toBe('https://example.com/path');
-      expect(getNormalizedUrl.asHref('https://example.com/')).toBe('https://example.com/');
-    });
-
-    it('trims surrounding whitespace', () => {
-      expect(getNormalizedUrl.asHref('  https://heppokofrontend.dev  ')).toBe(
-        'https://heppokofrontend.dev/',
-      );
-    });
-
-    it('returns undefined for empty or unparsable input', () => {
-      expect(getNormalizedUrl.asHref('')).toBeUndefined();
-      expect(getNormalizedUrl.asHref('   ')).toBeUndefined();
-      expect(getNormalizedUrl.asHref('not a url at all!!')).toBeUndefined();
-    });
-  });
-
   describe('asOrigin', () => {
     it('returns the origin as-is when a scheme is already given', () => {
       expect(getNormalizedUrl.asOrigin('https://heppokofrontend.dev')).toBe(
@@ -36,6 +11,11 @@ describe('getNormalizedUrl', () => {
       expect(getNormalizedUrl.asOrigin('https://heppokofrontend.dev/')).toBe(
         'https://heppokofrontend.dev',
       );
+    });
+
+    it('keeps a non-ASCII origin input human-readable instead of returning the punycode-normalized form', () => {
+      expect(getNormalizedUrl.asOrigin('https://例え.com')).toBe('https://例え.com');
+      expect(getNormalizedUrl.asOrigin('例え.com')).toBe('https://例え.com');
     });
 
     it('rejects input that is not a pure origin (path/query/hash/credentials)', () => {

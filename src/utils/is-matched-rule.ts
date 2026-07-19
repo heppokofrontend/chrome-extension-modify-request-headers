@@ -6,7 +6,24 @@ const isMatchedUrl = (rule: HeaderRule['url'], url: URL) => {
   // worker側の resolveRuleToCondition と同じ基準（末尾スラッシュの有無を同一URL扱い）に揃える。
   const stripTrailingSlash = (value: string) => (value.endsWith('/') ? value.slice(0, -1) : value);
 
-  return stripTrailingSlash(rule) === stripTrailingSlash(url.href);
+  try {
+    // rule.url は表示用に生入力のまま保存されている（punycode / パーセントエンコード
+    // 正規化はしていない）。比較対象の url.href はブラウザ正規化済み（常にASCII）のため、
+    // ここで rule 側も `new URL().href` を通してから比較する。
+    return stripTrailingSlash(new URL(rule).href) === stripTrailingSlash(url.href);
+  } catch {
+    return false;
+  }
+};
+
+const isMatchedOrigin = (rule: HeaderRule['origin'], url: URL) => {
+  // rule.origin も表示用に生入力のまま保存されている（punycode正規化はしていない）ため、
+  // isMatchedUrl と同様に比較時点で `new URL().origin` を通す。
+  try {
+    return new URL(rule).origin === url.origin;
+  } catch {
+    return false;
+  }
 };
 
 const isMatchedRegexp = (regexp: HeaderRule['regexp'], url: URL) => {
@@ -37,10 +54,9 @@ export const isMatchedRule = ({ rule, url }: { rule: HeaderRule; url: URL }) => 
     case 'url':
       return isMatchedUrl(rule.url, url);
     case 'origin':
-      // origin は scheme+host+port の完全一致（Web標準のorigin定義）で判定する。
-      // rule.origin は保存時に getNormalizedUrl で url.origin 形式へ正規化済みのため、
-      // 再パースせず直接比較する（worker側の resolveRuleToCondition の |origin^ urlFilter と同じ基準）。
-      return rule.origin === url.origin;
+      // origin は scheme+host+port の完全一致（Web標準のorigin定義）で判定する
+      // （worker側の resolveRuleToCondition の |origin/ urlFilter と同じ基準）。
+      return isMatchedOrigin(rule.origin, url);
     case 'regexp':
       return isMatchedRegexp(rule.regexp, url);
   }

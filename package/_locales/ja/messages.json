@@ -125,9 +125,6 @@
   "form_errInvalidUrl": {
     "message": "有効な絶対URLを入力してください（例: https://api.example.com/v1/users）"
   },
-  "form_errNonAsciiUrl": {
-    "message": "Exact URL に非ASCII文字は使えません（punycode / パーセントエンコーディングを使ってください）"
-  },
   "form_errSaveFailed": {
     "message": "保存に失敗しました。時間をおいて再度お試しください。"
   },

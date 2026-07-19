@@ -1,20 +1,11 @@
 import type { HeaderRule } from '@/types';
-import { isAscii, isValidRegexp } from '@/validators';
+import { isSafeOrigin, isSafeUrl, isValidRegexp } from '@/validators';
 
 const OPERATION_MAP = {
   set: chrome.declarativeNetRequest.HeaderOperation.SET,
   append: chrome.declarativeNetRequest.HeaderOperation.APPEND,
   remove: chrome.declarativeNetRequest.HeaderOperation.REMOVE,
 } as const;
-
-const isValidOrigin = (origin: string) => {
-  try {
-    const url = new URL(origin);
-    return url.origin === origin;
-  } catch {
-    return false;
-  }
-};
 
 const RESOURCE_TYPES = Object.values(chrome.declarativeNetRequest.ResourceType);
 
@@ -23,14 +14,19 @@ const toCondition = (rule: HeaderRule) => {
 
   switch (rule.matchType) {
     case 'url': {
-      if (!rule.url.trim() || !isAscii(rule.url)) {
+      if (!isSafeUrl(rule.url)) {
         console.warn(`Skipping invalid url in saved rule: ${rule.url}`);
         return undefined;
       }
+      // 保存時点で popup 側が正規化済みのはずだが、手動編集された旧データ等が
+      // 非正規化のまま残っている可能性もあるため、ここでも `new URL().href` を
+      // 通してから使う（isSafeUrl はASCIIに正規化できるかどうかしか見ておらず、
+      // rule.url そのものがASCIIである保証はしていないため）。
+      const href = new URL(rule.url).href;
       // urlFilter の "^" はセパレータ1文字またはURL終端にマッチするトークン。
       // 末尾を "^|" にすると「区切り文字1個（末尾スラッシュ想定）で終わるか、そこで終わるか」に
       // 限定でき、正規表現なしで末尾スラッシュの有無だけを同一URL扱いにできる。
-      const withoutTrailingSlash = rule.url.replace(/\/$/, '');
+      const withoutTrailingSlash = href.replace(/\/$/, '');
       // Chrome 118+ は urlFilter がデフォルトで大文字小文字無視。popup 側 isMatchedRule は
       // `===` の完全一致（大文字小文字を区別）なので、ここで明示的に区別させて両者を揃える。
       return {
@@ -49,11 +45,14 @@ const toCondition = (rule: HeaderRule) => {
       // マッチするため、"^" のままだと同一ホストの別ポート（例: https://example.com:8443）にも
       // 誤マッチしてしまう。http/https の実URLはブラウザ正規化により origin 直後が必ず "/" に
       // なるため、"/" 固定で「同一 origin 配下すべてに一致・別ポートは不一致」を表現できる。
-      if (!isValidOrigin(rule.origin)) {
+      if (!isSafeOrigin(rule.origin)) {
         console.warn(`Skipping invalid origin in saved rule: ${rule.origin}`);
         return undefined;
       }
-      return { urlFilter: `|${rule.origin}/`, resourceTypes };
+      // rule.origin は表示用に生入力のまま保存されている（punycode正規化はしていない）ため、
+      // url型と同様にここで `new URL().origin` を通してからurlFilterを組み立てる。
+      const origin = new URL(rule.origin).origin;
+      return { urlFilter: `|${origin}/`, resourceTypes };
     }
 
     case 'regexp': {

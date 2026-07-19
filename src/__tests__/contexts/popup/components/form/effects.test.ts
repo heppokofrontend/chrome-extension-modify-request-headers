@@ -45,13 +45,13 @@ describe('form/effects', () => {
   });
 
   describe('setCustomValidities', () => {
-    it('flags a non-ASCII url as invalid when matchType is url', () => {
+    it('accepts a non-ASCII url when matchType is url (normalized via isSafeUrl)', () => {
       UI.matchTypeSelect.value = 'url';
       UI.urlInput.value = 'https://例え.com';
 
       setCustomValidities();
 
-      expect(UI.urlInput.validationMessage).toBe('form_errNonAsciiUrl');
+      expect(UI.urlInput.validationMessage).toBe('');
     });
 
     it('flags an ASCII but unparsable url as invalid when matchType is url', () => {

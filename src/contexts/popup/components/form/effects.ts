@@ -2,10 +2,10 @@ import { BTN_EDIT_CLASS, UI } from '@/contexts/popup/constants';
 import { STATE } from '@/contexts/popup/state';
 import type { OperationType, HeaderRule, MatchType } from '@/types';
 import { getMessage } from '@/utils';
-import { isAscii, isValidRegexp } from '@/validators';
+import { isSafeUrl, isValidRegexp } from '@/validators';
 
 import { getNormalizedUrl } from './utils';
-import { isValidHeaderName, isValidHeaderValue, isValidUrl } from './validators';
+import { isValidHeaderName, isValidHeaderValue } from './validators';
 
 const MATCH_FIELD_INPUTS = {
   url: UI.urlInput,
@@ -153,7 +153,8 @@ export const setCustomValidities = () => {
   const normalizedOrigin = getNormalizedUrl.asOrigin(UI.originInput.value);
   const operation = UI.operationSelect.value;
 
-  // url 入力: ASCII外れとURLとして不正な場合を区別する。matchType が url のときのみ検証。
+  // url 入力: matchType が url のときのみ検証。非ASCII文字は isSafeUrl 側で
+  // 正規化して受理するため、ここでは URL として妥当かどうかだけを見る。
   const urlMessage = (() => {
     const url = UI.urlInput.value;
 
@@ -161,11 +162,7 @@ export const setCustomValidities = () => {
       return '';
     }
 
-    if (!isAscii(url)) {
-      return getMessage('form_errNonAsciiUrl');
-    }
-
-    return isValidUrl(url) ? '' : getMessage('form_errInvalidUrl');
+    return isSafeUrl(url) ? '' : getMessage('form_errInvalidUrl');
   })();
 
   UI.urlInput.setCustomValidity(urlMessage);

@@ -1,29 +1,3 @@
-import { isAscii } from '@/validators';
-
-/**
- * chrome.declarativeNetRequest がヘッダー書き換えに介入できるのは
- * http/https/ws/wss のみ。それ以外のスキーム（例: `ftp://`）は保存できても
- * 実リクエストにマッチせず、永遠に発火しないルールになるため保存前に弾く。
- */
-const ALLOWED_URL_SCHEMES = new Set(['http:', 'https:', 'ws:', 'wss:']);
-
-/**
- * url はリクエストURL（location.href 相当）とそのまま文字列比較する。比較対象の
- * location.href は常に絶対URLとしてパース可能な形なので、こちらも `new URL()` で
- * パースできることを要求する。
- */
-export const isValidUrl = (url: string) => {
-  if (!url.trim() || !isAscii(url)) {
-    return false;
-  }
-
-  try {
-    return ALLOWED_URL_SCHEMES.has(new URL(url).protocol);
-  } catch {
-    return false;
-  }
-};
-
 /**
  * RFC 7230 の header-field name（token）が許可する文字集合。
  * これを満たさない名前は chrome.declarativeNetRequest 側でルールごと拒否される

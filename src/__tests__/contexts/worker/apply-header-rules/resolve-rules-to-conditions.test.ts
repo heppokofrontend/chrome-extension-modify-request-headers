@@ -54,8 +54,18 @@ describe('resolveRulesToConditions', () => {
       expect(resolveCondition(rule)).toBeUndefined();
     });
 
-    it('excludes a rule with a non-ASCII url', () => {
+    it('builds a urlFilter from the punycode-normalized form of a non-ASCII url', () => {
       const rule = makeRule({ matchType: 'url', url: 'https://例え.com/' });
+
+      expect(resolveCondition(rule)).toStrictEqual({
+        urlFilter: '|https://xn--r8jz45g.com^|',
+        resourceTypes: RESOURCE_TYPES,
+        isUrlFilterCaseSensitive: true,
+      });
+    });
+
+    it('excludes a rule whose scheme declarativeNetRequest cannot intervene on', () => {
+      const rule = makeRule({ matchType: 'url', url: 'ftp://example.com/path' });
 
       expect(resolveCondition(rule)).toBeUndefined();
     });
@@ -93,6 +103,15 @@ describe('resolveRulesToConditions', () => {
       const httpsRule = makeRule({ matchType: 'origin', origin: 'https://example.com' });
 
       expect(resolveCondition(httpRule)).not.toStrictEqual(resolveCondition(httpsRule));
+    });
+
+    it('builds a urlFilter from the punycode-normalized form of a non-ASCII origin', () => {
+      const rule = makeRule({ matchType: 'origin', origin: 'https://例え.com' });
+
+      expect(resolveCondition(rule)).toStrictEqual({
+        urlFilter: '|https://xn--r8jz45g.com/',
+        resourceTypes: RESOURCE_TYPES,
+      });
     });
 
     it('excludes a rule whose origin is not a parseable URL', () => {

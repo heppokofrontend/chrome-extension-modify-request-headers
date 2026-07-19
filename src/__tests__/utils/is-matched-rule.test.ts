@@ -49,6 +49,18 @@ describe('isMatchedRule', () => {
         true,
       );
     });
+
+    it('matches a raw (non-normalized) non-ASCII rule url against the browser-normalized tab url', () => {
+      const rule = makeRule({ matchType: 'url', url: 'https://例え.com/' });
+
+      expect(isMatchedRule({ rule, url: new URL('https://xn--r8jz45g.com/') })).toBe(true);
+    });
+
+    it('returns false instead of throwing when the rule url is not parseable', () => {
+      const rule = makeRule({ matchType: 'url', url: 'not-a-url' });
+
+      expect(isMatchedRule({ rule, url: new URL('https://example.com/') })).toBe(false);
+    });
   });
 
   describe('matchType: origin', () => {
@@ -62,6 +74,12 @@ describe('isMatchedRule', () => {
       const rule = makeRule({ matchType: 'origin', origin: 'http://localhost:3000' });
 
       expect(isMatchedRule({ rule, url: new URL('http://localhost:3000/') })).toBe(true);
+    });
+
+    it('matches a raw (non-normalized) non-ASCII rule origin against the browser-normalized tab origin', () => {
+      const rule = makeRule({ matchType: 'origin', origin: 'https://例え.com' });
+
+      expect(isMatchedRule({ rule, url: new URL('https://xn--r8jz45g.com/anything') })).toBe(true);
     });
 
     it.each([
