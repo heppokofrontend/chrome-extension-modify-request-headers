@@ -1,7 +1,7 @@
 import { UI } from '@/contexts/popup/constants';
 import { getMessage } from '@/utils';
 
-import { renderButton, renderData } from './renderers';
+import { buildButton, renderData } from './renderers';
 import type { ModalData } from './types';
 
 /**
@@ -27,10 +27,10 @@ export const confirmModal = (message: string, data?: ModalData) => {
     };
 
     UI.modalButtonsContainer.append(
-      renderButton(getMessage('modal_confirmButton'), () => {
+      buildButton(getMessage('modal_confirmButton'), () => {
         finish(true);
       }),
-      renderButton(getMessage('modal_cancelButton'), () => {
+      buildButton(getMessage('modal_cancelButton'), () => {
         finish(false);
       }),
     );

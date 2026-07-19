@@ -1,5 +1,5 @@
 import { setFilterResultDefault } from '@/contexts/popup/components/filter';
-import { getGroupKey } from '@/contexts/popup/components/rules';
+import { getPatternGroupKey } from '@/contexts/popup/components/rules';
 import { UI } from '@/contexts/popup/constants';
 import { STATE } from '@/contexts/popup/state';
 import { getMessage, isMatchedRule } from '@/utils';
@@ -12,7 +12,7 @@ import { getMessage, isMatchedRule } from '@/utils';
  */
 export const renderStatus = async () => {
   const { rules } = STATE.saveData;
-  const patternCount = new Set(rules.map(getGroupKey)).size;
+  const patternCount = new Set(rules.map(getPatternGroupKey)).size;
   const activeCount = rules.filter((rule) => rule.isActive).length;
 
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });

@@ -12,7 +12,7 @@ describe('rules/renderers/render-rules', () => {
   let UI: typeof import('@/contexts/popup/constants').UI;
   let BTN_EDIT_CLASS: typeof import('@/contexts/popup/constants').BTN_EDIT_CLASS;
   let STATE: typeof import('@/contexts/popup/state').STATE;
-  let getGroupKey: typeof import('@/contexts/popup/components/rules/renderers/render-rules').getGroupKey;
+  let getPatternGroupKey: typeof import('@/contexts/popup/components/rules/renderers/render-rules').getPatternGroupKey;
   let renderRules: typeof import('@/contexts/popup/components/rules/renderers/render-rules').renderRules;
 
   const getMessageMock = vi.fn(
@@ -39,7 +39,7 @@ describe('rules/renderers/render-rules', () => {
 
     ({ UI, BTN_EDIT_CLASS } = await import('@/contexts/popup/constants'));
     ({ STATE } = await import('@/contexts/popup/state'));
-    ({ getGroupKey, renderRules } =
+    ({ getPatternGroupKey, renderRules } =
       await import('@/contexts/popup/components/rules/renderers/render-rules'));
   });
 
@@ -47,11 +47,11 @@ describe('rules/renderers/render-rules', () => {
     getMessageMock.mockClear();
   });
 
-  describe('getGroupKey', () => {
+  describe('getPatternGroupKey', () => {
     it('combines matchType and the matching value (origin)', () => {
       const rule = makeRule({ id: 'a', matchType: 'origin', origin: 'https://example.com' });
 
-      expect(getGroupKey(rule)).toBe('origin::https://example.com');
+      expect(getPatternGroupKey(rule)).toBe('https://example.com::origin');
     });
 
     it('combines matchType and the matching value (regexp)', () => {
@@ -61,14 +61,36 @@ describe('rules/renderers/render-rules', () => {
         regexp: '^https://.*\\.example\\.com/',
       });
 
-      expect(getGroupKey(rule)).toBe('regexp::^https://.*\\.example\\.com/');
+      expect(getPatternGroupKey(rule)).toBe('^https://.*\\.example\\.com/::regexp');
     });
 
     it('treats rules with the same matchType but different values as distinct groups', () => {
       const a = makeRule({ id: 'a', matchType: 'origin', origin: 'https://a.example.com' });
       const b = makeRule({ id: 'b', matchType: 'origin', origin: 'https://b.example.com' });
 
-      expect(getGroupKey(a)).not.toBe(getGroupKey(b));
+      expect(getPatternGroupKey(a)).not.toBe(getPatternGroupKey(b));
+    });
+
+    it('treats a punycode-form and a unicode-form origin for the same host as the same group', () => {
+      const punycode = makeRule({
+        id: 'a',
+        matchType: 'origin',
+        origin: 'https://xn--r8jz45g.com',
+      });
+      const unicode = makeRule({ id: 'b', matchType: 'origin', origin: 'https://例え.com' });
+
+      expect(getPatternGroupKey(punycode)).toBe(getPatternGroupKey(unicode));
+    });
+
+    it('treats a punycode-form and a unicode-form url for the same host as the same group', () => {
+      const punycode = makeRule({
+        id: 'a',
+        matchType: 'url',
+        url: 'https://xn--r8jz45g.com/path',
+      });
+      const unicode = makeRule({ id: 'b', matchType: 'url', url: 'https://例え.com/path' });
+
+      expect(getPatternGroupKey(punycode)).toBe(getPatternGroupKey(unicode));
     });
   });
 
@@ -258,6 +280,34 @@ describe('rules/renderers/render-rules', () => {
       );
 
       expect(labels).toStrictEqual(['/^https://.*\\.example\\.com//', 'https://example.com/path']);
+    });
+
+    it('merges a legacy punycode-saved origin rule with a unicode-saved origin rule into one section, preferring the unicode label', () => {
+      STATE.saveData = {
+        rules: [
+          makeRule({
+            id: 'a',
+            matchType: 'origin',
+            origin: 'https://xn--r8jz45g.com',
+            headerName: 'X-A',
+          }),
+          makeRule({
+            id: 'b',
+            matchType: 'origin',
+            origin: 'https://例え.com',
+            headerName: 'X-B',
+          }),
+        ],
+        formState,
+      };
+
+      renderRules();
+
+      const sections = UI.rules.querySelectorAll('section.rule');
+
+      expect(sections).toHaveLength(1);
+      expect(sections[0]?.getAttribute('data-rule')).toBe('https://例え.com');
+      expect(sections[0]?.querySelectorAll('tbody tr')).toHaveLength(2);
     });
   });
 });

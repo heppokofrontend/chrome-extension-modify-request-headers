@@ -2,7 +2,7 @@ const templateButton = document.createElement('button');
 
 templateButton.type = 'button';
 
-export const renderButton = (label: string, onClick: () => void) => {
+export const buildButton = (label: string, onClick: () => void) => {
   const button = templateButton.cloneNode() as HTMLButtonElement;
 
   button.textContent = label;

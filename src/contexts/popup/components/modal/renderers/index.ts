@@ -1,2 +1,2 @@
-export * from './render-button';
+export * from './build-button';
 export * from './render-data';
