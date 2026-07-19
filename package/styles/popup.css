@@ -390,6 +390,7 @@
 
       h3 {
         margin: 0;
+        text-align: right;
 
         code {
           font-family: monospace;
@@ -402,10 +403,11 @@
         }
       }
 
-      p {
+      .rule__actions {
         display: flex;
         gap: 0.375em;
         flex-shrink: 0;
+        margin: 0 0 0 auto;
       }
 
       button {

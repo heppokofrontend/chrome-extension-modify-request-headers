@@ -143,6 +143,7 @@ const createGroupHeader = (rules: HeaderRule[], firstRule: HeaderRule, ruleLabel
   );
   deleteAllButton.addEventListener('click', onDeleteAllButtonClick(ids, ruleLabel));
 
+  actions.className = 'rule__actions';
   actions.append(toggleActiveButton, deleteAllButton);
   header.append(heading, actions);
 
