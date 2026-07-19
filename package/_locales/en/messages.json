@@ -111,7 +111,7 @@
     "message": "A rule for this header on this target already exists.\nOverwrite it?"
   },
   "form_errInvalidHeaderName": {
-    "message": "Header name must use ASCII letters, digits, or !#$%&'*+-.^_`|~ only"
+    "message": "Header name can only contain letters, digits, and !#$%&'*+-.^_`|~."
   },
   "form_errInvalidHeaderValue": {
     "message": "Header value cannot contain line breaks"
@@ -120,7 +120,7 @@
     "message": "Enter a valid origin, e.g. https://api.example.com"
   },
   "form_errInvalidRegexp": {
-    "message": "Enter a valid regular expression using ASCII characters only"
+    "message": "Enter using only alphanumeric characters and symbols."
   },
   "form_errInvalidUrl": {
     "message": "Enter a valid absolute URL, e.g. https://api.example.com/v1/users"

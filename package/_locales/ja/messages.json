@@ -111,7 +111,7 @@
     "message": "同じ対象・ヘッダー名のルールが既に存在します。\n上書きしますか？"
   },
   "form_errInvalidHeaderName": {
-    "message": "ヘッダー名にはASCIIの英数字と !#$%&'*+-.^_`|~ のみ使えます"
+    "message": "ヘッダー名には半角英数字と !#$%&'*+-.^_`|~ のみ使えます。"
   },
   "form_errInvalidHeaderValue": {
     "message": "ヘッダーの値に改行は使えません"
@@ -120,7 +120,7 @@
     "message": "有効な origin を入力してください（例: https://api.example.com）"
   },
   "form_errInvalidRegexp": {
-    "message": "有効な正規表現を、ASCII文字のみで入力してください"
+    "message": "半角英数字および半角記号のみで入力してください。"
   },
   "form_errInvalidUrl": {
     "message": "有効な絶対URLを入力してください（例: https://api.example.com/v1/users）"
@@ -141,7 +141,7 @@
     "message": "一致条件"
   },
   "form_labelRegexp": {
-    "message": "Regexp"
+    "message": "正規表現"
   },
   "form_labelUrl": {
     "message": "URL"
