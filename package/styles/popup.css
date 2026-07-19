@@ -391,11 +391,12 @@
       h3 {
         margin: 0;
         text-align: right;
+        line-height: 1.4;
 
         code {
           font-family: monospace;
           font-weight: bold;
-          word-break: break-all;
+          overflow-wrap: anywhere;
           padding: 0.1em 0.4em;
           border-radius: 0.25em;
           background-color: var(--color-code-bg);
@@ -487,7 +488,7 @@
       tbody {
         th,
         td {
-          word-break: break-all;
+          overflow-wrap: anywhere;
         }
 
         tr:has(:focus) {
@@ -564,7 +565,7 @@
       margin: 0 0 1.25rem;
 
       p {
-        word-break: break-all;
+        overflow-wrap: anywhere;
       }
     }
 
