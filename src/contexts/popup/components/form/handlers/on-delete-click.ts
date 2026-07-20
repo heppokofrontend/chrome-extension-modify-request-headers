@@ -35,7 +35,7 @@ export const onDeleteClick = async (e: Event) => {
     current.filter((r) => r.id !== STATE.editingId),
   );
 
-  if (!saved) {
+  if (saved === null) {
     return;
   }
 

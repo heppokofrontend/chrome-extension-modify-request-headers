@@ -40,6 +40,7 @@ const addListener = () => {
   UI.filterInput.addEventListener('input', onFilterInput);
   UI.filterStatusSelect.addEventListener('change', onFilterStatusChange);
 
+  // モーダルを閉じるつもりでpopupが閉じてしまうのを防ぐ
   UI.modal.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       e.preventDefault();

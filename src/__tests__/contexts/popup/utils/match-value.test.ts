@@ -72,8 +72,14 @@ describe('getCanonicalMatchValue', () => {
     expect(getCanonicalMatchValue(rule)).toBe('^https://.*\\.example\\.com/');
   });
 
-  it('falls back to the raw value when the url/origin is not parseable', () => {
+  it('falls back to the raw value when the origin is not parseable', () => {
     const rule = makeRule({ matchType: 'origin', origin: 'not-a-url' });
+
+    expect(getCanonicalMatchValue(rule)).toBe('not-a-url');
+  });
+
+  it('falls back to the raw value when the url is not parseable', () => {
+    const rule = makeRule({ matchType: 'url', url: 'not-a-url' });
 
     expect(getCanonicalMatchValue(rule)).toBe('not-a-url');
   });

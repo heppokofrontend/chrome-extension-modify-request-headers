@@ -120,4 +120,42 @@ describe('findDuplicateRule', () => {
 
     expect(findDuplicateRule(candidate)).toBeUndefined();
   });
+
+  it('matches a trailing-slash url and its slash-less form as the same target', () => {
+    const existing = makeRule({
+      id: 'a',
+      matchType: 'url',
+      url: 'https://example.com/path',
+      headerName: 'X-Foo',
+    });
+    Object.assign(STATE, { rules: [existing], formState });
+
+    const candidate = makeRule({
+      id: 'b',
+      matchType: 'url',
+      url: 'https://example.com/path/',
+      headerName: 'X-Foo',
+    });
+
+    expect(findDuplicateRule(candidate)).toBe(existing);
+  });
+
+  it('matches a non-ASCII origin and its punycode-encoded form as the same target', () => {
+    const existing = makeRule({
+      id: 'a',
+      matchType: 'origin',
+      origin: 'https://xn--r8jz45g.com',
+      headerName: 'X-Foo',
+    });
+    Object.assign(STATE, { rules: [existing], formState });
+
+    const candidate = makeRule({
+      id: 'b',
+      matchType: 'origin',
+      origin: 'https://例え.com',
+      headerName: 'X-Foo',
+    });
+
+    expect(findDuplicateRule(candidate)).toBe(existing);
+  });
 });

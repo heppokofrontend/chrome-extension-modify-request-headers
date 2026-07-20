@@ -57,7 +57,10 @@ const toCondition = (rule: HeaderRule) => {
         console.warn(`Skipping invalid regexp in saved rule: ${rule.regexp}`);
         return null;
       }
-      return { regexFilter: rule.regexp };
+      // isUrlFilterCaseSensitive は urlFilter だけでなく regexFilter にも効く。
+      // url型と同様、popup側 isMatchedRule の `new RegExp(pattern).test()`（大文字小文字を
+      // 区別）に揃えるため、Chrome 118+ の既定値（大文字小文字無視）を明示的に上書きする。
+      return { regexFilter: rule.regexp, isUrlFilterCaseSensitive: true };
     }
 
     default:

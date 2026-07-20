@@ -134,7 +134,14 @@ describe('resolveRulesToConditions', () => {
       expect(resolveCondition(rule)).toStrictEqual({
         regexFilter: '^https://.*\\.example\\.com/',
         resourceTypes: RESOURCE_TYPES,
+        isUrlFilterCaseSensitive: true,
       });
+    });
+
+    it('marks the condition case-sensitive, since popup-side matching is case-sensitive and Chrome 118+ defaults regexFilter to case-insensitive', () => {
+      const rule = makeRule({ matchType: 'regexp', regexp: '/API/' });
+
+      expect(resolveCondition(rule)).toMatchObject({ isUrlFilterCaseSensitive: true });
     });
 
     it('excludes a rule with an invalid regexp', () => {
