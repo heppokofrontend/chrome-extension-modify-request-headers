@@ -12,19 +12,6 @@ export const getDefaultFormState = (): SaveData['formState'] => ({
   ...defaultFormState,
 });
 
-/**
- * matchType: 'origin' は廃止済み（前方一致 matchType: 'prefix' で代替可能なため）。
- * 旧データに残っている origin ルールは、origin の値をそのまま prefix の url として
- * 引き継ぐことで同じマッチ挙動を維持できる（origin全体一致は prefix の特殊ケース）。
- */
-const migrateOriginRule = (rule: unknown): unknown => {
-  if (isRecord(rule) && rule['matchType'] === 'origin' && typeof rule['origin'] === 'string') {
-    const { origin, ...rest } = rule;
-    return { ...rest, matchType: 'prefix', url: origin };
-  }
-  return rule;
-};
-
 // key ごとに chrome.storage.local の別々のトップレベルエントリとして永続化するため、
 // 読み取り・サニタイズも key 単位で完結させる。
 const sanitize: { [K in keyof SaveData]: (value: unknown) => SaveData[K] } = {
@@ -33,7 +20,7 @@ const sanitize: { [K in keyof SaveData]: (value: unknown) => SaveData[K] } = {
       return [];
     }
 
-    return rules.map(migrateOriginRule).filter((rule, index): rule is HeaderRule => {
+    return rules.filter((rule, index): rule is HeaderRule => {
       if (isHeaderRule(rule)) {
         return true;
       }
