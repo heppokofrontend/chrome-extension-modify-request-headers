@@ -157,45 +157,41 @@ export const setCustomValidities = () => {
   const normalizedOrigin = getNormalizedUrl.asOrigin(UI.originInput.value);
   const operation = UI.operationSelect.value;
 
-  // url 入力: matchType が url のときのみ検証。非ASCII文字は isSafeUrl 側で
-  // 正規化して受理するため、ここでは URL として妥当かどうかだけを見る。
-  const urlMessage = (() => {
-    const url = UI.urlInput.value;
+  const customValidities = {
+    // matchType が url のときのみ検証。非ASCII文字は isSafeUrl 側で正規化して
+    // 受理するため、ここでは URL として妥当かどうかだけを見る。
+    url:
+      matchType === 'url' && UI.urlInput.value.trim() && !isSafeUrl(UI.urlInput.value)
+        ? getMessage('form_errInvalidUrl')
+        : '',
 
-    if (matchType !== 'url' || !url.trim()) {
-      return '';
-    }
+    // matchType が origin のときのみ検証。
+    origin:
+      matchType === 'origin' && UI.originInput.value.trim() && normalizedOrigin === undefined
+        ? getMessage('form_errInvalidOrigin')
+        : '',
 
-    return isSafeUrl(url) ? '' : getMessage('form_errInvalidUrl');
-  })();
+    // matchType が regexp のときのみ検証。
+    regexp:
+      matchType === 'regexp' && UI.regexpInput.value.trim() && !isValidRegexp(UI.regexpInput.value)
+        ? getMessage('form_errInvalidRegexp')
+        : '',
 
-  UI.urlInput.setCustomValidity(urlMessage);
+    // operation が remove のときは value を使わないため対象外。
+    value:
+      operation !== 'remove' && !isValidHeaderValue(UI.valueInput.value)
+        ? getMessage('form_errInvalidHeaderValue')
+        : '',
 
-  // origin 入力: matchType が origin のときのみ検証。
-  UI.originInput.setCustomValidity(
-    matchType === 'origin' && UI.originInput.value.trim() && normalizedOrigin === undefined
-      ? getMessage('form_errInvalidOrigin')
-      : '',
-  );
+    headerName:
+      UI.headerNameInput.value.trim() && !isValidHeaderName(UI.headerNameInput.value)
+        ? getMessage('form_errInvalidHeaderName')
+        : '',
+  };
 
-  // regexp 入力: matchType が regexp のときのみ検証。
-  UI.regexpInput.setCustomValidity(
-    matchType === 'regexp' && UI.regexpInput.value.trim() && !isValidRegexp(UI.regexpInput.value)
-      ? getMessage('form_errInvalidRegexp')
-      : '',
-  );
-
-  // value 入力: operation が remove のときは value を使わないため対象外。
-  UI.valueInput.setCustomValidity(
-    operation !== 'remove' && !isValidHeaderValue(UI.valueInput.value)
-      ? getMessage('form_errInvalidHeaderValue')
-      : '',
-  );
-
-  // headerName 入力
-  UI.headerNameInput.setCustomValidity(
-    UI.headerNameInput.value.trim() && !isValidHeaderName(UI.headerNameInput.value)
-      ? getMessage('form_errInvalidHeaderName')
-      : '',
-  );
+  UI.urlInput.setCustomValidity(customValidities.url);
+  UI.originInput.setCustomValidity(customValidities.origin);
+  UI.regexpInput.setCustomValidity(customValidities.regexp);
+  UI.valueInput.setCustomValidity(customValidities.value);
+  UI.headerNameInput.setCustomValidity(customValidities.headerName);
 };
