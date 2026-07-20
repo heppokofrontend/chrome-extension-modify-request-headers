@@ -24,5 +24,5 @@ export const renderStatus = async () => {
     }
   }
 
-  UI.status.textContent = getMessage('status_sending', [String(sendingCount)]);
+  UI.status.textContent = getMessage('status_sending', sendingCount);
 };

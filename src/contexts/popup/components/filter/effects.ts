@@ -71,11 +71,7 @@ const getDefaultResultText = () => {
   const patternCount = new Set(rules.map(getPatternGroupKey)).size;
   const activeCount = rules.filter((rule) => rule.isActive).length;
 
-  return getMessage('status_patternsAndRules', [
-    String(patternCount),
-    String(rules.length),
-    String(activeCount),
-  ]);
+  return getMessage('status_patternsAndRules', [patternCount, rules.length, activeCount]);
 };
 
 export const applyFilter = () => {
@@ -85,7 +81,7 @@ export const applyFilter = () => {
 
   UI.filterResult.textContent =
     textValue || statusValue !== 'all'
-      ? getMessage('filter_resultCount', String(countMatchingRows()))
+      ? getMessage('filter_resultCount', countMatchingRows())
       : defaultResultText;
 };
 

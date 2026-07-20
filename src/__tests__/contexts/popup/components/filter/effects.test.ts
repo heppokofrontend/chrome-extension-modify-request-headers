@@ -80,7 +80,7 @@ describe('filter/effects', () => {
 
       applyFilter();
 
-      expect(getMessageMock).toHaveBeenCalledWith('filter_resultCount', '2');
+      expect(getMessageMock).toHaveBeenCalledWith('filter_resultCount', [2]);
     });
 
     it('counts rows matching only the status filter', () => {
@@ -88,7 +88,7 @@ describe('filter/effects', () => {
 
       applyFilter();
 
-      expect(getMessageMock).toHaveBeenCalledWith('filter_resultCount', '1');
+      expect(getMessageMock).toHaveBeenCalledWith('filter_resultCount', [1]);
     });
 
     it('counts rows matching both the text and status filters', () => {
@@ -97,7 +97,7 @@ describe('filter/effects', () => {
 
       applyFilter();
 
-      expect(getMessageMock).toHaveBeenCalledWith('filter_resultCount', '1');
+      expect(getMessageMock).toHaveBeenCalledWith('filter_resultCount', [1]);
     });
 
     it('injects a style rule that hides rows/sections not matching the text filter', () => {
