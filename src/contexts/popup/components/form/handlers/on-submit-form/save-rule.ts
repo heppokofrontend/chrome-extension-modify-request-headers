@@ -1,3 +1,4 @@
+import { refreshFilterResultDefault } from '@/contexts/popup/components/filter';
 import {
   applyEditMode,
   focusRuleButton,
@@ -57,6 +58,7 @@ export const saveRule = async (candidate: HeaderRule) => {
 
   renderRules();
   void renderStatus();
+  refreshFilterResultDefault();
 
   // 編集モードからの保存なら、作り直された一覧の中でも同じルールの編集ボタンに
   // フォーカスを戻す（renderRules() が DOM を全部作り直すため、フォーカスが消えてしまう）。

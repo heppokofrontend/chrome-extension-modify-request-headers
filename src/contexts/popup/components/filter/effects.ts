@@ -1,6 +1,10 @@
 import { FILTER_STATE } from '@/contexts/popup/components/filter';
 import { escapeAttrValue } from '@/contexts/popup/components/filter/utils';
+// rules バレル経由だと rules/effects.ts → filter バレル → ここ、で循環importになるため、
+// getPatternGroupKey の定義ファイルを直接参照する。
+import { getPatternGroupKey } from '@/contexts/popup/components/rules/renderers/render-rules/utils';
 import { UI } from '@/contexts/popup/constants';
+import { STATE } from '@/contexts/popup/state';
 import { getMessage } from '@/utils';
 
 let styleElement: HTMLStyleElement | undefined;
@@ -61,6 +65,19 @@ const countMatchingRows = () => {
   return count;
 };
 
+/** フィルタ未適用時に #filter-result へ出すデフォルト文言（パターン数/ルール数/有効数）を STATE.rules から組み立てる。 */
+const getDefaultResultText = () => {
+  const { rules } = STATE;
+  const patternCount = new Set(rules.map(getPatternGroupKey)).size;
+  const activeCount = rules.filter((rule) => rule.isActive).length;
+
+  return getMessage('status_patternsAndRules', [
+    String(patternCount),
+    String(rules.length),
+    String(activeCount),
+  ]);
+};
+
 export const applyFilter = () => {
   const { textValue, statusValue, defaultResultText } = FILTER_STATE;
 
@@ -72,8 +89,10 @@ export const applyFilter = () => {
       : defaultResultText;
 };
 
-/** status/renderers.ts から呼ばれる。フィルタ未適用時に #filter-result に出すデフォルト文言を更新する。 */
-export const setFilterResultDefault = (text: string) => {
+/** ルールの追加・削除・有効/無効切替のたびに呼ばれる。#filter-result のデフォルト文言を STATE.rules から再計算する。 */
+export const refreshFilterResultDefault = () => {
+  const text = getDefaultResultText();
+
   FILTER_STATE.defaultResultText = text;
 
   if (!FILTER_STATE.textValue && FILTER_STATE.statusValue === 'all') {

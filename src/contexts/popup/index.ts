@@ -1,4 +1,8 @@
-import { onFilterInput, onFilterStatusChange } from '@/contexts/popup/components/filter';
+import {
+  onFilterInput,
+  onFilterStatusChange,
+  refreshFilterResultDefault,
+} from '@/contexts/popup/components/filter';
 import {
   onDeleteClick,
   onEditAbortClick,
@@ -56,6 +60,7 @@ const init = async () => {
   addListener();
   renderRules();
   void renderStatus();
+  refreshFilterResultDefault();
   resetFields.all({ matchType, operation });
 };
 

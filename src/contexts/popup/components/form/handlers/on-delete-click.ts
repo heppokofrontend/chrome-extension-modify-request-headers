@@ -1,3 +1,4 @@
+import { refreshFilterResultDefault } from '@/contexts/popup/components/filter';
 import { applyEditMode, resetFields } from '@/contexts/popup/components/form/effects';
 import { formatRuleSummary } from '@/contexts/popup/components/form/utils';
 import { confirmModal } from '@/contexts/popup/components/modal';
@@ -45,5 +46,6 @@ export const onDeleteClick = async (e: Event) => {
 
   renderRules();
   void renderStatus();
+  refreshFilterResultDefault();
   applyEditMode.end();
 };
