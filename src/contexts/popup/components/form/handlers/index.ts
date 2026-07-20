@@ -4,3 +4,4 @@ export * from './on-field-input';
 export * from './on-match-type-change';
 export * from './on-operation-change';
 export * from './on-submit-form';
+export * from './on-url-change';

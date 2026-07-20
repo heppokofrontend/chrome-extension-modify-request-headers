@@ -60,6 +60,21 @@ describe('isMatchedRule', () => {
 
       expect(isMatchedRule({ rule, url: new URL('https://example.com/') })).toBe(false);
     });
+
+    it.each([
+      ['a bare trailing slash', 'https://example.co/', true],
+      ['an empty query string', 'https://example.co/?', false],
+      ['an empty fragment', 'https://example.co/#', false],
+      ['an additional path segment', 'https://example.co/hoge', false],
+      ['an explicit port', 'https://example.co:8888', false],
+    ])(
+      'treats the target url with %s as %s against a bare-domain rule url',
+      (_label, target, expected) => {
+        const rule = makeRule({ matchType: 'url', url: 'https://example.co' });
+
+        expect(isMatchedRule({ rule, url: new URL(target) })).toBe(expected);
+      },
+    );
   });
 
   describe('matchType: prefix', () => {
@@ -93,6 +108,22 @@ describe('isMatchedRule', () => {
       const rule = makeRule({ matchType: 'prefix', url: 'http://localhost:3000' });
 
       expect(isMatchedRule({ rule, url: new URL('http://localhost:3000/') })).toBe(true);
+    });
+
+    it('does not match a different domain that happens to share the rule url as a literal string prefix (e.g. .co vs .com)', () => {
+      const rule = makeRule({ matchType: 'prefix', url: 'https://example.co/' });
+
+      expect(isMatchedRule({ rule, url: new URL('https://example.com/') })).toBe(false);
+    });
+
+    it('matches the bare domain with or without a trailing slash, regardless of whether the rule url has one', () => {
+      const withSlash = makeRule({ matchType: 'prefix', url: 'https://example.co/' });
+      const withoutSlash = makeRule({ matchType: 'prefix', url: 'https://example.co' });
+
+      expect(isMatchedRule({ rule: withSlash, url: new URL('https://example.co') })).toBe(true);
+      expect(isMatchedRule({ rule: withSlash, url: new URL('https://example.co/') })).toBe(true);
+      expect(isMatchedRule({ rule: withoutSlash, url: new URL('https://example.co') })).toBe(true);
+      expect(isMatchedRule({ rule: withoutSlash, url: new URL('https://example.co/') })).toBe(true);
     });
 
     it.each([

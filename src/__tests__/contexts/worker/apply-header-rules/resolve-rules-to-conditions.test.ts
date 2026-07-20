@@ -122,6 +122,24 @@ describe('resolveRulesToConditions', () => {
       expect(resolveCondition(rule)).toBeUndefined();
     });
 
+    it('produces the same urlFilter (with trailing slash) whether or not the saved bare-domain url has one', () => {
+      const withSlash = makeRule({ matchType: 'prefix', url: 'https://example.co/' });
+      const withoutSlash = makeRule({ matchType: 'prefix', url: 'https://example.co' });
+
+      expect(resolveCondition(withSlash)).toStrictEqual(resolveCondition(withoutSlash));
+      expect(resolveCondition(withSlash)?.urlFilter).toBe('|https://example.co/');
+    });
+
+    it('does not produce a urlFilter that would also prefix-match an unrelated domain (e.g. .co vs .com)', () => {
+      const coRule = makeRule({ matchType: 'prefix', url: 'https://example.co' });
+      const comRule = makeRule({ matchType: 'prefix', url: 'https://example.com' });
+
+      expect(resolveCondition(coRule)?.urlFilter).not.toBe(resolveCondition(comRule)?.urlFilter);
+      expect(
+        'https://example.com/'.startsWith(resolveCondition(coRule)?.urlFilter?.slice(1) ?? ''),
+      ).toBe(false);
+    });
+
     it('keeps a path in the urlFilter, since prefix (unlike origin) is meant to match by path prefix too', () => {
       const rule = makeRule({ matchType: 'prefix', url: 'https://example.com/api' });
 

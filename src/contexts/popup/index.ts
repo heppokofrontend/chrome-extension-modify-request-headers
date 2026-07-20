@@ -6,6 +6,7 @@ import {
   onMatchTypeChange,
   onOperationChange,
   onSubmitForm,
+  onUrlChange,
   resetFields,
 } from '@/contexts/popup/components/form';
 import { STATE } from '@/contexts/popup/state';
@@ -29,6 +30,7 @@ const addListener = () => {
   });
   UI.editAbortButton.addEventListener('click', onEditAbortClick);
 
+  UI.urlInput.addEventListener('change', onUrlChange);
   UI.urlInput.addEventListener('input', onFieldInput);
   UI.regexpInput.addEventListener('input', onFieldInput);
   UI.headerNameInput.addEventListener('input', onFieldInput);
