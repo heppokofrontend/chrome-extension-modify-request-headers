@@ -3,9 +3,9 @@ import {
   onDeleteClick,
   onEditAbortClick,
   onFieldInput,
+  onFormSubmit,
   onMatchTypeChange,
   onOperationChange,
-  onSubmitForm,
   onUrlChange,
   resetFields,
 } from '@/contexts/popup/components/form';
@@ -19,9 +19,7 @@ const addListener = () => {
   // input 要素で Enter を押すとネイティブの form 要素の submit イベントで popup ごとリロードされ、
   // 非同期の chrome.storage.local.set が完了前に消える。save ボタン（type="submit"）押下も
   // 同じ submit イベントで拾えるので、ここに一本化する。
-  UI.form.addEventListener('submit', (e) => {
-    void onSubmitForm(e);
-  });
+  UI.form.addEventListener('submit', onFormSubmit);
 
   UI.matchTypeSelect.addEventListener('change', onMatchTypeChange);
   UI.operationSelect.addEventListener('change', onOperationChange);

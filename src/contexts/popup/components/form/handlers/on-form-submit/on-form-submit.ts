@@ -6,9 +6,7 @@ import { isRegexSupportedByEngine } from '@/validators';
 
 import { saveRule } from './save-rule';
 
-export const onSubmitForm = async (e: SubmitEvent) => {
-  e.preventDefault();
-
+export const submitForm = async () => {
   const matchType = UI.matchTypeSelect.value;
 
   if (!isMatchType(matchType)) {
@@ -62,4 +60,9 @@ export const onSubmitForm = async (e: SubmitEvent) => {
     value: UI.valueInput.value,
     isActive: UI.isActiveSelect.value === 'true',
   });
+};
+
+export const onFormSubmit = (e: SubmitEvent) => {
+  e.preventDefault();
+  void submitForm();
 };

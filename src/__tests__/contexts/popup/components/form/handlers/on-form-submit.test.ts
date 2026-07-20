@@ -8,18 +8,18 @@ const formState: SaveData['formState'] = {
   operation: 'set',
 };
 
-describe('form/handlers/on-submit-form/on-submit-form', () => {
+describe('form/handlers/on-form-submit/on-form-submit', () => {
   let UI: typeof import('@/contexts/popup/constants').UI;
   let STATE: typeof import('@/contexts/popup/state').STATE;
   let applyMatchTypeVisibility: typeof import('@/contexts/popup/components/form/effects').applyMatchTypeVisibility;
-  let onSubmitForm: typeof import('@/contexts/popup/components/form/handlers/on-submit-form').onSubmitForm;
+  let submitForm: typeof import('@/contexts/popup/components/form/handlers/on-form-submit/on-form-submit').submitForm;
 
   const storageGetMock = vi.fn();
   const storageSetMock = vi.fn();
   const tabsQueryMock = vi.fn();
   const isRegexSupportedMock = vi.fn();
 
-  const submit = () => onSubmitForm({ preventDefault: vi.fn() } as unknown as SubmitEvent);
+  const submit = () => submitForm();
 
   beforeAll(async () => {
     document.documentElement.innerHTML = popupHtml;
@@ -34,7 +34,8 @@ describe('form/handlers/on-submit-form/on-submit-form', () => {
     ({ UI } = await import('@/contexts/popup/constants'));
     ({ STATE } = await import('@/contexts/popup/state'));
     ({ applyMatchTypeVisibility } = await import('@/contexts/popup/components/form/effects'));
-    ({ onSubmitForm } = await import('@/contexts/popup/components/form/handlers/on-submit-form'));
+    ({ submitForm } =
+      await import('@/contexts/popup/components/form/handlers/on-form-submit/on-form-submit'));
   });
 
   beforeEach(() => {

@@ -19,10 +19,10 @@ const makeRule = (
   ...overrides,
 });
 
-describe('form/handlers/on-submit-form/save-rule', () => {
+describe('form/handlers/on-form-submit/save-rule', () => {
   let UI: typeof import('@/contexts/popup/constants').UI;
   let STATE: typeof import('@/contexts/popup/state').STATE;
-  let saveRule: typeof import('@/contexts/popup/components/form/handlers/on-submit-form/save-rule').saveRule;
+  let saveRule: typeof import('@/contexts/popup/components/form/handlers/on-form-submit/save-rule').saveRule;
 
   const storageGetMock = vi.fn();
   const storageSetMock = vi.fn();
@@ -49,7 +49,7 @@ describe('form/handlers/on-submit-form/save-rule', () => {
     ({ UI } = await import('@/contexts/popup/constants'));
     ({ STATE } = await import('@/contexts/popup/state'));
     ({ saveRule } =
-      await import('@/contexts/popup/components/form/handlers/on-submit-form/save-rule'));
+      await import('@/contexts/popup/components/form/handlers/on-form-submit/save-rule'));
   });
 
   beforeEach(() => {
