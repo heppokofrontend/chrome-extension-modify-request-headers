@@ -574,10 +574,12 @@
       white-space: pre-line;
     }
 
-    .modal__action {
+    .modal__actions {
       display: flex;
       gap: 0.5rem;
       justify-content: center;
+      max-width: 12.5rem;
+      margin: auto;
 
       button {
         flex: 1;
