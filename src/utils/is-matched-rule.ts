@@ -16,11 +16,11 @@ const isMatchedUrl = (ruleUrl: HeaderRule['url'], url: URL) => {
   }
 };
 
-const isMatchedOrigin = (ruleOrigin: HeaderRule['origin'], url: URL) => {
-  // rule.origin も表示用に生入力のまま保存されている（punycode正規化はしていない）ため、
-  // isMatchedUrl と同様に比較時点で `new URL().origin` を通す。
+const isMatchedPrefix = (rulePrefix: HeaderRule['url'], url: URL) => {
+  // isMatchedUrl と同じ理由（punycode/パーセントエンコード正規化）で、rule 側も
+  // `new URL().href` を通してから比較する。ただし完全一致ではなく前方一致で判定する。
   try {
-    return new URL(ruleOrigin).origin === url.origin;
+    return url.href.startsWith(new URL(rulePrefix).href);
   } catch {
     return false;
   }
@@ -51,10 +51,8 @@ export const isMatchedRule = ({ rule, url }: { rule: HeaderRule; url: URL }) => 
   switch (rule.matchType) {
     case 'url':
       return isMatchedUrl(rule.url, url);
-    case 'origin':
-      // origin は scheme+host+port の完全一致（Web標準のorigin定義）で判定する
-      // （worker側の resolveRulesToConditions の |origin/ urlFilter と同じ基準）。
-      return isMatchedOrigin(rule.origin, url);
+    case 'prefix':
+      return isMatchedPrefix(rule.url, url);
     case 'regexp':
       return isMatchedRegexp(rule.regexp, url);
   }

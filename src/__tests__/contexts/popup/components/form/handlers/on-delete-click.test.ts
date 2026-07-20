@@ -11,7 +11,6 @@ const makeRule = (
   overrides: Partial<HeaderRule> & Pick<HeaderRule, 'id' | 'matchType'>,
 ): HeaderRule => ({
   url: '',
-  origin: '',
   regexp: '',
   headerName: 'X-Test',
   operation: 'set',
@@ -75,7 +74,7 @@ describe('form/handlers/on-delete-click', () => {
   });
 
   it('does nothing when the rule being edited no longer exists', async () => {
-    STATE.rules = [makeRule({ id: 'other', matchType: 'origin', origin: 'https://other.com' })];
+    STATE.rules = [makeRule({ id: 'other', matchType: 'prefix', url: 'https://other.com' })];
     STATE.editingId = 'missing';
 
     await click();
@@ -85,7 +84,7 @@ describe('form/handlers/on-delete-click', () => {
   });
 
   it('does not delete when the confirmation is cancelled', async () => {
-    STATE.rules = [makeRule({ id: 'target', matchType: 'origin', origin: 'https://example.com' })];
+    STATE.rules = [makeRule({ id: 'target', matchType: 'prefix', url: 'https://example.com' })];
     STATE.editingId = 'target';
 
     const promise = click();
@@ -101,8 +100,8 @@ describe('form/handlers/on-delete-click', () => {
 
   it('deletes the rule being edited once the confirmation is accepted', async () => {
     STATE.rules = [
-      makeRule({ id: 'target', matchType: 'origin', origin: 'https://example.com' }),
-      makeRule({ id: 'other', matchType: 'origin', origin: 'https://other.com' }),
+      makeRule({ id: 'target', matchType: 'prefix', url: 'https://example.com' }),
+      makeRule({ id: 'other', matchType: 'prefix', url: 'https://other.com' }),
     ];
     STATE.editingId = 'target';
 
@@ -119,7 +118,7 @@ describe('form/handlers/on-delete-click', () => {
   });
 
   it('rolls back and stays in edit mode when the delete save fails', async () => {
-    STATE.rules = [makeRule({ id: 'target', matchType: 'origin', origin: 'https://example.com' })];
+    STATE.rules = [makeRule({ id: 'target', matchType: 'prefix', url: 'https://example.com' })];
     STATE.editingId = 'target';
     const original = STATE.rules;
 

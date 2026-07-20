@@ -19,7 +19,6 @@ export const isHeaderRule = (value: unknown): value is HeaderRule => {
     typeof value['id'] === 'string' &&
     isMatchType(value['matchType']) &&
     typeof value['url'] === 'string' &&
-    typeof value['origin'] === 'string' &&
     typeof value['regexp'] === 'string' &&
     typeof value['headerName'] === 'string' &&
     isOperationType(value['operation']) &&

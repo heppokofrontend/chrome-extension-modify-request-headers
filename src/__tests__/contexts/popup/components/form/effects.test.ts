@@ -7,7 +7,6 @@ const makeRule = (
   overrides: Partial<HeaderRule> & Pick<HeaderRule, 'id' | 'matchType'>,
 ): HeaderRule => ({
   url: '',
-  origin: '',
   regexp: '',
   headerName: 'X-Test',
   operation: 'set',
@@ -37,7 +36,6 @@ describe('form/effects', () => {
     STATE.editingId = '';
     UI.matchTypeSelect.value = 'url';
     UI.urlInput.value = '';
-    UI.originInput.value = '';
     UI.regexpInput.value = '';
     UI.headerNameInput.value = '';
     UI.operationSelect.value = 'set';
@@ -72,9 +70,18 @@ describe('form/effects', () => {
       expect(UI.urlInput.validationMessage).toBe('');
     });
 
-    it('does not validate the url field when matchType is not url', () => {
-      UI.matchTypeSelect.value = 'origin';
+    it('does not validate the url field when matchType is not url/prefix', () => {
+      UI.matchTypeSelect.value = 'regexp';
       UI.urlInput.value = 'not a url';
+
+      setCustomValidities();
+
+      expect(UI.urlInput.validationMessage).toBe('');
+    });
+
+    it('accepts a valid url when matchType is prefix (shares the url field)', () => {
+      UI.matchTypeSelect.value = 'prefix';
+      UI.urlInput.value = 'https://example.com/path';
 
       setCustomValidities();
 
@@ -97,33 +104,6 @@ describe('form/effects', () => {
       setCustomValidities();
 
       expect(UI.urlInput.validity.customError).toBe(false);
-    });
-
-    it('flags an origin that cannot be normalized as invalid when matchType is origin', () => {
-      UI.matchTypeSelect.value = 'origin';
-      UI.originInput.value = 'https://example.com/some/path';
-
-      setCustomValidities();
-
-      expect(UI.originInput.validationMessage).toBe('form_errInvalidOrigin');
-    });
-
-    it('accepts a valid origin when matchType is origin', () => {
-      UI.matchTypeSelect.value = 'origin';
-      UI.originInput.value = 'https://example.com';
-
-      setCustomValidities();
-
-      expect(UI.originInput.validationMessage).toBe('');
-    });
-
-    it('flags a whitespace-only origin as invalid when matchType is origin (required alone accepts it)', () => {
-      UI.matchTypeSelect.value = 'origin';
-      UI.originInput.value = '   ';
-
-      setCustomValidities();
-
-      expect(UI.originInput.validationMessage).toBe('form_errInvalidOrigin');
     });
 
     it('flags an invalid regexp as invalid when matchType is regexp', () => {
@@ -234,20 +214,17 @@ describe('form/effects', () => {
   });
 
   describe('resetFields', () => {
-    it('match() resets matchType to url and clears url/origin/regexp inputs', () => {
+    it('match() resets matchType to url and clears url/regexp inputs', () => {
       UI.matchTypeSelect.value = 'regexp';
       UI.urlInput.value = 'https://example.com';
-      UI.originInput.value = 'https://example.com';
       UI.regexpInput.value = '^foo$';
 
       resetFields.match();
 
       expect(UI.matchTypeSelect.value).toBe('url');
       expect(UI.urlInput.value).toBe('');
-      expect(UI.originInput.value).toBe('');
       expect(UI.regexpInput.value).toBe('');
       expect(UI.urlInput.required).toBe(true);
-      expect(UI.originInput.required).toBe(false);
       expect(UI.regexpInput.required).toBe(false);
     });
 

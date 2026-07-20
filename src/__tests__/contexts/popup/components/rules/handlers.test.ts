@@ -11,7 +11,6 @@ const makeRule = (
   overrides: Partial<HeaderRule> & Pick<HeaderRule, 'id' | 'matchType'>,
 ): HeaderRule => ({
   url: '',
-  origin: '',
   regexp: '',
   headerName: 'X-Test',
   operation: 'set',
@@ -67,8 +66,8 @@ describe('rules/handlers', () => {
     STATE.editingId = '';
     Object.assign(STATE, {
       rules: [
-        makeRule({ id: 'a', matchType: 'origin', origin: 'https://example.com', isActive: true }),
-        makeRule({ id: 'b', matchType: 'origin', origin: 'https://example.com', isActive: true }),
+        makeRule({ id: 'a', matchType: 'prefix', url: 'https://example.com', isActive: true }),
+        makeRule({ id: 'b', matchType: 'prefix', url: 'https://example.com', isActive: true }),
       ],
       formState,
     });
@@ -119,11 +118,11 @@ describe('rules/handlers', () => {
       STATE.rules = [
         makeRule({
           id: 'a',
-          matchType: 'origin',
-          origin: 'https://example.com',
+          matchType: 'prefix',
+          url: 'https://example.com',
           isActive: false,
         }),
-        makeRule({ id: 'b', matchType: 'origin', origin: 'https://example.com', isActive: true }),
+        makeRule({ id: 'b', matchType: 'prefix', url: 'https://example.com', isActive: true }),
       ];
 
       onToggleActiveButtonClick(STATE.rules, ['a', 'b'])();

@@ -116,9 +116,6 @@
   "form_errInvalidHeaderValue": {
     "message": "ヘッダーの値に改行は使えません"
   },
-  "form_errInvalidOrigin": {
-    "message": "有効な origin を入力してください（例: https://api.example.com）"
-  },
   "form_errInvalidRegexp": {
     "message": "半角英数字および半角記号のみで入力してください。"
   },
@@ -143,8 +140,8 @@
   "form_labelUrl": {
     "message": "URL"
   },
-  "form_matchTypeOrigin": {
-    "message": "origin"
+  "form_matchTypePrefix": {
+    "message": "URL前方一致"
   },
   "form_matchTypeRegexp": {
     "message": "正規表現"

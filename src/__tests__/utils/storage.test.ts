@@ -34,9 +34,8 @@ describe('getStorage', () => {
     const rules = [
       {
         id: 'rule-1',
-        matchType: 'origin' as const,
-        origin: 'https://api.example.com',
-        url: '',
+        matchType: 'prefix' as const,
+        url: 'https://api.example.com',
         regexp: '',
         headerName: 'Authorization',
         operation: 'set' as const,
@@ -83,21 +82,20 @@ describe('getStorage', () => {
 
     mockStoredData({
       rules: [],
-      formState: { matchType: 'origin', operation: 'bogus' },
+      formState: { matchType: 'prefix', operation: 'bogus' },
     });
 
     expect(await getStorage()).toStrictEqual({
       rules: [],
-      formState: { matchType: 'origin', operation: 'set' },
+      formState: { matchType: 'prefix', operation: 'set' },
     });
   });
 
   it('drops malformed rule elements but keeps the well-formed ones', async () => {
     const validRule = {
       id: 'rule-1',
-      matchType: 'origin' as const,
-      origin: 'https://api.example.com',
-      url: '',
+      matchType: 'url' as const,
+      url: 'https://api.example.com',
       regexp: '',
       headerName: 'Authorization',
       operation: 'set' as const,
@@ -123,9 +121,8 @@ describe('getStorage', () => {
     result.formState.matchType = 'regexp';
     result.rules.push({
       id: 'rule-1',
-      matchType: 'origin',
-      origin: 'https://api.example.com',
-      url: '',
+      matchType: 'url',
+      url: 'https://api.example.com',
       regexp: '',
       headerName: 'Authorization',
       operation: 'set',
@@ -141,9 +138,8 @@ describe('getStorage', () => {
     const rules = [
       {
         id: 'rule-1',
-        matchType: 'origin' as const,
-        origin: 'https://api.example.com',
-        url: '',
+        matchType: 'url' as const,
+        url: 'https://api.example.com',
         regexp: '',
         headerName: 'Authorization',
         operation: 'set' as const,
@@ -156,12 +152,67 @@ describe('getStorage', () => {
     expect(await getStorage('rules')).toStrictEqual(rules);
     expect(await getStorage('formState')).toStrictEqual(getDefaultSaveData().formState);
   });
+
+  describe('origin → prefix migration', () => {
+    const legacyOriginRule = {
+      id: 'rule-1',
+      matchType: 'origin',
+      origin: 'https://api.example.com',
+      url: '',
+      regexp: '',
+      headerName: 'Authorization',
+      operation: 'set',
+      value: 'Bearer xxx',
+      isActive: true,
+    };
+
+    it('migrates a saved origin rule to a prefix rule, moving the origin value into url', async () => {
+      mockStoredData({ rules: [legacyOriginRule] });
+
+      expect(await getStorage('rules')).toStrictEqual([
+        {
+          id: 'rule-1',
+          matchType: 'prefix',
+          url: 'https://api.example.com',
+          regexp: '',
+          headerName: 'Authorization',
+          operation: 'set',
+          value: 'Bearer xxx',
+          isActive: true,
+        },
+      ]);
+    });
+
+    it('drops the origin field entirely after migration', async () => {
+      mockStoredData({ rules: [legacyOriginRule] });
+
+      const [migrated] = await getStorage('rules');
+      expect(migrated).not.toHaveProperty('origin');
+    });
+
+    it('leaves non-origin rules untouched', async () => {
+      const rules = [
+        {
+          id: 'rule-1',
+          matchType: 'prefix' as const,
+          url: 'https://api.example.com',
+          regexp: '',
+          headerName: 'Authorization',
+          operation: 'set' as const,
+          value: 'Bearer xxx',
+          isActive: true,
+        },
+      ];
+
+      mockStoredData({ rules });
+      expect(await getStorage('rules')).toStrictEqual(rules);
+    });
+  });
 });
 
 const makeRule = (id: string) => ({
   id,
   matchType: 'url' as const,
-  origin: '',
   url: 'https://api.example.com/v1/users',
   regexp: '',
   headerName: 'X-Debug',

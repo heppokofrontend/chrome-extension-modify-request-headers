@@ -6,15 +6,14 @@ export type MatchType = (typeof MATCH_TYPES)[number];
 
 /**
  * declarativeNetRequest の HeaderOperation に対応する1件のヘッダ書き換えルール。
- * id は安定識別子（origin/headerName はユーザーが書き換える対象のためキーに使えない）。
- * matchType が url/origin/regexp のどれでも、3値は常にすべて保持する
+ * id は安定識別子（url/headerName はユーザーが書き換える対象のためキーに使えない）。
+ * matchType が url/prefix/regexp のどれでも、2値は常にすべて保持する
  * （切り替え時に入力し直さずに済むように）。実際に使われるのは matchType が指す値のみ。
  */
 export type HeaderRule = {
   id: string;
   matchType: MatchType;
   url: string;
-  origin: string;
   regexp: string;
   headerName: string;
   operation: OperationType;

@@ -51,7 +51,6 @@ describe('form/handlers/on-submit-form/on-submit-form', () => {
     UI.matchTypeSelect.value = 'url';
     applyMatchTypeVisibility('url');
     UI.urlInput.value = '';
-    UI.originInput.value = '';
     UI.regexpInput.value = '';
     UI.headerNameInput.value = '';
     UI.operationSelect.value = 'set';
@@ -98,10 +97,10 @@ describe('form/handlers/on-submit-form/on-submit-form', () => {
     expect(storageSetMock).not.toHaveBeenCalled();
   });
 
-  it('does not save when origin is whitespace-only when matchType is origin', async () => {
-    UI.matchTypeSelect.value = 'origin';
-    applyMatchTypeVisibility('origin');
-    UI.originInput.value = '   ';
+  it('does not save when url is whitespace-only when matchType is prefix', async () => {
+    UI.matchTypeSelect.value = 'prefix';
+    applyMatchTypeVisibility('prefix');
+    UI.urlInput.value = '   ';
     UI.headerNameInput.value = 'X-Foo';
 
     await submit();
@@ -170,7 +169,6 @@ describe('form/handlers/on-submit-form/on-submit-form', () => {
         id: 'existing-id',
         matchType: 'url',
         url: 'https://old.example.com/',
-        origin: '',
         regexp: '',
         headerName: 'X-Old',
         operation: 'set',
@@ -191,16 +189,19 @@ describe('form/handlers/on-submit-form/on-submit-form', () => {
     expect(STATE.rules[0]?.url).toBe('https://new.example.com/');
   });
 
-  it('normalizes the origin field when matchType is origin', async () => {
-    UI.matchTypeSelect.value = 'origin';
-    applyMatchTypeVisibility('origin');
-    UI.originInput.value = 'example.com';
+  it('saves a prefix rule using the raw url input, without normalization', async () => {
+    UI.matchTypeSelect.value = 'prefix';
+    applyMatchTypeVisibility('prefix');
+    UI.urlInput.value = 'https://example.com/api';
     UI.headerNameInput.value = 'X-New';
 
     await submit();
 
     expect(STATE.rules).toHaveLength(1);
-    expect(STATE.rules[0]?.origin).toBe('https://example.com');
+    expect(STATE.rules[0]).toMatchObject({
+      matchType: 'prefix',
+      url: 'https://example.com/api',
+    });
   });
 
   it('saves a regexp rule once chrome.declarativeNetRequest.isRegexSupported confirms RE2 support', async () => {

@@ -11,7 +11,6 @@ const makeRule = (
   overrides: Partial<HeaderRule> & Pick<HeaderRule, 'id' | 'matchType'>,
 ): HeaderRule => ({
   url: '',
-  origin: '',
   regexp: '',
   headerName: 'X-Test',
   operation: 'set',
@@ -64,7 +63,6 @@ describe('form/handlers/on-submit-form/save-rule', () => {
 
     STATE.editingId = '';
     Object.assign(STATE, { rules: [], formState });
-    UI.originInput.value = '';
     UI.headerNameInput.value = 'stale';
     UI.form.dataset['mode'] = 'edit';
   });
@@ -72,8 +70,8 @@ describe('form/handlers/on-submit-form/save-rule', () => {
   it('saves a new rule as-is when there is no duplicate', async () => {
     const candidate = makeRule({
       id: 'new-id',
-      matchType: 'origin',
-      origin: 'https://example.com',
+      matchType: 'prefix',
+      url: 'https://example.com',
       headerName: 'X-New',
       value: 'v',
     });
@@ -84,33 +82,17 @@ describe('form/handlers/on-submit-form/save-rule', () => {
     expect(storageSetMock).toHaveBeenCalledWith({ rules: STATE.rules });
   });
 
-  it('retains the normalized origin in the origin field, but resets the header fields, after saving', async () => {
+  it('resets the header fields after saving', async () => {
     const candidate = makeRule({
       id: 'new-id',
-      matchType: 'origin',
-      origin: 'https://example.com',
+      matchType: 'prefix',
+      url: 'https://example.com',
       headerName: 'X-New',
     });
 
     await saveRule(candidate);
 
-    expect(UI.originInput.value).toBe('https://example.com');
     expect(UI.headerNameInput.value).toBe('');
-  });
-
-  it('retains the candidate origin as-is when it could not be normalized (e.g. regexp match)', async () => {
-    UI.originInput.value = 'unrelated-stale-value';
-
-    const candidate = makeRule({
-      id: 'new-id',
-      matchType: 'regexp',
-      regexp: '^https://example\\.com/',
-      origin: 'unrelated-stale-value',
-    });
-
-    await saveRule(candidate);
-
-    expect(UI.originInput.value).toBe('unrelated-stale-value');
   });
 
   it('exits edit mode after a successful save', async () => {
@@ -118,8 +100,8 @@ describe('form/handlers/on-submit-form/save-rule', () => {
 
     const candidate = makeRule({
       id: 'new-id',
-      matchType: 'origin',
-      origin: 'https://example.com',
+      matchType: 'prefix',
+      url: 'https://example.com',
     });
 
     await saveRule(candidate);
@@ -132,14 +114,14 @@ describe('form/handlers/on-submit-form/save-rule', () => {
     STATE.rules = [
       makeRule({
         id: 'a',
-        matchType: 'origin',
-        origin: 'https://a.example.com',
+        matchType: 'prefix',
+        url: 'https://a.example.com',
         headerName: 'X-A',
       }),
       makeRule({
         id: 'b',
-        matchType: 'origin',
-        origin: 'https://b.example.com',
+        matchType: 'prefix',
+        url: 'https://b.example.com',
         headerName: 'X-B',
       }),
     ];
@@ -147,8 +129,8 @@ describe('form/handlers/on-submit-form/save-rule', () => {
 
     const candidate = makeRule({
       id: 'a',
-      matchType: 'origin',
-      origin: 'https://a.example.com',
+      matchType: 'prefix',
+      url: 'https://a.example.com',
       headerName: 'X-A',
       value: 'updated',
     });
@@ -164,16 +146,16 @@ describe('form/handlers/on-submit-form/save-rule', () => {
     STATE.rules = [
       makeRule({
         id: 'dup-1',
-        matchType: 'origin',
-        origin: 'https://example.com',
+        matchType: 'prefix',
+        url: 'https://example.com',
         headerName: 'X-Dup',
       }),
     ];
 
     const candidate = makeRule({
       id: 'candidate-1',
-      matchType: 'origin',
-      origin: 'https://example.com',
+      matchType: 'prefix',
+      url: 'https://example.com',
       headerName: 'X-Dup',
       value: 'new-value',
     });
@@ -188,8 +170,8 @@ describe('form/handlers/on-submit-form/save-rule', () => {
     expect(STATE.rules).toStrictEqual([
       makeRule({
         id: 'dup-1',
-        matchType: 'origin',
-        origin: 'https://example.com',
+        matchType: 'prefix',
+        url: 'https://example.com',
         headerName: 'X-Dup',
       }),
     ]);
@@ -200,16 +182,16 @@ describe('form/handlers/on-submit-form/save-rule', () => {
     STATE.rules = [
       makeRule({
         id: 'dup-1',
-        matchType: 'origin',
-        origin: 'https://example.com',
+        matchType: 'prefix',
+        url: 'https://example.com',
         headerName: 'X-Dup',
       }),
     ];
 
     const candidate = makeRule({
       id: 'candidate-1',
-      matchType: 'origin',
-      origin: 'https://example.com',
+      matchType: 'prefix',
+      url: 'https://example.com',
       headerName: 'X-Dup',
       value: 'new-value',
     });
@@ -228,14 +210,14 @@ describe('form/handlers/on-submit-form/save-rule', () => {
     STATE.rules = [
       makeRule({
         id: 'editing-id',
-        matchType: 'origin',
-        origin: 'https://other.com',
+        matchType: 'prefix',
+        url: 'https://other.com',
         headerName: 'X-Dup',
       }),
       makeRule({
         id: 'dup-1',
-        matchType: 'origin',
-        origin: 'https://example.com',
+        matchType: 'prefix',
+        url: 'https://example.com',
         headerName: 'X-Dup',
       }),
     ];
@@ -243,8 +225,8 @@ describe('form/handlers/on-submit-form/save-rule', () => {
 
     const candidate = makeRule({
       id: 'editing-id',
-      matchType: 'origin',
-      origin: 'https://example.com',
+      matchType: 'prefix',
+      url: 'https://example.com',
       headerName: 'X-Dup',
       value: 'new-value',
     });
@@ -261,7 +243,7 @@ describe('form/handlers/on-submit-form/save-rule', () => {
 
   it('rolls back the saved data cache and alerts on save failure, without exiting edit mode', async () => {
     STATE.rules = [
-      makeRule({ id: 'existing', matchType: 'origin', origin: 'https://kept.example.com' }),
+      makeRule({ id: 'existing', matchType: 'prefix', url: 'https://kept.example.com' }),
     ];
     STATE.editingId = 'x';
     const original = STATE.rules;
@@ -270,8 +252,8 @@ describe('form/handlers/on-submit-form/save-rule', () => {
 
     const candidate = makeRule({
       id: 'new-id',
-      matchType: 'origin',
-      origin: 'https://example.com',
+      matchType: 'prefix',
+      url: 'https://example.com',
     });
 
     await saveRule(candidate);

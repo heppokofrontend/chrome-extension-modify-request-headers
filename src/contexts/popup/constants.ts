@@ -9,7 +9,6 @@ export const UI = {
   form: document.querySelector<HTMLFormElement>('#form')!,
   matchTypeSelect: document.querySelector<HTMLSelectElement>('#select-matchType')!,
   urlInput: document.querySelector<HTMLInputElement>('#input-url')!,
-  originInput: document.querySelector<HTMLInputElement>('#input-origin')!,
   regexpInput: document.querySelector<HTMLInputElement>('#input-regexp')!,
   headerNameInput: document.querySelector<HTMLInputElement>('#input-headerName')!,
   isActiveSelect: document.querySelector<HTMLSelectElement>('#select-isActive')!,

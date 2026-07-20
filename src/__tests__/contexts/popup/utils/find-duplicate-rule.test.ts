@@ -12,7 +12,6 @@ const makeRule = (
   overrides: Partial<HeaderRule> & Pick<HeaderRule, 'id' | 'matchType'>,
 ): HeaderRule => ({
   url: '',
-  origin: '',
   regexp: '',
   headerName: 'X-Test',
   operation: 'set',
@@ -29,16 +28,16 @@ describe('findDuplicateRule', () => {
   it('finds an existing rule with the same matchType, matching value, and headerName', () => {
     const existing = makeRule({
       id: 'a',
-      matchType: 'origin',
-      origin: 'https://example.com',
+      matchType: 'prefix',
+      url: 'https://example.com',
       headerName: 'X-Foo',
     });
     Object.assign(STATE, { rules: [existing], formState });
 
     const candidate = makeRule({
       id: 'b',
-      matchType: 'origin',
-      origin: 'https://example.com',
+      matchType: 'prefix',
+      url: 'https://example.com',
       headerName: 'X-Foo',
     });
 
@@ -48,8 +47,8 @@ describe('findDuplicateRule', () => {
   it('excludes the rule itself (same id) from being reported as its own duplicate', () => {
     const rule = makeRule({
       id: 'a',
-      matchType: 'origin',
-      origin: 'https://example.com',
+      matchType: 'prefix',
+      url: 'https://example.com',
       headerName: 'X-Foo',
     });
     Object.assign(STATE, { rules: [rule], formState });
@@ -67,8 +66,8 @@ describe('findDuplicateRule', () => {
 
     const candidate = makeRule({
       id: 'b',
-      matchType: 'origin',
-      origin: 'https://example.com',
+      matchType: 'prefix',
+      url: 'https://example.com',
       headerName: 'X-Foo',
     });
 
@@ -80,8 +79,8 @@ describe('findDuplicateRule', () => {
       rules: [
         makeRule({
           id: 'a',
-          matchType: 'origin',
-          origin: 'https://a.example.com',
+          matchType: 'prefix',
+          url: 'https://a.example.com',
           headerName: 'X-Foo',
         }),
       ],
@@ -90,8 +89,8 @@ describe('findDuplicateRule', () => {
 
     const candidate = makeRule({
       id: 'b',
-      matchType: 'origin',
-      origin: 'https://b.example.com',
+      matchType: 'prefix',
+      url: 'https://b.example.com',
       headerName: 'X-Foo',
     });
 
@@ -103,8 +102,8 @@ describe('findDuplicateRule', () => {
       rules: [
         makeRule({
           id: 'a',
-          matchType: 'origin',
-          origin: 'https://example.com',
+          matchType: 'prefix',
+          url: 'https://example.com',
           headerName: 'X-Foo',
         }),
       ],
@@ -113,8 +112,8 @@ describe('findDuplicateRule', () => {
 
     const candidate = makeRule({
       id: 'b',
-      matchType: 'origin',
-      origin: 'https://example.com',
+      matchType: 'prefix',
+      url: 'https://example.com',
       headerName: 'X-Bar',
     });
 
@@ -140,19 +139,19 @@ describe('findDuplicateRule', () => {
     expect(findDuplicateRule(candidate)).toBe(existing);
   });
 
-  it('matches a non-ASCII origin and its punycode-encoded form as the same target', () => {
+  it('matches a non-ASCII prefix and its punycode-encoded form as the same target', () => {
     const existing = makeRule({
       id: 'a',
-      matchType: 'origin',
-      origin: 'https://xn--r8jz45g.com',
+      matchType: 'prefix',
+      url: 'https://xn--r8jz45g.com',
       headerName: 'X-Foo',
     });
     Object.assign(STATE, { rules: [existing], formState });
 
     const candidate = makeRule({
       id: 'b',
-      matchType: 'origin',
-      origin: 'https://例え.com',
+      matchType: 'prefix',
+      url: 'https://例え.com',
       headerName: 'X-Foo',
     });
 

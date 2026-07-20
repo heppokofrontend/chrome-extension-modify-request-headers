@@ -11,7 +11,7 @@ import type { HeaderRule } from '@/types';
 export const renderRules = () => {
   UI.rules.replaceChildren();
 
-  /** @example { "https://example.com::origin": [ ... ] } */
+  /** @example { "https://example.com/::prefix": [ ... ] } */
   const groups = new Map<string, HeaderRule[]>();
 
   for (const rule of STATE.rules) {

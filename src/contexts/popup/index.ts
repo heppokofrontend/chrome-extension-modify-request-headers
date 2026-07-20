@@ -5,7 +5,6 @@ import {
   onFieldInput,
   onMatchTypeChange,
   onOperationChange,
-  onOriginChange,
   onSubmitForm,
   resetFields,
 } from '@/contexts/popup/components/form';
@@ -24,7 +23,6 @@ const addListener = () => {
   });
 
   UI.matchTypeSelect.addEventListener('change', onMatchTypeChange);
-  UI.originInput.addEventListener('change', onOriginChange);
   UI.operationSelect.addEventListener('change', onOperationChange);
   UI.deleteButton.addEventListener('click', (e) => {
     void onDeleteClick(e);
@@ -32,7 +30,6 @@ const addListener = () => {
   UI.editAbortButton.addEventListener('click', onEditAbortClick);
 
   UI.urlInput.addEventListener('input', onFieldInput);
-  UI.originInput.addEventListener('input', onFieldInput);
   UI.regexpInput.addEventListener('input', onFieldInput);
   UI.headerNameInput.addEventListener('input', onFieldInput);
   UI.valueInput.addEventListener('input', onFieldInput);

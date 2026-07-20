@@ -11,7 +11,6 @@ const makeRule = (
   overrides: Partial<HeaderRule> & Pick<HeaderRule, 'id' | 'matchType'>,
 ): HeaderRule => ({
   url: '',
-  origin: '',
   regexp: '',
   headerName: 'X-Test',
   operation: 'set',
@@ -66,8 +65,8 @@ describe('rules/effects', () => {
     STATE.editingId = '';
     Object.assign(STATE, {
       rules: [
-        makeRule({ id: 'a', matchType: 'origin', origin: 'https://example.com', isActive: true }),
-        makeRule({ id: 'b', matchType: 'origin', origin: 'https://example.com', isActive: true }),
+        makeRule({ id: 'a', matchType: 'prefix', url: 'https://example.com', isActive: true }),
+        makeRule({ id: 'b', matchType: 'prefix', url: 'https://example.com', isActive: true }),
       ],
       formState,
     });

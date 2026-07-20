@@ -1,6 +1,6 @@
 import type { HeaderRule } from '@/types';
 import { stripTrailingSlash } from '@/utils';
-import { isSafeOrigin, isSafeUrl, isValidRegexp } from '@/validators';
+import { isSafeUrl, isValidRegexp } from '@/validators';
 
 const OPERATION_MAP = {
   set: chrome.declarativeNetRequest.HeaderOperation.SET,
@@ -34,23 +34,19 @@ const toCondition = (rule: HeaderRule) => {
       };
     }
 
-    case 'origin': {
-      // requestDomains はscheme・ポートを区別できない（パース済みドメインのみでマッチする）ため、
-      // http/https の取り違えや localhost の別ポートを同一視してしまう。
-      // Web標準のorigin定義（scheme+host+portの完全一致）に揃え、url型と同じ
-      // "|" 絶対アンカーで直接組み立てる（サブドメインへは一致させない）。
-      // 末尾は区切り文字1文字にマッチする "^" ではなくリテラルの "/" にする。"^" は ":" にも
-      // マッチするため、"^" のままだと同一ホストの別ポート（例: https://example.com:8443）にも
-      // 誤マッチしてしまう。http/https の実URLはブラウザ正規化により origin 直後が必ず "/" に
-      // なるため、"/" 固定で「同一 origin 配下すべてに一致・別ポートは不一致」を表現できる。
-      if (!isSafeOrigin(rule.origin)) {
-        console.warn(`Skipping invalid origin in saved rule: ${rule.origin}`);
+    case 'prefix': {
+      if (!isSafeUrl(rule.url)) {
+        console.warn(`Skipping invalid url in saved rule: ${rule.url}`);
         return null;
       }
-      // rule.origin は表示用に生入力のまま保存されている（punycode正規化はしていない）ため、
-      // url型と同様にここで `new URL().origin` を通してからurlFilterを組み立てる。
-      const origin = new URL(rule.origin).origin;
-      return { urlFilter: `|${origin}/` };
+      // url型と同じ理由（生入力のまま保存されている）で `new URL().href` を通す。
+      // 前方一致なので url型と異なり末尾アンカー "^|" は付けない
+      // （それを付けると完全一致になり、prefix の意味がなくなる）。
+      const href = new URL(rule.url).href;
+      return {
+        urlFilter: `|${href}`,
+        isUrlFilterCaseSensitive: true,
+      };
     }
 
     case 'regexp': {

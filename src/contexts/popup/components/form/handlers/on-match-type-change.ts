@@ -2,7 +2,7 @@ import { applyMatchTypeVisibility } from '@/contexts/popup/components/form/effec
 import { STATE } from '@/contexts/popup/state';
 import { isMatchType, setStorage } from '@/utils';
 
-/** matchType の選択に応じて origin / regexp フィールドの表示を切り替えるだけ。 */
+/** matchType の選択に応じて url / prefix / regexp フィールドの表示を切り替えるだけ。 */
 export const onMatchTypeChange = (e: Event) => {
   if (!(e.currentTarget instanceof HTMLSelectElement)) {
     return;

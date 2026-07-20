@@ -593,13 +593,11 @@
  * Status
  * -------------------------------------------------------------------------- */
 .field-url,
-.field-origin,
 .field-regexp {
   display: none;
 }
 
 [data-match-type='url'] .field-url,
-[data-match-type='origin'] .field-origin,
 [data-match-type='regexp'] .field-regexp {
   display: block;
 }
