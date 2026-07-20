@@ -81,6 +81,24 @@ describe('form/effects', () => {
       expect(UI.urlInput.validationMessage).toBe('');
     });
 
+    it('flags a whitespace-only url as invalid when matchType is url (required alone accepts it)', () => {
+      UI.matchTypeSelect.value = 'url';
+      UI.urlInput.value = '   ';
+
+      setCustomValidities();
+
+      expect(UI.urlInput.validationMessage).toBe('form_errInvalidUrl');
+    });
+
+    it('leaves an empty url unflagged so the native required message applies', () => {
+      UI.matchTypeSelect.value = 'url';
+      UI.urlInput.value = '';
+
+      setCustomValidities();
+
+      expect(UI.urlInput.validity.customError).toBe(false);
+    });
+
     it('flags an origin that cannot be normalized as invalid when matchType is origin', () => {
       UI.matchTypeSelect.value = 'origin';
       UI.originInput.value = 'https://example.com/some/path';
@@ -99,6 +117,15 @@ describe('form/effects', () => {
       expect(UI.originInput.validationMessage).toBe('');
     });
 
+    it('flags a whitespace-only origin as invalid when matchType is origin (required alone accepts it)', () => {
+      UI.matchTypeSelect.value = 'origin';
+      UI.originInput.value = '   ';
+
+      setCustomValidities();
+
+      expect(UI.originInput.validationMessage).toBe('form_errInvalidOrigin');
+    });
+
     it('flags an invalid regexp as invalid when matchType is regexp', () => {
       UI.matchTypeSelect.value = 'regexp';
       UI.regexpInput.value = '(';
@@ -115,6 +142,15 @@ describe('form/effects', () => {
       setCustomValidities();
 
       expect(UI.regexpInput.validationMessage).toBe('');
+    });
+
+    it('flags a whitespace-only regexp as invalid when matchType is regexp (required alone accepts it)', () => {
+      UI.matchTypeSelect.value = 'regexp';
+      UI.regexpInput.value = '   ';
+
+      setCustomValidities();
+
+      expect(UI.regexpInput.validationMessage).toBe('form_errInvalidRegexp');
     });
 
     it('flags a header value containing a newline as invalid unless operation is remove', () => {
@@ -149,6 +185,14 @@ describe('form/effects', () => {
       setCustomValidities();
 
       expect(UI.headerNameInput.validationMessage).toBe('');
+    });
+
+    it('flags a whitespace-only header name as invalid (required alone accepts it)', () => {
+      UI.headerNameInput.value = '   ';
+
+      setCustomValidities();
+
+      expect(UI.headerNameInput.validationMessage).toBe('form_errInvalidHeaderName');
     });
   });
 

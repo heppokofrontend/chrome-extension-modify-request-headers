@@ -88,6 +88,41 @@ describe('form/handlers/on-submit-form/on-submit-form', () => {
     expect(storageSetMock).not.toHaveBeenCalled();
   });
 
+  it('does not save when url is whitespace-only (passes required, but is not a safe url)', async () => {
+    UI.urlInput.value = '   ';
+    UI.headerNameInput.value = 'X-Foo';
+
+    await submit();
+
+    expect(STATE.rules).toHaveLength(0);
+    expect(storageSetMock).not.toHaveBeenCalled();
+  });
+
+  it('does not save when origin is whitespace-only when matchType is origin', async () => {
+    UI.matchTypeSelect.value = 'origin';
+    applyMatchTypeVisibility('origin');
+    UI.originInput.value = '   ';
+    UI.headerNameInput.value = 'X-Foo';
+
+    await submit();
+
+    expect(STATE.rules).toHaveLength(0);
+    expect(storageSetMock).not.toHaveBeenCalled();
+  });
+
+  it('does not save when regexp is whitespace-only when matchType is regexp', async () => {
+    UI.matchTypeSelect.value = 'regexp';
+    applyMatchTypeVisibility('regexp');
+    UI.regexpInput.value = '   ';
+    UI.headerNameInput.value = 'X-Foo';
+
+    await submit();
+
+    expect(STATE.rules).toHaveLength(0);
+    expect(storageSetMock).not.toHaveBeenCalled();
+    expect(isRegexSupportedMock).not.toHaveBeenCalled();
+  });
+
   it('builds a candidate from the current form values and saves it as a new rule', async () => {
     UI.matchTypeSelect.value = 'url';
     UI.urlInput.value = 'https://example.com/path';

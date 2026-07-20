@@ -158,23 +158,28 @@ export const setCustomValidities = () => {
   const normalizedOrigin = getNormalizedOrigin(UI.originInput.value);
   const operation = UI.operationSelect.value;
 
+  // ガードは value.trim() ではなく value !== '' で行う。required 属性は空文字しか
+  // 弾かないため、空白のみの入力は required を素通りしてここに来る。trim() の真偽で
+  // ガードすると空白のみの入力が「未入力」と誤認されて検証自体がスキップされ、
+  // isSafeUrl 等で本来弾かれるべき値がそのまま保存されてしまう
+  // （空文字のときだけ required 側のメッセージに委ねてここでは何もしない）。
   const customValidities = {
     // matchType が url のときのみ検証。非ASCII文字は isSafeUrl 側で正規化して
     // 受理するため、ここでは URL として妥当かどうかだけを見る。
     url:
-      matchType === 'url' && UI.urlInput.value.trim() && !isSafeUrl(UI.urlInput.value)
+      matchType === 'url' && UI.urlInput.value !== '' && !isSafeUrl(UI.urlInput.value)
         ? getMessage('form_errInvalidUrl')
         : '',
 
     // matchType が origin のときのみ検証。
     origin:
-      matchType === 'origin' && UI.originInput.value.trim() && normalizedOrigin === null
+      matchType === 'origin' && UI.originInput.value !== '' && normalizedOrigin === null
         ? getMessage('form_errInvalidOrigin')
         : '',
 
     // matchType が regexp のときのみ検証。
     regexp:
-      matchType === 'regexp' && UI.regexpInput.value.trim() && !isValidRegexp(UI.regexpInput.value)
+      matchType === 'regexp' && UI.regexpInput.value !== '' && !isValidRegexp(UI.regexpInput.value)
         ? getMessage('form_errInvalidRegexp')
         : '',
 
@@ -185,7 +190,7 @@ export const setCustomValidities = () => {
         : '',
 
     headerName:
-      UI.headerNameInput.value.trim() && !isValidHeaderName(UI.headerNameInput.value)
+      UI.headerNameInput.value !== '' && !isValidHeaderName(UI.headerNameInput.value)
         ? getMessage('form_errInvalidHeaderName')
         : '',
   };
