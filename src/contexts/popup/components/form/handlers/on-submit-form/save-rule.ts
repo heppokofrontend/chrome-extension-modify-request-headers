@@ -1,4 +1,3 @@
-import { refreshFilterResultDefault } from '@/contexts/popup/components/filter';
 import {
   applyEditMode,
   focusRuleButton,
@@ -6,8 +5,7 @@ import {
 } from '@/contexts/popup/components/form/effects';
 import { formatRuleSummary } from '@/contexts/popup/components/form/utils';
 import { confirmModal } from '@/contexts/popup/components/modal';
-import { renderRules } from '@/contexts/popup/components/rules';
-import { renderStatus } from '@/contexts/popup/components/status';
+import { refreshRulesViews } from '@/contexts/popup/effects';
 import { STATE } from '@/contexts/popup/state';
 import { findDuplicateRule } from '@/contexts/popup/utils';
 import type { HeaderRule } from '@/types';
@@ -56,9 +54,7 @@ export const saveRule = async (candidate: HeaderRule) => {
 
   STATE.rules = saved;
 
-  renderRules();
-  void renderStatus();
-  refreshFilterResultDefault();
+  refreshRulesViews();
 
   // 編集モードからの保存なら、作り直された一覧の中でも同じルールの編集ボタンに
   // フォーカスを戻す（renderRules() が DOM を全部作り直すため、フォーカスが消えてしまう）。

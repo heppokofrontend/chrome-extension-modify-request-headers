@@ -1,9 +1,7 @@
-import { refreshFilterResultDefault } from '@/contexts/popup/components/filter';
 import { applyEditMode, resetFields } from '@/contexts/popup/components/form/effects';
 import { formatRuleSummary } from '@/contexts/popup/components/form/utils';
 import { confirmModal } from '@/contexts/popup/components/modal';
-import { renderRules } from '@/contexts/popup/components/rules';
-import { renderStatus } from '@/contexts/popup/components/status';
+import { refreshRulesViews } from '@/contexts/popup/effects';
 import { STATE } from '@/contexts/popup/state';
 import { getRuleById } from '@/contexts/popup/utils';
 import { getMessage, setStorage } from '@/utils';
@@ -44,8 +42,6 @@ export const onDeleteClick = async (e: Event) => {
 
   resetFields.all();
 
-  renderRules();
-  void renderStatus();
-  refreshFilterResultDefault();
+  refreshRulesViews();
   applyEditMode.end();
 };

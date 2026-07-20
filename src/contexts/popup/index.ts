@@ -1,8 +1,4 @@
-import {
-  onFilterInput,
-  onFilterStatusChange,
-  refreshFilterResultDefault,
-} from '@/contexts/popup/components/filter';
+import { onFilterInput, onFilterStatusChange } from '@/contexts/popup/components/filter';
 import {
   onDeleteClick,
   onEditAbortClick,
@@ -13,12 +9,11 @@ import {
   onSubmitForm,
   resetFields,
 } from '@/contexts/popup/components/form';
-import { renderRules } from '@/contexts/popup/components/rules';
-import { renderStatus } from '@/contexts/popup/components/status';
 import { STATE } from '@/contexts/popup/state';
 import { getStorage } from '@/utils';
 
 import { UI } from './constants';
+import { refreshRulesViews } from './effects';
 
 const addListener = () => {
   // input 要素で Enter を押すとネイティブの form 要素の submit イベントで popup ごとリロードされ、
@@ -58,9 +53,7 @@ const init = async () => {
   const { matchType, operation } = STATE.formState;
 
   addListener();
-  renderRules();
-  void renderStatus();
-  refreshFilterResultDefault();
+  refreshRulesViews();
   resetFields.all({ matchType, operation });
 };
 
