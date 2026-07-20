@@ -1,5 +1,7 @@
 import type { HeaderRule } from '@/types';
 
+import { stripTrailingSlash } from './strip-trailing-slash';
+
 /** ルールの matchType に応じた実際の照合値（url / origin / regexp のいずれか）を返す。 */
 export const getMatchValue = (rule: HeaderRule) => {
   switch (rule.matchType) {
@@ -22,10 +24,6 @@ export const getMatchValue = (rule: HeaderRule) => {
 export const getCanonicalMatchValue = (
   params: Pick<HeaderRule, 'matchType' | 'url' | 'origin' | 'regexp'>,
 ) => {
-  // isMatchedUrl（末尾スラッシュの有無を同一URL扱い）と揃える。揃えないと、
-  // 一致判定上は同じ扱いのURLが表示上は別グループに分かれてしまう。
-  const stripTrailingSlash = (value: string) => (value.endsWith('/') ? value.slice(0, -1) : value);
-
   switch (params.matchType) {
     case 'url':
       try {

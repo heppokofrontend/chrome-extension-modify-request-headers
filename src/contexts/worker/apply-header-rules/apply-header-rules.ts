@@ -13,13 +13,13 @@ const RULE_ID_PATTERN = /Rule with id (\d+)/;
 
 const extractRejectedRuleId = (error: unknown) => {
   if (!(error instanceof Error)) {
-    return undefined;
+    return null;
   }
 
   const match = RULE_ID_PATTERN.exec(error.message);
   const id = match ? Number(match[1]) : Number.NaN;
 
-  return Number.isFinite(id) ? id : undefined;
+  return Number.isFinite(id) ? id : null;
 };
 
 /**
@@ -43,7 +43,7 @@ export const applyHeaderRules = async (rules: HeaderRule[]) => {
     } catch (error) {
       const rejectedId = extractRejectedRuleId(error);
 
-      if (rejectedId === undefined) {
+      if (rejectedId === null) {
         throw error;
       }
 

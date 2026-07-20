@@ -1,4 +1,4 @@
-import { getNormalizedUrl } from '@/contexts/popup/components/form/utils';
+import { getNormalizedOrigin } from '@/contexts/popup/components/form/utils';
 
 /** origin 入力欄の blur 時、スキーム省略(例: `heppokofrontend.dev`)を https:// で補って表示に反映する。 */
 export const onOriginChange = (e: Event) => {
@@ -6,9 +6,9 @@ export const onOriginChange = (e: Event) => {
     return;
   }
 
-  const normalized = getNormalizedUrl.asOrigin(e.currentTarget.value);
+  const normalized = getNormalizedOrigin(e.currentTarget.value);
 
-  if (normalized !== undefined) {
+  if (normalized !== null) {
     e.currentTarget.value = normalized;
   }
 };

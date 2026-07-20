@@ -16,4 +16,4 @@ export const findDuplicateRule = (rule: HeaderRule) =>
       existing.matchType === rule.matchType &&
       getCanonicalMatchValue(existing) === getCanonicalMatchValue(rule) &&
       existing.headerName.toLowerCase() === rule.headerName.toLowerCase(),
-  );
+  ) ?? null;

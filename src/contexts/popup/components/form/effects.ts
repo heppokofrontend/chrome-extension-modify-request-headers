@@ -4,7 +4,7 @@ import type { OperationType, HeaderRule, MatchType } from '@/types';
 import { getMessage } from '@/utils';
 import { isSafeUrl, isValidRegexp } from '@/validators';
 
-import { getNormalizedUrl } from './utils';
+import { getNormalizedOrigin } from './utils';
 import { isValidHeaderName, isValidHeaderValue } from './validators';
 
 const MATCH_FIELD_INPUTS = {
@@ -154,7 +154,7 @@ export const focusRuleButton = (id: string) => {
  */
 export const setCustomValidities = () => {
   const matchType = UI.matchTypeSelect.value as MatchType;
-  const normalizedOrigin = getNormalizedUrl.asOrigin(UI.originInput.value);
+  const normalizedOrigin = getNormalizedOrigin(UI.originInput.value);
   const operation = UI.operationSelect.value;
 
   const customValidities = {
@@ -167,7 +167,7 @@ export const setCustomValidities = () => {
 
     // matchType が origin のときのみ検証。
     origin:
-      matchType === 'origin' && UI.originInput.value.trim() && normalizedOrigin === undefined
+      matchType === 'origin' && UI.originInput.value.trim() && normalizedOrigin === null
         ? getMessage('form_errInvalidOrigin')
         : '',
 

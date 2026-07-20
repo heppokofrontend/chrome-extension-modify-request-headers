@@ -1,5 +1,5 @@
 import { setCustomValidities } from '@/contexts/popup/components/form/effects';
-import { getNormalizedUrl } from '@/contexts/popup/components/form/utils';
+import { getNormalizedOrigin } from '@/contexts/popup/components/form/utils';
 import { UI } from '@/contexts/popup/constants';
 import { STATE } from '@/contexts/popup/state';
 import type { OperationType, HeaderRule, MatchType } from '@/types';
@@ -37,7 +37,7 @@ const resolveNewRule = ({
     // 使用直前に行う。ここで正規化すると例えば非ASCIIドメインが保存直後からpunycode表示になり、
     // 編集フォームを開いた時も入力し直したような見た目になってしまうため）。
     url,
-    origin: getNormalizedUrl.asOrigin(origin) ?? origin,
+    origin: getNormalizedOrigin(origin) ?? origin,
     regexp,
     headerName,
     operation,
