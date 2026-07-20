@@ -54,7 +54,7 @@ describe('findDuplicateRule', () => {
     });
     Object.assign(STATE, { rules: [rule], formState });
 
-    expect(findDuplicateRule(rule)).toBeUndefined();
+    expect(findDuplicateRule(rule)).toBeNull();
   });
 
   it('does not match when matchType differs, even with the same matching value', () => {
@@ -72,7 +72,7 @@ describe('findDuplicateRule', () => {
       headerName: 'X-Foo',
     });
 
-    expect(findDuplicateRule(candidate)).toBeUndefined();
+    expect(findDuplicateRule(candidate)).toBeNull();
   });
 
   it('does not match when the matching value differs', () => {
@@ -95,7 +95,7 @@ describe('findDuplicateRule', () => {
       headerName: 'X-Foo',
     });
 
-    expect(findDuplicateRule(candidate)).toBeUndefined();
+    expect(findDuplicateRule(candidate)).toBeNull();
   });
 
   it('does not match when headerName differs', () => {
@@ -118,7 +118,7 @@ describe('findDuplicateRule', () => {
       headerName: 'X-Bar',
     });
 
-    expect(findDuplicateRule(candidate)).toBeUndefined();
+    expect(findDuplicateRule(candidate)).toBeNull();
   });
 
   it('matches a trailing-slash url and its slash-less form as the same target', () => {

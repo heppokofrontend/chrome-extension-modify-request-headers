@@ -2,49 +2,10 @@ import { setCustomValidities } from '@/contexts/popup/components/form/effects';
 import { getNormalizedOrigin } from '@/contexts/popup/components/form/utils';
 import { UI } from '@/contexts/popup/constants';
 import { STATE } from '@/contexts/popup/state';
-import type { OperationType, HeaderRule, MatchType } from '@/types';
 import { getMessage, isMatchType, isOperationType } from '@/utils';
 import { isRegexSupportedByEngine } from '@/validators';
 
 import { saveRule } from './save-rule';
-
-const resolveNewRule = ({
-  matchType,
-  url,
-  origin,
-  regexp,
-  headerName,
-  operation,
-  value,
-  isActive,
-}: {
-  matchType: MatchType;
-  url: string;
-  origin: string;
-  regexp: string;
-  headerName: string;
-  operation: OperationType;
-  value: string;
-  isActive: boolean;
-}): HeaderRule => {
-  return {
-    id: STATE.editingId || crypto.randomUUID(),
-    matchType,
-    // matchType が何であっても、3種類すべての入力値をそのまま保持する
-    // （フラグを切り替えても入力し直さずに済むようにするため）。
-    // url は表示・編集時に人間が読める見た目を保つため、生入力のまま保存する
-    // （punycode / パーセントエンコード正規化は isMatchedRule・resolveRulesToConditions が
-    // 使用直前に行う。ここで正規化すると例えば非ASCIIドメインが保存直後からpunycode表示になり、
-    // 編集フォームを開いた時も入力し直したような見た目になってしまうため）。
-    url,
-    origin: getNormalizedOrigin(origin) ?? origin,
-    regexp,
-    headerName,
-    operation,
-    value,
-    isActive,
-  };
-};
 
 export const onSubmitForm = async (e: SubmitEvent) => {
   e.preventDefault();
@@ -86,16 +47,23 @@ export const onSubmitForm = async (e: SubmitEvent) => {
     return;
   }
 
-  const newRule = resolveNewRule({
+  const origin = UI.originInput.value.trim();
+
+  await saveRule({
+    id: STATE.editingId || crypto.randomUUID(),
     matchType,
+    // matchType が何であっても、3種類すべての入力値をそのまま保持する
+    // （フラグを切り替えても入力し直さずに済むようにするため）。
+    // url は表示・編集時に人間が読める見た目を保つため、生入力のまま保存する
+    // （punycode / パーセントエンコード正規化は isMatchedRule・resolveRulesToConditions が
+    // 使用直前に行う。ここで正規化すると例えば非ASCIIドメインが保存直後からpunycode表示になり、
+    // 編集フォームを開いた時も入力し直したような見た目になってしまうため）。
     url: UI.urlInput.value.trim(),
-    origin: UI.originInput.value.trim(),
+    origin: getNormalizedOrigin(origin) ?? origin,
     regexp: UI.regexpInput.value.trim(),
     headerName,
     operation,
     value: UI.valueInput.value,
     isActive: UI.isActiveSelect.value === 'true',
   });
-
-  await saveRule(newRule);
 };
