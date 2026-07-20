@@ -92,6 +92,9 @@
       }
     }
   },
+  "rule_table_editTitle": {
+    "message": "Click to edit"
+  },
   "rule_table_inactive": {
     "message": " (inactive)"
   },

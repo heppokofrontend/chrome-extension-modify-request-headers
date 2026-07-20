@@ -92,6 +92,9 @@
       }
     }
   },
+  "rule_table_editTitle": {
+    "message": "クリックして編集する"
+  },
   "rule_table_inactive": {
     "message": "（無効）"
   },

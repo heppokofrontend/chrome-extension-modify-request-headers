@@ -25,6 +25,7 @@ const buildRuleRow = (rule: HeaderRule) => {
   button.type = 'button';
   button.className = CLASS_NAMES.ruleEditButton;
   button.dataset['id'] = rule.id;
+  button.title = getMessage('rule_table_editTitle');
   button.setAttribute(
     'aria-label',
     getMessage('rule_table_edit', `${rule.headerName}${statusText}`),
