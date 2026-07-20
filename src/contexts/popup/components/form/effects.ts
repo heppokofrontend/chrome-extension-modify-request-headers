@@ -26,14 +26,14 @@ const MATCH_FIELD_INPUTS = {
  *
  * MATCH_FIELD_INPUTS は url/prefix のように複数キーが同じ input 要素を指しうるため、
  * Object.entries でキーごとに required を代入すると後発キーの判定が先発を上書きしてしまう。
- * そのため一意な input 要素ごとに「今回選ばれた matchType の入力欄と同じか」を判定する。
+ * そのため input 要素側から「今回選ばれた matchType の入力欄と同じか」を判定する。
  */
 export const applyMatchTypeVisibility = (matchType: MatchType) => {
   UI.form.dataset['matchType'] = matchType;
 
   const requiredInput = MATCH_FIELD_INPUTS[matchType];
 
-  for (const input of new Set(Object.values(MATCH_FIELD_INPUTS))) {
+  for (const input of Object.values(MATCH_FIELD_INPUTS)) {
     input.required = input === requiredInput;
   }
 };
@@ -167,7 +167,7 @@ export const setCustomValidities = () => {
   // （空文字のときだけ required 側のメッセージに委ねてここでは何もしない）。
   const customValidities = {
     // matchType が url/prefix（ともに url 欄を共有）のときのみ検証。非ASCII文字は
-    // isSafeUrl 側で正規化して受理するため、ここでは URL として妥当かどうかだけを見る。
+    // isSafeUrl 内部の href 正規化で ASCII 化されるため、ここでは弾かれない。
     url:
       (matchType === 'url' || matchType === 'prefix') &&
       UI.urlInput.value !== '' &&
