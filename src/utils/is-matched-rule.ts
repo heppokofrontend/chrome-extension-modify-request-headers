@@ -1,11 +1,11 @@
 import type { HeaderRule } from '@/types';
 
+import { stripTrailingSlash } from './strip-trailing-slash';
+
 const PROTECTED_HOSTNAMES = new Set(['chrome.google.com', 'chromewebstore.google.com']);
 
 const isMatchedUrl = (ruleUrl: HeaderRule['url'], url: URL) => {
   // worker側の resolveRulesToConditions と同じ基準（末尾スラッシュの有無を同一URL扱い）に揃える。
-  const stripTrailingSlash = (value: string) => (value.endsWith('/') ? value.slice(0, -1) : value);
-
   try {
     // rule.url は表示用に生入力のまま保存されている（punycode / パーセントエンコード
     // 正規化はしていない）。比較対象の url.href はブラウザ正規化済み（常にASCII）のため、

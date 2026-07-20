@@ -1,6 +1,5 @@
 import type { HeaderRule } from '@/types';
-
-import { stripTrailingSlash } from './strip-trailing-slash';
+import { stripTrailingSlash } from '@/utils';
 
 /** ルールの matchType に応じた実際の照合値（url / origin / regexp のいずれか）を返す。 */
 export const getMatchValue = (rule: HeaderRule) => {

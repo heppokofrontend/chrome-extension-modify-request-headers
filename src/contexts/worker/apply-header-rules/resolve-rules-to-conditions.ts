@@ -1,4 +1,5 @@
 import type { HeaderRule } from '@/types';
+import { stripTrailingSlash } from '@/utils';
 import { isSafeOrigin, isSafeUrl, isValidRegexp } from '@/validators';
 
 const OPERATION_MAP = {
@@ -24,7 +25,7 @@ const toCondition = (rule: HeaderRule) => {
       // urlFilter の "^" はセパレータ1文字またはURL終端にマッチするトークン。
       // 末尾を "^|" にすると「区切り文字1個（末尾スラッシュ想定）で終わるか、そこで終わるか」に
       // 限定でき、正規表現なしで末尾スラッシュの有無だけを同一URL扱いにできる。
-      const withoutTrailingSlash = href.replace(/\/$/, '');
+      const withoutTrailingSlash = stripTrailingSlash(href);
       // Chrome 118+ は urlFilter がデフォルトで大文字小文字無視。popup 側 isMatchedRule は
       // `===` の完全一致（大文字小文字を区別）なので、ここで明示的に区別させて両者を揃える。
       return {

@@ -1,4 +1,4 @@
-import { stripTrailingSlash } from '@/contexts/popup/utils';
+import { stripTrailingSlash } from '@/utils';
 import { isSafeOrigin } from '@/validators';
 
 /**
