@@ -1,4 +1,4 @@
-import { URL_ALLOWED_SCHEMES, ORIGIN_ALLOWED_SCHEMES } from '@/constants';
+import { URL_ALLOWED_SCHEMES } from '@/constants';
 
 /**
  * urlFilter/regexFilter は非ASCIIが1件でも混じると updateDynamicRules がバッチ全体を
@@ -19,27 +19,6 @@ export const isSafeUrl = (url: string) => {
   try {
     const { protocol, href } = new URL(url);
     return URL_ALLOWED_SCHEMES.has(protocol) && isAscii(href);
-  } catch {
-    return false;
-  }
-};
-
-/**
- * `url.origin` はパス・クエリ・ハッシュ・認証情報を黙って切り捨てるため、
- * scheme+host(+port)だけの純粋な origin であることをここで明示的に要求する。
- */
-export const isSafeOrigin = (origin: string) => {
-  try {
-    const url = new URL(origin);
-    return (
-      ORIGIN_ALLOWED_SCHEMES.has(url.protocol) &&
-      (url.pathname === '' || url.pathname === '/') &&
-      url.search === '' &&
-      url.hash === '' &&
-      url.username === '' &&
-      url.password === '' &&
-      isAscii(url.origin)
-    );
   } catch {
     return false;
   }

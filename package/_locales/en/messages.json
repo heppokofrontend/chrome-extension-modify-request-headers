@@ -116,9 +116,6 @@
   "form_errInvalidHeaderValue": {
     "message": "Header value cannot contain line breaks"
   },
-  "form_errInvalidOrigin": {
-    "message": "Enter a valid origin, e.g. https://api.example.com"
-  },
   "form_errInvalidRegexp": {
     "message": "Enter using only alphanumeric characters and symbols."
   },
@@ -141,10 +138,10 @@
     "message": "Regular expression"
   },
   "form_labelUrl": {
-    "message": "Exact URL"
+    "message": "URL"
   },
-  "form_matchTypeOrigin": {
-    "message": "Origin"
+  "form_matchTypePrefix": {
+    "message": "URL prefix match"
   },
   "form_matchTypeRegexp": {
     "message": "Regular expression"

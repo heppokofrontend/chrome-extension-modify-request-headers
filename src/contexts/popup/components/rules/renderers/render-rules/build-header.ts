@@ -8,7 +8,7 @@ import { getMessage } from '@/utils';
 
 const matchTypeMessageKey: Record<MatchType, string> = {
   url: 'form_matchTypeUrl',
-  origin: 'form_matchTypeOrigin',
+  prefix: 'form_matchTypePrefix',
   regexp: 'form_matchTypeRegexp',
 };
 

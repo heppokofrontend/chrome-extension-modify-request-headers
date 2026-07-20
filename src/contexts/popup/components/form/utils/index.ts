@@ -1,2 +1,2 @@
 export * from './formatters';
-export * from './get-normalized-origin';
+export * from './get-normalized-url';

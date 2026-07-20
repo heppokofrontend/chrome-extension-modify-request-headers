@@ -1,5 +1,5 @@
 /**
- * insertAdjacentHTML でHTML文字列を組み立てる際、ユーザー入力（origin/url/regexp/headerName
+ * insertAdjacentHTML でHTML文字列を組み立てる際、ユーザー入力（url/regexp/headerName
  * などルールの値）を埋め込む箇所は必ずこれを通す。素通しするとマークアップとして解釈され、
  * ポップアップの特権コンテキスト内でHTMLインジェクションが成立してしまう。
  */

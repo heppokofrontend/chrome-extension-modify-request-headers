@@ -34,9 +34,8 @@ describe('getStorage', () => {
     const rules = [
       {
         id: 'rule-1',
-        matchType: 'origin' as const,
-        origin: 'https://api.example.com',
-        url: '',
+        matchType: 'prefix' as const,
+        url: 'https://api.example.com',
         regexp: '',
         headerName: 'Authorization',
         operation: 'set' as const,
@@ -83,21 +82,20 @@ describe('getStorage', () => {
 
     mockStoredData({
       rules: [],
-      formState: { matchType: 'origin', operation: 'bogus' },
+      formState: { matchType: 'prefix', operation: 'bogus' },
     });
 
     expect(await getStorage()).toStrictEqual({
       rules: [],
-      formState: { matchType: 'origin', operation: 'set' },
+      formState: { matchType: 'prefix', operation: 'set' },
     });
   });
 
   it('drops malformed rule elements but keeps the well-formed ones', async () => {
     const validRule = {
       id: 'rule-1',
-      matchType: 'origin' as const,
-      origin: 'https://api.example.com',
-      url: '',
+      matchType: 'url' as const,
+      url: 'https://api.example.com',
       regexp: '',
       headerName: 'Authorization',
       operation: 'set' as const,
@@ -123,9 +121,8 @@ describe('getStorage', () => {
     result.formState.matchType = 'regexp';
     result.rules.push({
       id: 'rule-1',
-      matchType: 'origin',
-      origin: 'https://api.example.com',
-      url: '',
+      matchType: 'url',
+      url: 'https://api.example.com',
       regexp: '',
       headerName: 'Authorization',
       operation: 'set',
@@ -141,9 +138,8 @@ describe('getStorage', () => {
     const rules = [
       {
         id: 'rule-1',
-        matchType: 'origin' as const,
-        origin: 'https://api.example.com',
-        url: '',
+        matchType: 'url' as const,
+        url: 'https://api.example.com',
         regexp: '',
         headerName: 'Authorization',
         operation: 'set' as const,
@@ -161,7 +157,6 @@ describe('getStorage', () => {
 const makeRule = (id: string) => ({
   id,
   matchType: 'url' as const,
-  origin: '',
   url: 'https://api.example.com/v1/users',
   regexp: '',
   headerName: 'X-Debug',

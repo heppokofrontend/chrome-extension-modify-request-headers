@@ -4,30 +4,37 @@ import type { OperationType, HeaderRule, MatchType } from '@/types';
 import { getMessage } from '@/utils';
 import { isSafeUrl, isValidRegexp } from '@/validators';
 
-import { getNormalizedOrigin } from './utils';
 import { isValidHeaderName, isValidHeaderValue } from './validators';
 
+// matchType ごとにどの入力欄が必須になるかのマッピング。prefix は url 欄を共有するため、
+// url と prefix の2キーが同じ input 要素を指す（=値としては重複がある）。
 const MATCH_FIELD_INPUTS = {
   url: UI.urlInput,
-  origin: UI.originInput,
+  prefix: UI.urlInput,
   regexp: UI.regexpInput,
 } as const satisfies Record<MatchType, HTMLInputElement>;
 
 /**
  * 選択中の matchType を form 要素の data-match-type 属性へ反映する。表示の出し分け
- * （url / origin / regexp の3フィールド）は CSS 側（`[data-match-type=...]`）が担う。
+ * （url / prefix / regexp の3フィールド）は CSS 側（`[data-match-type=...]`）が担う。
  * 値そのものは消さない。全種類の入力を保持しておき、フラグの切り替えだけで
  * 入力し直さずに済むようにするため。
  *
  * `display: none` にしても `required` 属性は外れない（ブラウザによっては非表示の
  * required 属性付き項目がバリデーションをブロックしたまま気づけない、という既知のハマりどころ）。
  * そのため required 属性は表示の出し分けとは別に、ここで明示的に切り替える。
+ *
+ * MATCH_FIELD_INPUTS は url/prefix のように複数キーが同じ input 要素を指しうるため、
+ * Object.entries でキーごとに required を代入すると後発キーの判定が先発を上書きしてしまう。
+ * そのため input 要素側から「今回選ばれた matchType の入力欄と同じか」を判定する。
  */
 export const applyMatchTypeVisibility = (matchType: MatchType) => {
   UI.form.dataset['matchType'] = matchType;
 
-  for (const [type, input] of Object.entries(MATCH_FIELD_INPUTS)) {
-    input.required = type === matchType;
+  const requiredInput = MATCH_FIELD_INPUTS[matchType];
+
+  for (const input of Object.values(MATCH_FIELD_INPUTS)) {
+    input.required = input === requiredInput;
   }
 };
 
@@ -43,14 +50,13 @@ interface MatchParams {
   matchType?: MatchType | undefined;
 }
 interface HeaderParams {
-  origin?: HeaderRule['origin'];
   isActive?: HeaderRule['isActive'];
   operation?: HeaderRule['operation'] | undefined;
 }
 
 export const resetFields = {
   /**
-   * matchType / url / origin / regexp を未入力状態に戻す。matchType を省略した場合は
+   * matchType / url / regexp を未入力状態に戻す。matchType を省略した場合は
    * 新規作成時のデフォルト（url）になる。
    */
   match: (params: MatchParams = {}) => {
@@ -60,15 +66,14 @@ export const resetFields = {
     applyMatchTypeVisibility(matchType);
 
     UI.urlInput.value = '';
-    UI.originInput.value = '';
     UI.regexpInput.value = '';
   },
 
   /**
-   * headerName / isActive / operation / value / origin を、呼び出し元から渡された値で初期化する。
-   * 引数を省略した場合は新規作成時の初期値（isActive: true, operation: set, origin: 空）になる。
+   * headerName / isActive / operation / value を、呼び出し元から渡された値で初期化する。
+   * 引数を省略した場合は新規作成時の初期値（isActive: true, operation: set）になる。
    * 保存直後は続けて同じ相手にルールを足していけるよう save-rule.ts が candidate をそのまま渡す
-   * （isActive/operation/origin は引き継がれ、headerName/value だけここで空になる）。
+   * （isActive/operation は引き継がれ、headerName/value だけここで空になる）。
    */
   header: (params: HeaderParams = {}) => {
     const isActive = params.isActive ?? true;
@@ -79,7 +84,6 @@ export const resetFields = {
     UI.operationSelect.value = operation;
     applyOperationVisibility(operation);
     UI.valueInput.value = '';
-    UI.originInput.value = params.origin ?? '';
   },
 
   all: ({ matchType, operation }: MatchParams & HeaderParams = {}) => {
@@ -97,7 +101,7 @@ const clearEditButtonMark = () => {
 export const applyEditMode = {
   /**
    * ルール一覧のクリック時に呼ぶ。以後 Save はこのルールの id プロパティを上書きする
-   * （origin / headerName をここで変えても rename として扱われ、複製にならない）。
+   * （url / headerName をここで変えても rename として扱われ、複製にならない）。
    */
   start: (rule: HeaderRule) => {
     STATE.editingId = rule.id;
@@ -112,7 +116,6 @@ export const applyEditMode = {
     UI.form.dataset['mode'] = 'edit';
     UI.matchTypeSelect.value = rule.matchType;
     UI.urlInput.value = rule.url;
-    UI.originInput.value = rule.origin;
     UI.regexpInput.value = rule.regexp;
     applyMatchTypeVisibility(rule.matchType);
 
@@ -155,7 +158,6 @@ export const focusRuleButton = (id: string) => {
  */
 export const setCustomValidities = () => {
   const matchType = UI.matchTypeSelect.value as MatchType;
-  const normalizedOrigin = getNormalizedOrigin(UI.originInput.value);
   const operation = UI.operationSelect.value;
 
   // ガードは value.trim() ではなく value !== '' で行う。required 属性は空文字しか
@@ -164,17 +166,13 @@ export const setCustomValidities = () => {
   // isSafeUrl 等で本来弾かれるべき値がそのまま保存されてしまう
   // （空文字のときだけ required 側のメッセージに委ねてここでは何もしない）。
   const customValidities = {
-    // matchType が url のときのみ検証。非ASCII文字は isSafeUrl 側で正規化して
-    // 受理するため、ここでは URL として妥当かどうかだけを見る。
+    // matchType が url/prefix（ともに url 欄を共有）のときのみ検証。非ASCII文字は
+    // isSafeUrl 内部の href 正規化で ASCII 化されるため、ここでは弾かれない。
     url:
-      matchType === 'url' && UI.urlInput.value !== '' && !isSafeUrl(UI.urlInput.value)
+      (matchType === 'url' || matchType === 'prefix') &&
+      UI.urlInput.value !== '' &&
+      !isSafeUrl(UI.urlInput.value)
         ? getMessage('form_errInvalidUrl')
-        : '',
-
-    // matchType が origin のときのみ検証。
-    origin:
-      matchType === 'origin' && UI.originInput.value !== '' && normalizedOrigin === null
-        ? getMessage('form_errInvalidOrigin')
         : '',
 
     // matchType が regexp のときのみ検証。
@@ -196,7 +194,6 @@ export const setCustomValidities = () => {
   };
 
   UI.urlInput.setCustomValidity(customValidities.url);
-  UI.originInput.setCustomValidity(customValidities.origin);
   UI.regexpInput.setCustomValidity(customValidities.regexp);
   UI.valueInput.setCustomValidity(customValidities.value);
   UI.headerNameInput.setCustomValidity(customValidities.headerName);

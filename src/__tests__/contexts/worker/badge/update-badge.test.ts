@@ -21,7 +21,6 @@ beforeEach(() => {
 const makeRule = (overrides: Partial<HeaderRule> & Pick<HeaderRule, 'matchType'>): HeaderRule => ({
   id: 'test-id',
   url: '',
-  origin: '',
   regexp: '',
   headerName: 'X-Test',
   operation: 'set',
@@ -36,7 +35,7 @@ describe('updateBadge', () => {
 
     await updateBadge({
       tabId: 1,
-      rules: [makeRule({ matchType: 'origin', origin: 'https://example.com' })],
+      rules: [makeRule({ matchType: 'prefix', url: 'https://example.com' })],
     });
 
     expect(setBadgeTextMock).toHaveBeenCalledWith({ tabId: 1, text: '' });
@@ -67,9 +66,9 @@ describe('updateBadge', () => {
     await updateBadge({
       tabId: 1,
       rules: [
-        makeRule({ matchType: 'origin', origin: 'https://api.example.com', isActive: true }),
-        makeRule({ matchType: 'origin', origin: 'https://api.example.com', isActive: false }),
-        makeRule({ matchType: 'origin', origin: 'https://other.example.com', isActive: true }),
+        makeRule({ matchType: 'prefix', url: 'https://api.example.com', isActive: true }),
+        makeRule({ matchType: 'prefix', url: 'https://api.example.com', isActive: false }),
+        makeRule({ matchType: 'prefix', url: 'https://other.example.com', isActive: true }),
       ],
     });
 

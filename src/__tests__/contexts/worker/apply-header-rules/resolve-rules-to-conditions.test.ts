@@ -17,7 +17,6 @@ const RESOURCE_TYPES = ['main_frame', 'sub_frame'];
 
 const makeRule = (overrides: Partial<HeaderRule> & Pick<HeaderRule, 'matchType'>): HeaderRule => ({
   url: '',
-  origin: '',
   regexp: '',
   headerName: 'X-Test',
   operation: 'set',
@@ -71,59 +70,84 @@ describe('resolveRulesToConditions', () => {
     });
   });
 
-  describe('matchType: origin', () => {
-    it('builds a urlFilter anchored to the full origin', () => {
-      const rule = makeRule({ matchType: 'origin', origin: 'https://api.example.com' });
+  describe('matchType: prefix', () => {
+    it('builds a urlFilter anchored to the start of the url, with no end anchor', () => {
+      const rule = makeRule({ matchType: 'prefix', url: 'https://api.example.com' });
 
       expect(resolveCondition(rule)).toStrictEqual({
         urlFilter: '|https://api.example.com/',
         resourceTypes: RESOURCE_TYPES,
+        isUrlFilterCaseSensitive: true,
       });
     });
 
     it('keeps the port in the urlFilter, so different ports on the same host are distinct rules', () => {
-      const rule = makeRule({ matchType: 'origin', origin: 'http://localhost:3000' });
+      const rule = makeRule({ matchType: 'prefix', url: 'http://localhost:3000' });
 
       expect(resolveCondition(rule)).toStrictEqual({
         urlFilter: '|http://localhost:3000/',
         resourceTypes: RESOURCE_TYPES,
+        isUrlFilterCaseSensitive: true,
       });
     });
 
-    it('ends the urlFilter with a literal "/" rather than "^", since "^" also matches ":" and would swallow a different port', () => {
-      const port3000 = makeRule({ matchType: 'origin', origin: 'http://localhost:3000' });
-      const port4000 = makeRule({ matchType: 'origin', origin: 'http://localhost:4000' });
+    it('does not use the "^" token, since prefix matching has no end anchor to speak of', () => {
+      const port3000 = makeRule({ matchType: 'prefix', url: 'http://localhost:3000' });
+      const port4000 = makeRule({ matchType: 'prefix', url: 'http://localhost:4000' });
 
       expect(resolveCondition(port3000)).not.toStrictEqual(resolveCondition(port4000));
       expect(resolveCondition(port3000)?.urlFilter).not.toContain('^');
     });
 
     it('keeps the scheme in the urlFilter, so http and https on the same host are distinct rules', () => {
-      const httpRule = makeRule({ matchType: 'origin', origin: 'http://example.com' });
-      const httpsRule = makeRule({ matchType: 'origin', origin: 'https://example.com' });
+      const httpRule = makeRule({ matchType: 'prefix', url: 'http://example.com' });
+      const httpsRule = makeRule({ matchType: 'prefix', url: 'https://example.com' });
 
       expect(resolveCondition(httpRule)).not.toStrictEqual(resolveCondition(httpsRule));
     });
 
-    it('builds a urlFilter from the punycode-normalized form of a non-ASCII origin', () => {
-      const rule = makeRule({ matchType: 'origin', origin: 'https://例え.com' });
+    it('builds a urlFilter from the punycode-normalized form of a non-ASCII url', () => {
+      const rule = makeRule({ matchType: 'prefix', url: 'https://例え.com' });
 
       expect(resolveCondition(rule)).toStrictEqual({
         urlFilter: '|https://xn--r8jz45g.com/',
         resourceTypes: RESOURCE_TYPES,
+        isUrlFilterCaseSensitive: true,
       });
     });
 
-    it('excludes a rule whose origin is not a parseable URL', () => {
-      const rule = makeRule({ matchType: 'origin', origin: 'not-a-url' });
+    it('excludes a rule whose url is not a parseable URL', () => {
+      const rule = makeRule({ matchType: 'prefix', url: 'not-a-url' });
 
       expect(resolveCondition(rule)).toBeUndefined();
     });
 
-    it('excludes a rule whose origin contains more than scheme + host + port (e.g. a path)', () => {
-      const rule = makeRule({ matchType: 'origin', origin: 'https://example.com/path' });
+    it('produces the same urlFilter (with trailing slash) whether or not the saved bare-domain url has one', () => {
+      const withSlash = makeRule({ matchType: 'prefix', url: 'https://example.co/' });
+      const withoutSlash = makeRule({ matchType: 'prefix', url: 'https://example.co' });
 
-      expect(resolveCondition(rule)).toBeUndefined();
+      expect(resolveCondition(withSlash)).toStrictEqual(resolveCondition(withoutSlash));
+      expect(resolveCondition(withSlash)?.urlFilter).toBe('|https://example.co/');
+    });
+
+    it('does not produce a urlFilter that would also prefix-match an unrelated domain (e.g. .co vs .com)', () => {
+      const coRule = makeRule({ matchType: 'prefix', url: 'https://example.co' });
+      const comRule = makeRule({ matchType: 'prefix', url: 'https://example.com' });
+
+      expect(resolveCondition(coRule)?.urlFilter).not.toBe(resolveCondition(comRule)?.urlFilter);
+      expect(
+        'https://example.com/'.startsWith(resolveCondition(coRule)?.urlFilter?.slice(1) ?? ''),
+      ).toBe(false);
+    });
+
+    it('keeps a path in the urlFilter, since prefix (unlike origin) is meant to match by path prefix too', () => {
+      const rule = makeRule({ matchType: 'prefix', url: 'https://example.com/api' });
+
+      expect(resolveCondition(rule)).toStrictEqual({
+        urlFilter: '|https://example.com/api',
+        resourceTypes: RESOURCE_TYPES,
+        isUrlFilterCaseSensitive: true,
+      });
     });
   });
 

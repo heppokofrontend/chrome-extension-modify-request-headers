@@ -11,7 +11,6 @@ const makeRule = (
   overrides: Partial<HeaderRule> & Pick<HeaderRule, 'id' | 'matchType'>,
 ): HeaderRule => ({
   url: '',
-  origin: '',
   regexp: '',
   headerName: 'X-Test',
   operation: 'set',
@@ -49,14 +48,14 @@ describe('status/renderers', () => {
 
     Object.assign(STATE, {
       rules: [
-        makeRule({ id: 'a', matchType: 'origin', origin: 'https://a.example.com', isActive: true }),
+        makeRule({ id: 'a', matchType: 'prefix', url: 'https://a.example.com', isActive: true }),
         makeRule({
           id: 'b',
-          matchType: 'origin',
-          origin: 'https://a.example.com',
+          matchType: 'prefix',
+          url: 'https://a.example.com',
           isActive: false,
         }),
-        makeRule({ id: 'c', matchType: 'origin', origin: 'https://b.example.com', isActive: true }),
+        makeRule({ id: 'c', matchType: 'prefix', url: 'https://b.example.com', isActive: true }),
       ],
       formState,
     });

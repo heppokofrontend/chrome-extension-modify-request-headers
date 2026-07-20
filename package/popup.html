@@ -61,7 +61,7 @@
                 <span class="label" data-i18n="form_labelMatchType">Match by</span>
                 <select id="select-matchType">
                   <option value="url" data-i18n="form_matchTypeUrl">url</option>
-                  <option value="origin" data-i18n="form_matchTypeOrigin">origin</option>
+                  <option value="prefix" data-i18n="form_matchTypePrefix">prefix</option>
                   <option value="regexp" data-i18n="form_matchTypeRegexp">regexp</option>
                 </select>
               </label>
@@ -69,25 +69,13 @@
 
             <p class="field-url">
               <label>
-                <span class="label" data-i18n="form_labelUrl">Exact URL</span>
+                <span class="label" data-i18n="form_labelUrl">URL</span>
                 <input
                   type="text"
                   id="input-url"
                   placeholder="https://api.example.com/v1/users"
                   autocomplete="off"
                   required
-                />
-              </label>
-            </p>
-
-            <p class="field-origin">
-              <label>
-                <span class="label">Origin</span>
-                <input
-                  type="text"
-                  id="input-origin"
-                  placeholder="http://localhost:3000"
-                  autocomplete="off"
                 />
               </label>
             </p>

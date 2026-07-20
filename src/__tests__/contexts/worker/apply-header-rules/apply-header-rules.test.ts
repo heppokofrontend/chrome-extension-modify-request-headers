@@ -24,7 +24,6 @@ const makeRule = (
   overrides: Partial<HeaderRule> & Pick<HeaderRule, 'id' | 'matchType'>,
 ): HeaderRule => ({
   url: '',
-  origin: '',
   regexp: '',
   headerName: 'X-Test',
   operation: 'set',
@@ -41,8 +40,8 @@ beforeEach(() => {
 describe('applyHeaderRules', () => {
   it('excludes inactive rules and assigns ids by original array position (1-based)', async () => {
     await applyHeaderRules([
-      makeRule({ id: 'a', matchType: 'origin', origin: 'https://a.example.com', isActive: false }),
-      makeRule({ id: 'b', matchType: 'origin', origin: 'https://b.example.com', isActive: true }),
+      makeRule({ id: 'a', matchType: 'prefix', url: 'https://a.example.com', isActive: false }),
+      makeRule({ id: 'b', matchType: 'prefix', url: 'https://b.example.com', isActive: true }),
     ]);
 
     expect(updateDynamicRulesMock).toHaveBeenCalledTimes(1);
@@ -55,8 +54,8 @@ describe('applyHeaderRules', () => {
     expect(addRules[0]?.id).toBe(2);
   });
 
-  it('excludes rules whose condition cannot be built (e.g. unparsable origin)', async () => {
-    await applyHeaderRules([makeRule({ id: 'a', matchType: 'origin', origin: 'not-a-url' })]);
+  it('excludes rules whose condition cannot be built (e.g. unparsable url)', async () => {
+    await applyHeaderRules([makeRule({ id: 'a', matchType: 'prefix', url: 'not-a-url' })]);
 
     const { addRules } = updateDynamicRulesMock.mock.calls[0]?.[0] as { addRules: unknown[] };
 
@@ -67,8 +66,8 @@ describe('applyHeaderRules', () => {
     await applyHeaderRules([
       makeRule({
         id: 'a',
-        matchType: 'origin',
-        origin: 'https://example.com',
+        matchType: 'prefix',
+        url: 'https://example.com',
         operation: 'remove',
         headerName: 'X-Remove-Me',
         value: 'should-not-appear',
@@ -100,9 +99,9 @@ describe('applyHeaderRules', () => {
       .mockResolvedValueOnce(undefined);
 
     await applyHeaderRules([
-      makeRule({ id: 'a', matchType: 'origin', origin: 'https://a.example.com' }),
-      makeRule({ id: 'b', matchType: 'origin', origin: 'https://b.example.com' }),
-      makeRule({ id: 'c', matchType: 'origin', origin: 'https://c.example.com' }),
+      makeRule({ id: 'a', matchType: 'prefix', url: 'https://a.example.com' }),
+      makeRule({ id: 'b', matchType: 'prefix', url: 'https://b.example.com' }),
+      makeRule({ id: 'c', matchType: 'prefix', url: 'https://c.example.com' }),
     ]);
 
     expect(updateDynamicRulesMock).toHaveBeenCalledTimes(2);
@@ -118,7 +117,7 @@ describe('applyHeaderRules', () => {
     updateDynamicRulesMock.mockRejectedValueOnce(unrelatedError);
 
     await expect(
-      applyHeaderRules([makeRule({ id: 'a', matchType: 'origin', origin: 'https://example.com' })]),
+      applyHeaderRules([makeRule({ id: 'a', matchType: 'prefix', url: 'https://example.com' })]),
     ).rejects.toBe(unrelatedError);
     expect(updateDynamicRulesMock).toHaveBeenCalledTimes(1);
   });
@@ -127,7 +126,7 @@ describe('applyHeaderRules', () => {
     updateDynamicRulesMock.mockRejectedValueOnce('not an Error');
 
     await expect(
-      applyHeaderRules([makeRule({ id: 'a', matchType: 'origin', origin: 'https://example.com' })]),
+      applyHeaderRules([makeRule({ id: 'a', matchType: 'prefix', url: 'https://example.com' })]),
     ).rejects.toBe('not an Error');
     expect(updateDynamicRulesMock).toHaveBeenCalledTimes(1);
   });
@@ -138,7 +137,7 @@ describe('applyHeaderRules', () => {
     updateDynamicRulesMock.mockRejectedValueOnce(staleIdError);
 
     await expect(
-      applyHeaderRules([makeRule({ id: 'a', matchType: 'origin', origin: 'https://example.com' })]),
+      applyHeaderRules([makeRule({ id: 'a', matchType: 'prefix', url: 'https://example.com' })]),
     ).rejects.toBe(staleIdError);
     expect(updateDynamicRulesMock).toHaveBeenCalledTimes(1);
   });

@@ -56,19 +56,19 @@ describe('form/handlers/on-match-type-change', () => {
   });
 
   it('applies visibility for the new matchType and persists it to formState', async () => {
-    UI.matchTypeSelect.value = 'origin';
+    UI.matchTypeSelect.value = 'regexp';
 
     onMatchTypeChange({ currentTarget: UI.matchTypeSelect } as unknown as Event);
 
-    expect(UI.form.dataset['matchType']).toBe('origin');
-    expect(UI.originInput.required).toBe(true);
+    expect(UI.form.dataset['matchType']).toBe('regexp');
+    expect(UI.regexpInput.required).toBe(true);
     expect(UI.urlInput.required).toBe(false);
 
     await vi.waitFor(() => {
       expect(storageSetMock).toHaveBeenCalled();
     });
 
-    expect(STATE.formState.matchType).toBe('origin');
+    expect(STATE.formState.matchType).toBe('regexp');
     expect(storageSetMock).toHaveBeenCalledWith({ formState: STATE.formState });
   });
 
@@ -77,7 +77,7 @@ describe('form/handlers/on-match-type-change', () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     storageSetMock.mockReset().mockRejectedValue(new Error('quota exceeded'));
 
-    UI.matchTypeSelect.value = 'origin';
+    UI.matchTypeSelect.value = 'regexp';
     const formStateBefore = STATE.formState;
 
     onMatchTypeChange({ currentTarget: UI.matchTypeSelect } as unknown as Event);

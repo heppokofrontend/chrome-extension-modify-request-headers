@@ -19,7 +19,6 @@ describe('rules/renderers/render-rules', () => {
     overrides: Partial<HeaderRule> & Pick<HeaderRule, 'id' | 'matchType'>,
   ): HeaderRule => ({
     url: '',
-    origin: '',
     regexp: '',
     headerName: 'X-Test',
     operation: 'set',
@@ -43,10 +42,10 @@ describe('rules/renderers/render-rules', () => {
   });
 
   describe('getPatternGroupKey', () => {
-    it('combines matchType and the matching value (origin)', () => {
-      const rule = makeRule({ id: 'a', matchType: 'origin', origin: 'https://example.com' });
+    it('combines matchType and the matching value (prefix)', () => {
+      const rule = makeRule({ id: 'a', matchType: 'prefix', url: 'https://example.com' });
 
-      expect(getPatternGroupKey(rule)).toBe('https://example.com::origin');
+      expect(getPatternGroupKey(rule)).toBe('https://example.com::prefix');
     });
 
     it('combines matchType and the matching value (regexp)', () => {
@@ -60,19 +59,19 @@ describe('rules/renderers/render-rules', () => {
     });
 
     it('treats rules with the same matchType but different values as distinct groups', () => {
-      const a = makeRule({ id: 'a', matchType: 'origin', origin: 'https://a.example.com' });
-      const b = makeRule({ id: 'b', matchType: 'origin', origin: 'https://b.example.com' });
+      const a = makeRule({ id: 'a', matchType: 'prefix', url: 'https://a.example.com' });
+      const b = makeRule({ id: 'b', matchType: 'prefix', url: 'https://b.example.com' });
 
       expect(getPatternGroupKey(a)).not.toBe(getPatternGroupKey(b));
     });
 
-    it('treats a punycode-form and a unicode-form origin for the same host as the same group', () => {
+    it('treats a punycode-form and a unicode-form prefix for the same host as the same group', () => {
       const punycode = makeRule({
         id: 'a',
-        matchType: 'origin',
-        origin: 'https://xn--r8jz45g.com',
+        matchType: 'prefix',
+        url: 'https://xn--r8jz45g.com',
       });
-      const unicode = makeRule({ id: 'b', matchType: 'origin', origin: 'https://例え.com' });
+      const unicode = makeRule({ id: 'b', matchType: 'prefix', url: 'https://例え.com' });
 
       expect(getPatternGroupKey(punycode)).toBe(getPatternGroupKey(unicode));
     });
@@ -94,20 +93,20 @@ describe('rules/renderers/render-rules', () => {
       STATE.rules = [
         makeRule({
           id: 'a',
-          matchType: 'origin',
-          origin: 'https://example.com',
+          matchType: 'prefix',
+          url: 'https://example.com',
           headerName: 'X-A',
         }),
         makeRule({
           id: 'b',
-          matchType: 'origin',
-          origin: 'https://example.com',
+          matchType: 'prefix',
+          url: 'https://example.com',
           headerName: 'X-B',
         }),
         makeRule({
           id: 'c',
-          matchType: 'origin',
-          origin: 'https://other.example.com',
+          matchType: 'prefix',
+          url: 'https://other.example.com',
           headerName: 'X-C',
         }),
       ];
@@ -126,12 +125,10 @@ describe('rules/renderers/render-rules', () => {
     });
 
     it('replaces the previous render entirely rather than appending to it', () => {
-      STATE.rules = [makeRule({ id: 'a', matchType: 'origin', origin: 'https://example.com' })];
+      STATE.rules = [makeRule({ id: 'a', matchType: 'prefix', url: 'https://example.com' })];
       renderRules();
 
-      STATE.rules = [
-        makeRule({ id: 'b', matchType: 'origin', origin: 'https://other.example.com' }),
-      ];
+      STATE.rules = [makeRule({ id: 'b', matchType: 'prefix', url: 'https://other.example.com' })];
       renderRules();
 
       expect(UI.rules.querySelectorAll('section.rule')).toHaveLength(1);
@@ -139,8 +136,8 @@ describe('rules/renderers/render-rules', () => {
 
     it('sets data-group-status to "active" when every rule in the group is active', () => {
       STATE.rules = [
-        makeRule({ id: 'a', matchType: 'origin', origin: 'https://example.com', isActive: true }),
-        makeRule({ id: 'b', matchType: 'origin', origin: 'https://example.com', isActive: true }),
+        makeRule({ id: 'a', matchType: 'prefix', url: 'https://example.com', isActive: true }),
+        makeRule({ id: 'b', matchType: 'prefix', url: 'https://example.com', isActive: true }),
       ];
 
       renderRules();
@@ -154,8 +151,8 @@ describe('rules/renderers/render-rules', () => {
       STATE.rules = [
         makeRule({
           id: 'a',
-          matchType: 'origin',
-          origin: 'https://example.com',
+          matchType: 'prefix',
+          url: 'https://example.com',
           isActive: false,
         }),
       ];
@@ -169,11 +166,11 @@ describe('rules/renderers/render-rules', () => {
 
     it('sets data-group-status to "mixed" when the group has both active and inactive rules', () => {
       STATE.rules = [
-        makeRule({ id: 'a', matchType: 'origin', origin: 'https://example.com', isActive: true }),
+        makeRule({ id: 'a', matchType: 'prefix', url: 'https://example.com', isActive: true }),
         makeRule({
           id: 'b',
-          matchType: 'origin',
-          origin: 'https://example.com',
+          matchType: 'prefix',
+          url: 'https://example.com',
           isActive: false,
         }),
       ];
@@ -187,11 +184,11 @@ describe('rules/renderers/render-rules', () => {
 
     it('sets data-active on each row to match the rule isActive state', () => {
       STATE.rules = [
-        makeRule({ id: 'a', matchType: 'origin', origin: 'https://example.com', isActive: true }),
+        makeRule({ id: 'a', matchType: 'prefix', url: 'https://example.com', isActive: true }),
         makeRule({
           id: 'b',
-          matchType: 'origin',
-          origin: 'https://example.com',
+          matchType: 'prefix',
+          url: 'https://example.com',
           isActive: false,
         }),
       ];
@@ -207,8 +204,8 @@ describe('rules/renderers/render-rules', () => {
       STATE.rules = [
         makeRule({
           id: 'a',
-          matchType: 'origin',
-          origin: 'https://example.com',
+          matchType: 'prefix',
+          url: 'https://example.com',
           operation: 'remove',
           value: 'ignored',
         }),
@@ -223,7 +220,7 @@ describe('rules/renderers/render-rules', () => {
     });
 
     it('enters edit mode for the clicked rule when its edit button is clicked', () => {
-      STATE.rules = [makeRule({ id: 'a', matchType: 'origin', origin: 'https://example.com' })];
+      STATE.rules = [makeRule({ id: 'a', matchType: 'prefix', url: 'https://example.com' })];
       STATE.editingId = '';
 
       renderRules();
@@ -234,7 +231,7 @@ describe('rules/renderers/render-rules', () => {
       expect(UI.form.dataset['mode']).toBe('edit');
     });
 
-    it('uses /pattern/ as the section label for regexp rules, and the raw value for url/origin rules', () => {
+    it('uses /pattern/ as the section label for regexp rules, and the raw value for url/prefix rules', () => {
       STATE.rules = [
         makeRule({ id: 'a', matchType: 'regexp', regexp: '^https://.*\\.example\\.com/' }),
         makeRule({ id: 'b', matchType: 'url', url: 'https://example.com/path' }),
@@ -249,18 +246,18 @@ describe('rules/renderers/render-rules', () => {
       expect(labels).toStrictEqual(['/^https://.*\\.example\\.com//', 'https://example.com/path']);
     });
 
-    it('merges a legacy punycode-saved origin rule with a unicode-saved origin rule into one section, preferring the unicode label', () => {
+    it('merges a legacy punycode-saved prefix rule with a unicode-saved prefix rule into one section, preferring the unicode label', () => {
       STATE.rules = [
         makeRule({
           id: 'a',
-          matchType: 'origin',
-          origin: 'https://xn--r8jz45g.com',
+          matchType: 'prefix',
+          url: 'https://xn--r8jz45g.com',
           headerName: 'X-A',
         }),
         makeRule({
           id: 'b',
-          matchType: 'origin',
-          origin: 'https://例え.com',
+          matchType: 'prefix',
+          url: 'https://例え.com',
           headerName: 'X-B',
         }),
       ];

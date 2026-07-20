@@ -6,7 +6,6 @@ import type { HeaderRule } from '@/types';
 const makeRule = (overrides: Partial<HeaderRule> & Pick<HeaderRule, 'matchType'>): HeaderRule => ({
   id: 'a',
   url: '',
-  origin: '',
   regexp: '',
   headerName: 'X-Test',
   operation: 'set',
@@ -22,8 +21,8 @@ describe('getMatchValue', () => {
     expect(getMatchValue(rule)).toBe('https://example.com/path');
   });
 
-  it('returns origin when matchType is origin', () => {
-    const rule = makeRule({ matchType: 'origin', origin: 'https://example.com' });
+  it('returns url when matchType is prefix', () => {
+    const rule = makeRule({ matchType: 'prefix', url: 'https://example.com' });
 
     expect(getMatchValue(rule)).toBe('https://example.com');
   });
@@ -36,9 +35,8 @@ describe('getMatchValue', () => {
 
   it('ignores the values of the fields that do not match the current matchType', () => {
     const rule = makeRule({
-      matchType: 'origin',
-      url: 'https://unused-url.example.com',
-      origin: 'https://example.com',
+      matchType: 'prefix',
+      url: 'https://example.com',
       regexp: 'unused-regexp',
     });
 
@@ -53,8 +51,8 @@ describe('getCanonicalMatchValue', () => {
     expect(getCanonicalMatchValue(rule)).toBe('https://xn--r8jz45g.com/path');
   });
 
-  it('normalizes a non-ASCII origin to its punycode-encoded origin', () => {
-    const rule = makeRule({ matchType: 'origin', origin: 'https://例え.com' });
+  it('normalizes a non-ASCII prefix to its punycode-encoded href', () => {
+    const rule = makeRule({ matchType: 'prefix', url: 'https://例え.com' });
 
     expect(getCanonicalMatchValue(rule)).toBe('https://xn--r8jz45g.com');
   });
@@ -66,14 +64,21 @@ describe('getCanonicalMatchValue', () => {
     expect(getCanonicalMatchValue(withSlash)).toBe(getCanonicalMatchValue(withoutSlash));
   });
 
+  it('treats a trailing-slash prefix and its slash-less form as the same canonical value', () => {
+    const withSlash = makeRule({ matchType: 'prefix', url: 'https://example.com/' });
+    const withoutSlash = makeRule({ matchType: 'prefix', url: 'https://example.com' });
+
+    expect(getCanonicalMatchValue(withSlash)).toBe(getCanonicalMatchValue(withoutSlash));
+  });
+
   it('returns the regexp as-is, since regexp has no notion of canonicalization', () => {
     const rule = makeRule({ matchType: 'regexp', regexp: '^https://.*\\.example\\.com/' });
 
     expect(getCanonicalMatchValue(rule)).toBe('^https://.*\\.example\\.com/');
   });
 
-  it('falls back to the raw value when the origin is not parseable', () => {
-    const rule = makeRule({ matchType: 'origin', origin: 'not-a-url' });
+  it('falls back to the raw value when the prefix is not parseable', () => {
+    const rule = makeRule({ matchType: 'prefix', url: 'not-a-url' });
 
     expect(getCanonicalMatchValue(rule)).toBe('not-a-url');
   });
