@@ -598,6 +598,7 @@
 }
 
 [data-match-type='url'] .field-url,
+[data-match-type='prefix'] .field-url,
 [data-match-type='regexp'] .field-regexp {
   display: block;
 }
