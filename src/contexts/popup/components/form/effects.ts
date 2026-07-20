@@ -67,7 +67,8 @@ export const resetFields = {
   /**
    * headerName / isActive / operation / value / origin を、呼び出し元から渡された値で初期化する。
    * 引数を省略した場合は新規作成時の初期値（isActive: true, operation: set, origin: 空）になる。
-   * 保存直後は続けて同じ相手にルールを足していけるよう candidate.origin だけ渡す。
+   * 保存直後は続けて同じ相手にルールを足していけるよう save-rule.ts が candidate をそのまま渡す
+   * （isActive/operation/origin は引き継がれ、headerName/value だけここで空になる）。
    */
   header: (params: HeaderParams = {}) => {
     const isActive = params.isActive ?? true;
@@ -93,11 +94,11 @@ const clearEditButtonMark = () => {
     ?.removeAttribute('data-edit');
 };
 
-/**
- * ルール一覧のクリック時に呼ぶ。以後 Save はこのルールの id プロパティを上書きする
- * （origin / headerName をここで変えても rename として扱われ、複製にならない）。
- */
 export const applyEditMode = {
+  /**
+   * ルール一覧のクリック時に呼ぶ。以後 Save はこのルールの id プロパティを上書きする
+   * （origin / headerName をここで変えても rename として扱われ、複製にならない）。
+   */
   start: (rule: HeaderRule) => {
     STATE.editingId = rule.id;
 
