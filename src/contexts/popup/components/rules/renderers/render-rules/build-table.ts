@@ -1,5 +1,5 @@
 import { applyEditMode } from '@/contexts/popup/components/form';
-import { BTN_EDIT_CLASS } from '@/contexts/popup/constants';
+import { CLASS_NAMES } from '@/contexts/popup/constants';
 import type { HeaderRule } from '@/types';
 import { getMessage } from '@/utils';
 
@@ -23,7 +23,7 @@ const buildRuleRow = (rule: HeaderRule) => {
   const statusText = getMessage(rule.isActive ? 'rule_table_active' : 'rule_table_inactive');
 
   button.type = 'button';
-  button.className = BTN_EDIT_CLASS;
+  button.className = CLASS_NAMES.ruleEditButton;
   button.dataset['id'] = rule.id;
   button.setAttribute(
     'aria-label',

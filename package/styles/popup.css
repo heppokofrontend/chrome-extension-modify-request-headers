@@ -349,7 +349,7 @@
     margin: 0.125rem 0 1.625rem;
   }
 
-  .btn-edit {
+  .rule__edit {
     &::before {
       display: block;
       content: '';

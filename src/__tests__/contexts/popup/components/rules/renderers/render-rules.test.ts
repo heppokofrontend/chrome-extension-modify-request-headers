@@ -5,7 +5,7 @@ import popupHtml from '@package/popup.html?raw';
 
 describe('rules/renderers/render-rules', () => {
   let UI: typeof import('@/contexts/popup/constants').UI;
-  let BTN_EDIT_CLASS: typeof import('@/contexts/popup/constants').BTN_EDIT_CLASS;
+  let CLASS_NAMES: typeof import('@/contexts/popup/constants').CLASS_NAMES;
   let STATE: typeof import('@/contexts/popup/state').STATE;
   let getPatternGroupKey: typeof import('@/contexts/popup/components/rules/renderers/render-rules').getPatternGroupKey;
   let renderRules: typeof import('@/contexts/popup/components/rules/renderers/render-rules').renderRules;
@@ -32,7 +32,7 @@ describe('rules/renderers/render-rules', () => {
     document.documentElement.innerHTML = popupHtml;
     vi.stubGlobal('chrome', { i18n: { getMessage: getMessageMock } });
 
-    ({ UI, BTN_EDIT_CLASS } = await import('@/contexts/popup/constants'));
+    ({ UI, CLASS_NAMES } = await import('@/contexts/popup/constants'));
     ({ STATE } = await import('@/contexts/popup/state'));
     ({ getPatternGroupKey, renderRules } =
       await import('@/contexts/popup/components/rules/renderers/render-rules'));
@@ -228,7 +228,7 @@ describe('rules/renderers/render-rules', () => {
 
       renderRules();
 
-      UI.rules.querySelector<HTMLButtonElement>(`button.${BTN_EDIT_CLASS}`)?.click();
+      UI.rules.querySelector<HTMLButtonElement>(`button.${CLASS_NAMES.ruleEditButton}`)?.click();
 
       expect(STATE.editingId).toBe('a');
       expect(UI.form.dataset['mode']).toBe('edit');

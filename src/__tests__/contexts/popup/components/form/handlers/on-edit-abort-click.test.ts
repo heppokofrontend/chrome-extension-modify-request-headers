@@ -5,7 +5,7 @@ import popupHtml from '@package/popup.html?raw';
 describe('form/handlers/on-edit-abort-click', () => {
   let UI: typeof import('@/contexts/popup/constants').UI;
   let STATE: typeof import('@/contexts/popup/state').STATE;
-  let BTN_EDIT_CLASS: typeof import('@/contexts/popup/constants').BTN_EDIT_CLASS;
+  let CLASS_NAMES: typeof import('@/contexts/popup/constants').CLASS_NAMES;
   let onEditAbortClick: typeof import('@/contexts/popup/components/form/handlers/on-edit-abort-click').onEditAbortClick;
 
   const click = () => {
@@ -16,7 +16,7 @@ describe('form/handlers/on-edit-abort-click', () => {
     document.documentElement.innerHTML = popupHtml;
     vi.stubGlobal('chrome', { i18n: { getMessage: (key: string) => key } });
 
-    ({ UI, BTN_EDIT_CLASS } = await import('@/contexts/popup/constants'));
+    ({ UI, CLASS_NAMES } = await import('@/contexts/popup/constants'));
     ({ STATE } = await import('@/contexts/popup/state'));
     ({ onEditAbortClick } =
       await import('@/contexts/popup/components/form/handlers/on-edit-abort-click'));
@@ -42,7 +42,7 @@ describe('form/handlers/on-edit-abort-click', () => {
     STATE.editingId = 'target';
 
     const button = document.createElement('button');
-    button.className = BTN_EDIT_CLASS;
+    button.className = CLASS_NAMES.ruleEditButton;
     button.dataset['id'] = 'target';
     button.setAttribute('data-edit', 'true');
     UI.rules.append(button);

@@ -1,4 +1,4 @@
-import { BTN_EDIT_CLASS, UI } from '@/contexts/popup/constants';
+import { CLASS_NAMES, UI } from '@/contexts/popup/constants';
 import { STATE } from '@/contexts/popup/state';
 import type { OperationType, HeaderRule, MatchType } from '@/types';
 import { getMessage } from '@/utils';
@@ -89,7 +89,7 @@ export const resetFields = {
 
 const clearEditButtonMark = () => {
   UI.rules
-    .querySelector<HTMLButtonElement>(`button.${BTN_EDIT_CLASS}[data-edit="true"]`)
+    .querySelector<HTMLButtonElement>(`button.${CLASS_NAMES.ruleEditButton}[data-edit="true"]`)
     ?.removeAttribute('data-edit');
 };
 
@@ -103,7 +103,9 @@ export const applyEditMode = {
 
     clearEditButtonMark();
     UI.rules
-      .querySelector<HTMLButtonElement>(`button.${BTN_EDIT_CLASS}[data-id="${rule.id}"]`)
+      .querySelector<HTMLButtonElement>(
+        `button.${CLASS_NAMES.ruleEditButton}[data-id="${rule.id}"]`,
+      )
       ?.setAttribute('data-edit', 'true');
 
     UI.form.dataset['mode'] = 'edit';
@@ -137,7 +139,9 @@ export const applyEditMode = {
 
 /** renderRules() で作り直された一覧の中から、指定した data-id 属性の値の編集ボタンにフォーカスを戻す。 */
 export const focusRuleButton = (id: string) => {
-  UI.rules.querySelector<HTMLButtonElement>(`button.${BTN_EDIT_CLASS}[data-id="${id}"]`)?.focus();
+  UI.rules
+    .querySelector<HTMLButtonElement>(`button.${CLASS_NAMES.ruleEditButton}[data-id="${id}"]`)
+    ?.focus();
 };
 
 /**
