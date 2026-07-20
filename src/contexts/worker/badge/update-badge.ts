@@ -33,7 +33,15 @@ export const updateBadge = async ({ tabId, rules }: Params) => {
     return;
   }
 
-  const count = rules.filter((rule) => rule.isActive && isMatchedRule({ rule, url })).length;
+  const matchedRules = rules.filter((rule) => {
+    return (
+      rule.isActive &&
+      isMatchedRule({
+        rule,
+        url,
+      })
+    );
+  });
 
-  await applyIconAndBadge(tabId, count);
+  await applyIconAndBadge(tabId, matchedRules.length);
 };

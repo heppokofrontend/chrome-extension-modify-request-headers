@@ -10,13 +10,11 @@ const OPERATION_MAP = {
 const RESOURCE_TYPES = Object.values(chrome.declarativeNetRequest.ResourceType);
 
 const toCondition = (rule: HeaderRule) => {
-  const resourceTypes = RESOURCE_TYPES;
-
   switch (rule.matchType) {
     case 'url': {
       if (!isSafeUrl(rule.url)) {
         console.warn(`Skipping invalid url in saved rule: ${rule.url}`);
-        return undefined;
+        return null;
       }
       // 保存時点で popup 側が正規化済みのはずだが、手動編集された旧データ等が
       // 非正規化のまま残っている可能性もあるため、ここでも `new URL().href` を
@@ -31,7 +29,6 @@ const toCondition = (rule: HeaderRule) => {
       // `===` の完全一致（大文字小文字を区別）なので、ここで明示的に区別させて両者を揃える。
       return {
         urlFilter: `|${withoutTrailingSlash}^|`,
-        resourceTypes,
         isUrlFilterCaseSensitive: true,
       };
     }
@@ -47,27 +44,28 @@ const toCondition = (rule: HeaderRule) => {
       // なるため、"/" 固定で「同一 origin 配下すべてに一致・別ポートは不一致」を表現できる。
       if (!isSafeOrigin(rule.origin)) {
         console.warn(`Skipping invalid origin in saved rule: ${rule.origin}`);
-        return undefined;
+        return null;
       }
       // rule.origin は表示用に生入力のまま保存されている（punycode正規化はしていない）ため、
       // url型と同様にここで `new URL().origin` を通してからurlFilterを組み立てる。
       const origin = new URL(rule.origin).origin;
-      return { urlFilter: `|${origin}/`, resourceTypes };
+      return { urlFilter: `|${origin}/` };
     }
 
     case 'regexp': {
       if (!isValidRegexp(rule.regexp)) {
         console.warn(`Skipping invalid regexp in saved rule: ${rule.regexp}`);
-        return undefined;
+        return null;
       }
-      return { regexFilter: rule.regexp, resourceTypes };
+      return { regexFilter: rule.regexp };
     }
+
+    default:
+      return null;
   }
 };
 
-export const resolveRulesToConditions = (
-  rules: HeaderRule[],
-): NonNullable<chrome.declarativeNetRequest.UpdateRuleOptions['addRules']> => {
+export const resolveRulesToConditions = (rules: HeaderRule[]) => {
   return rules.flatMap((rule, index) => {
     if (!rule.isActive) {
       return [];
@@ -75,7 +73,7 @@ export const resolveRulesToConditions = (
 
     const condition = toCondition(rule);
 
-    if (condition === undefined) {
+    if (condition === null) {
       return [];
     }
 
@@ -93,7 +91,10 @@ export const resolveRulesToConditions = (
             },
           ],
         },
-        condition,
+        condition: {
+          resourceTypes: RESOURCE_TYPES,
+          ...condition,
+        },
       },
     ];
   });
