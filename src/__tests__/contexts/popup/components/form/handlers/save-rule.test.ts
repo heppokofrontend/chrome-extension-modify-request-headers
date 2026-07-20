@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 
-import type { HeaderRule, SaveDataType } from '@/types';
+import type { HeaderRule, SaveData } from '@/types';
 import popupHtml from '@package/popup.html?raw';
 
-const formState: SaveDataType['formState'] = {
+const formState: SaveData['formState'] = {
   matchType: 'url',
   operation: 'set',
 };
@@ -54,16 +54,16 @@ describe('form/handlers/on-submit-form/save-rule', () => {
   });
 
   beforeEach(() => {
-    // setSaveData は STATE.saveData ではなく storage の実値を previous として読み直すため、
-    // storage は常に STATE.saveData を反映している体でモックする。
-    storageGetMock.mockReset().mockImplementation(() => ({ saveData: STATE.saveData }));
+    // setStorage は STATE ではなく storage の実値を previous として読み直すため、
+    // storage は常に STATE の該当 key を反映している体でモックする。
+    storageGetMock.mockReset().mockImplementation((key: keyof SaveData) => ({ [key]: STATE[key] }));
     storageSetMock.mockReset().mockResolvedValue(undefined);
     tabsQueryMock.mockReset().mockResolvedValue([]);
     vi.spyOn(window, 'alert').mockImplementation(() => undefined);
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
     STATE.editingId = '';
-    STATE.saveData = { rules: [], formState };
+    Object.assign(STATE, { rules: [], formState });
     UI.originInput.value = '';
     UI.headerNameInput.value = 'stale';
     UI.form.dataset['mode'] = 'edit';
@@ -80,8 +80,8 @@ describe('form/handlers/on-submit-form/save-rule', () => {
 
     await saveRule(candidate);
 
-    expect(STATE.saveData.rules.map((rule) => rule.id)).toStrictEqual(['new-id']);
-    expect(storageSetMock).toHaveBeenCalledWith({ saveData: STATE.saveData });
+    expect(STATE.rules.map((rule) => rule.id)).toStrictEqual(['new-id']);
+    expect(storageSetMock).toHaveBeenCalledWith({ rules: STATE.rules });
   });
 
   it('retains the normalized origin in the origin field, but resets the header fields, after saving', async () => {
@@ -129,23 +129,20 @@ describe('form/handlers/on-submit-form/save-rule', () => {
   });
 
   it('updates the matching rule in place by id while leaving unrelated rules untouched', async () => {
-    STATE.saveData = {
-      rules: [
-        makeRule({
-          id: 'a',
-          matchType: 'origin',
-          origin: 'https://a.example.com',
-          headerName: 'X-A',
-        }),
-        makeRule({
-          id: 'b',
-          matchType: 'origin',
-          origin: 'https://b.example.com',
-          headerName: 'X-B',
-        }),
-      ],
-      formState,
-    };
+    STATE.rules = [
+      makeRule({
+        id: 'a',
+        matchType: 'origin',
+        origin: 'https://a.example.com',
+        headerName: 'X-A',
+      }),
+      makeRule({
+        id: 'b',
+        matchType: 'origin',
+        origin: 'https://b.example.com',
+        headerName: 'X-B',
+      }),
+    ];
     STATE.editingId = 'a';
 
     const candidate = makeRule({
@@ -158,23 +155,20 @@ describe('form/handlers/on-submit-form/save-rule', () => {
 
     await saveRule(candidate);
 
-    expect(STATE.saveData.rules.map((rule) => rule.id)).toStrictEqual(['a', 'b']);
-    expect(STATE.saveData.rules[0]?.value).toBe('updated');
-    expect(STATE.saveData.rules[1]?.headerName).toBe('X-B');
+    expect(STATE.rules.map((rule) => rule.id)).toStrictEqual(['a', 'b']);
+    expect(STATE.rules[0]?.value).toBe('updated');
+    expect(STATE.rules[1]?.headerName).toBe('X-B');
   });
 
   it('does nothing when a duplicate is detected and the confirmation is cancelled', async () => {
-    STATE.saveData = {
-      rules: [
-        makeRule({
-          id: 'dup-1',
-          matchType: 'origin',
-          origin: 'https://example.com',
-          headerName: 'X-Dup',
-        }),
-      ],
-      formState,
-    };
+    STATE.rules = [
+      makeRule({
+        id: 'dup-1',
+        matchType: 'origin',
+        origin: 'https://example.com',
+        headerName: 'X-Dup',
+      }),
+    ];
 
     const candidate = makeRule({
       id: 'candidate-1',
@@ -191,7 +185,7 @@ describe('form/handlers/on-submit-form/save-rule', () => {
     cancelButton?.click();
     await promise;
 
-    expect(STATE.saveData.rules).toStrictEqual([
+    expect(STATE.rules).toStrictEqual([
       makeRule({
         id: 'dup-1',
         matchType: 'origin',
@@ -203,17 +197,14 @@ describe('form/handlers/on-submit-form/save-rule', () => {
   });
 
   it('overwrites the existing rule under the duplicate id when the confirmation is accepted', async () => {
-    STATE.saveData = {
-      rules: [
-        makeRule({
-          id: 'dup-1',
-          matchType: 'origin',
-          origin: 'https://example.com',
-          headerName: 'X-Dup',
-        }),
-      ],
-      formState,
-    };
+    STATE.rules = [
+      makeRule({
+        id: 'dup-1',
+        matchType: 'origin',
+        origin: 'https://example.com',
+        headerName: 'X-Dup',
+      }),
+    ];
 
     const candidate = makeRule({
       id: 'candidate-1',
@@ -229,28 +220,25 @@ describe('form/handlers/on-submit-form/save-rule', () => {
     okButton?.click();
     await promise;
 
-    expect(STATE.saveData.rules.map((rule) => rule.id)).toStrictEqual(['dup-1']);
-    expect(STATE.saveData.rules[0]?.value).toBe('new-value');
+    expect(STATE.rules.map((rule) => rule.id)).toStrictEqual(['dup-1']);
+    expect(STATE.rules[0]?.value).toBe('new-value');
   });
 
   it('removes the rule being renamed away from when the save target turns out to be a different, pre-existing duplicate', async () => {
-    STATE.saveData = {
-      rules: [
-        makeRule({
-          id: 'editing-id',
-          matchType: 'origin',
-          origin: 'https://other.com',
-          headerName: 'X-Dup',
-        }),
-        makeRule({
-          id: 'dup-1',
-          matchType: 'origin',
-          origin: 'https://example.com',
-          headerName: 'X-Dup',
-        }),
-      ],
-      formState,
-    };
+    STATE.rules = [
+      makeRule({
+        id: 'editing-id',
+        matchType: 'origin',
+        origin: 'https://other.com',
+        headerName: 'X-Dup',
+      }),
+      makeRule({
+        id: 'dup-1',
+        matchType: 'origin',
+        origin: 'https://example.com',
+        headerName: 'X-Dup',
+      }),
+    ];
     STATE.editingId = 'editing-id';
 
     const candidate = makeRule({
@@ -267,19 +255,16 @@ describe('form/handlers/on-submit-form/save-rule', () => {
     okButton?.click();
     await promise;
 
-    expect(STATE.saveData.rules.map((rule) => rule.id)).toStrictEqual(['dup-1']);
-    expect(STATE.saveData.rules[0]?.value).toBe('new-value');
+    expect(STATE.rules.map((rule) => rule.id)).toStrictEqual(['dup-1']);
+    expect(STATE.rules[0]?.value).toBe('new-value');
   });
 
   it('rolls back the saved data cache and alerts on save failure, without exiting edit mode', async () => {
-    STATE.saveData = {
-      rules: [
-        makeRule({ id: 'existing', matchType: 'origin', origin: 'https://kept.example.com' }),
-      ],
-      formState,
-    };
+    STATE.rules = [
+      makeRule({ id: 'existing', matchType: 'origin', origin: 'https://kept.example.com' }),
+    ];
     STATE.editingId = 'x';
-    const original = STATE.saveData;
+    const original = STATE.rules;
 
     storageSetMock.mockRejectedValueOnce(new Error('quota exceeded'));
 
@@ -291,7 +276,7 @@ describe('form/handlers/on-submit-form/save-rule', () => {
 
     await saveRule(candidate);
 
-    expect(STATE.saveData).toStrictEqual(original);
+    expect(STATE.rules).toStrictEqual(original);
     expect(STATE.editingId).toBe('x');
     expect(window.alert).toHaveBeenCalledWith('form_errSaveFailed');
     expect(console.error).toHaveBeenCalled();

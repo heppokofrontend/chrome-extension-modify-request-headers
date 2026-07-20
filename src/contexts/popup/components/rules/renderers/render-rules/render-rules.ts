@@ -14,7 +14,7 @@ export const renderRules = () => {
   /** @example { "https://example.com::origin": [ ... ] } */
   const groups = new Map<string, HeaderRule[]>();
 
-  for (const rule of STATE.saveData.rules) {
+  for (const rule of STATE.rules) {
     const key = getPatternGroupKey(rule);
     const group = groups.get(key);
 

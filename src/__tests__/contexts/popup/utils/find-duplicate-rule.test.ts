@@ -2,10 +2,9 @@ import { describe, it, expect, beforeEach } from 'vitest';
 
 import { STATE } from '@/contexts/popup/state';
 import { findDuplicateRule } from '@/contexts/popup/utils';
-import type { HeaderRule, SaveDataType } from '@/types';
-import { getDefaultSaveData } from '@/utils';
+import type { HeaderRule, SaveData } from '@/types';
 
-const formState: SaveDataType['formState'] = {
+const formState: SaveData['formState'] = {
   matchType: 'url',
   operation: 'set',
 };
@@ -24,7 +23,7 @@ const makeRule = (
 
 describe('findDuplicateRule', () => {
   beforeEach(() => {
-    STATE.saveData = getDefaultSaveData();
+    Object.assign(STATE, { rules: [], formState });
   });
 
   it('finds an existing rule with the same matchType, matching value, and headerName', () => {
@@ -34,7 +33,7 @@ describe('findDuplicateRule', () => {
       origin: 'https://example.com',
       headerName: 'X-Foo',
     });
-    STATE.saveData = { rules: [existing], formState };
+    Object.assign(STATE, { rules: [existing], formState });
 
     const candidate = makeRule({
       id: 'b',
@@ -53,18 +52,18 @@ describe('findDuplicateRule', () => {
       origin: 'https://example.com',
       headerName: 'X-Foo',
     });
-    STATE.saveData = { rules: [rule], formState };
+    Object.assign(STATE, { rules: [rule], formState });
 
     expect(findDuplicateRule(rule)).toBeUndefined();
   });
 
   it('does not match when matchType differs, even with the same matching value', () => {
-    STATE.saveData = {
+    Object.assign(STATE, {
       rules: [
         makeRule({ id: 'a', matchType: 'url', url: 'https://example.com', headerName: 'X-Foo' }),
       ],
       formState,
-    };
+    });
 
     const candidate = makeRule({
       id: 'b',
@@ -77,7 +76,7 @@ describe('findDuplicateRule', () => {
   });
 
   it('does not match when the matching value differs', () => {
-    STATE.saveData = {
+    Object.assign(STATE, {
       rules: [
         makeRule({
           id: 'a',
@@ -87,7 +86,7 @@ describe('findDuplicateRule', () => {
         }),
       ],
       formState,
-    };
+    });
 
     const candidate = makeRule({
       id: 'b',
@@ -100,7 +99,7 @@ describe('findDuplicateRule', () => {
   });
 
   it('does not match when headerName differs', () => {
-    STATE.saveData = {
+    Object.assign(STATE, {
       rules: [
         makeRule({
           id: 'a',
@@ -110,7 +109,7 @@ describe('findDuplicateRule', () => {
         }),
       ],
       formState,
-    };
+    });
 
     const candidate = makeRule({
       id: 'b',

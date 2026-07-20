@@ -12,7 +12,7 @@ import {
 import { renderRules } from '@/contexts/popup/components/rules';
 import { renderStatus } from '@/contexts/popup/components/status';
 import { STATE } from '@/contexts/popup/state';
-import { getSaveData } from '@/utils';
+import { getStorage } from '@/utils';
 
 import { UI } from './constants';
 
@@ -48,9 +48,9 @@ const addListener = () => {
 };
 
 const init = async () => {
-  STATE.saveData = await getSaveData();
+  Object.assign(STATE, await getStorage());
 
-  const { matchType, operation } = STATE.saveData.formState;
+  const { matchType, operation } = STATE.formState;
 
   addListener();
   renderRules();

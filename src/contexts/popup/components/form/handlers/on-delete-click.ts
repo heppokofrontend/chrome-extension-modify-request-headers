@@ -5,7 +5,7 @@ import { renderRules } from '@/contexts/popup/components/rules';
 import { renderStatus } from '@/contexts/popup/components/status';
 import { STATE } from '@/contexts/popup/state';
 import { getRuleById } from '@/contexts/popup/utils';
-import { getMessage, setSaveData } from '@/utils';
+import { getMessage, setStorage } from '@/utils';
 
 export const onDeleteClick = async (e: Event) => {
   e.preventDefault();
@@ -31,16 +31,15 @@ export const onDeleteClick = async (e: Event) => {
     return;
   }
 
-  const saved = await setSaveData((current) => ({
-    ...current,
-    rules: current.rules.filter((r) => r.id !== STATE.editingId),
-  }));
+  const saved = await setStorage('rules', (current) =>
+    current.filter((r) => r.id !== STATE.editingId),
+  );
 
   if (!saved) {
     return;
   }
 
-  STATE.saveData = saved;
+  STATE.rules = saved;
 
   resetFields.all();
 

@@ -24,7 +24,7 @@ export type HeaderRule = {
   isActive: boolean;
 };
 
-export type SaveDataType = {
+export type SaveData = {
   rules: HeaderRule[];
   formState: {
     matchType: MatchType;

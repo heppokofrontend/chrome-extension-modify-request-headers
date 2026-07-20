@@ -1,12 +1,7 @@
 import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 
-import type { HeaderRule, SaveDataType } from '@/types';
+import type { HeaderRule } from '@/types';
 import popupHtml from '@package/popup.html?raw';
-
-const formState: SaveDataType['formState'] = {
-  matchType: 'url',
-  operation: 'set',
-};
 
 describe('rules/renderers/render-rules', () => {
   let UI: typeof import('@/contexts/popup/constants').UI;
@@ -96,29 +91,26 @@ describe('rules/renderers/render-rules', () => {
 
   describe('renderRules', () => {
     it('renders one section per distinct matchType+value group, containing all its rules as rows', () => {
-      STATE.saveData = {
-        rules: [
-          makeRule({
-            id: 'a',
-            matchType: 'origin',
-            origin: 'https://example.com',
-            headerName: 'X-A',
-          }),
-          makeRule({
-            id: 'b',
-            matchType: 'origin',
-            origin: 'https://example.com',
-            headerName: 'X-B',
-          }),
-          makeRule({
-            id: 'c',
-            matchType: 'origin',
-            origin: 'https://other.example.com',
-            headerName: 'X-C',
-          }),
-        ],
-        formState,
-      };
+      STATE.rules = [
+        makeRule({
+          id: 'a',
+          matchType: 'origin',
+          origin: 'https://example.com',
+          headerName: 'X-A',
+        }),
+        makeRule({
+          id: 'b',
+          matchType: 'origin',
+          origin: 'https://example.com',
+          headerName: 'X-B',
+        }),
+        makeRule({
+          id: 'c',
+          matchType: 'origin',
+          origin: 'https://other.example.com',
+          headerName: 'X-C',
+        }),
+      ];
 
       renderRules();
 
@@ -134,29 +126,22 @@ describe('rules/renderers/render-rules', () => {
     });
 
     it('replaces the previous render entirely rather than appending to it', () => {
-      STATE.saveData = {
-        rules: [makeRule({ id: 'a', matchType: 'origin', origin: 'https://example.com' })],
-        formState,
-      };
+      STATE.rules = [makeRule({ id: 'a', matchType: 'origin', origin: 'https://example.com' })];
       renderRules();
 
-      STATE.saveData = {
-        rules: [makeRule({ id: 'b', matchType: 'origin', origin: 'https://other.example.com' })],
-        formState,
-      };
+      STATE.rules = [
+        makeRule({ id: 'b', matchType: 'origin', origin: 'https://other.example.com' }),
+      ];
       renderRules();
 
       expect(UI.rules.querySelectorAll('section.rule')).toHaveLength(1);
     });
 
     it('sets data-group-status to "active" when every rule in the group is active', () => {
-      STATE.saveData = {
-        rules: [
-          makeRule({ id: 'a', matchType: 'origin', origin: 'https://example.com', isActive: true }),
-          makeRule({ id: 'b', matchType: 'origin', origin: 'https://example.com', isActive: true }),
-        ],
-        formState,
-      };
+      STATE.rules = [
+        makeRule({ id: 'a', matchType: 'origin', origin: 'https://example.com', isActive: true }),
+        makeRule({ id: 'b', matchType: 'origin', origin: 'https://example.com', isActive: true }),
+      ];
 
       renderRules();
 
@@ -166,17 +151,14 @@ describe('rules/renderers/render-rules', () => {
     });
 
     it('sets data-group-status to "inactive" when every rule in the group is inactive', () => {
-      STATE.saveData = {
-        rules: [
-          makeRule({
-            id: 'a',
-            matchType: 'origin',
-            origin: 'https://example.com',
-            isActive: false,
-          }),
-        ],
-        formState,
-      };
+      STATE.rules = [
+        makeRule({
+          id: 'a',
+          matchType: 'origin',
+          origin: 'https://example.com',
+          isActive: false,
+        }),
+      ];
 
       renderRules();
 
@@ -186,18 +168,15 @@ describe('rules/renderers/render-rules', () => {
     });
 
     it('sets data-group-status to "mixed" when the group has both active and inactive rules', () => {
-      STATE.saveData = {
-        rules: [
-          makeRule({ id: 'a', matchType: 'origin', origin: 'https://example.com', isActive: true }),
-          makeRule({
-            id: 'b',
-            matchType: 'origin',
-            origin: 'https://example.com',
-            isActive: false,
-          }),
-        ],
-        formState,
-      };
+      STATE.rules = [
+        makeRule({ id: 'a', matchType: 'origin', origin: 'https://example.com', isActive: true }),
+        makeRule({
+          id: 'b',
+          matchType: 'origin',
+          origin: 'https://example.com',
+          isActive: false,
+        }),
+      ];
 
       renderRules();
 
@@ -207,18 +186,15 @@ describe('rules/renderers/render-rules', () => {
     });
 
     it('sets data-active on each row to match the rule isActive state', () => {
-      STATE.saveData = {
-        rules: [
-          makeRule({ id: 'a', matchType: 'origin', origin: 'https://example.com', isActive: true }),
-          makeRule({
-            id: 'b',
-            matchType: 'origin',
-            origin: 'https://example.com',
-            isActive: false,
-          }),
-        ],
-        formState,
-      };
+      STATE.rules = [
+        makeRule({ id: 'a', matchType: 'origin', origin: 'https://example.com', isActive: true }),
+        makeRule({
+          id: 'b',
+          matchType: 'origin',
+          origin: 'https://example.com',
+          isActive: false,
+        }),
+      ];
 
       renderRules();
 
@@ -228,18 +204,15 @@ describe('rules/renderers/render-rules', () => {
     });
 
     it('shows "-" instead of the value for a remove-operation rule', () => {
-      STATE.saveData = {
-        rules: [
-          makeRule({
-            id: 'a',
-            matchType: 'origin',
-            origin: 'https://example.com',
-            operation: 'remove',
-            value: 'ignored',
-          }),
-        ],
-        formState,
-      };
+      STATE.rules = [
+        makeRule({
+          id: 'a',
+          matchType: 'origin',
+          origin: 'https://example.com',
+          operation: 'remove',
+          value: 'ignored',
+        }),
+      ];
 
       renderRules();
 
@@ -250,10 +223,7 @@ describe('rules/renderers/render-rules', () => {
     });
 
     it('enters edit mode for the clicked rule when its edit button is clicked', () => {
-      STATE.saveData = {
-        rules: [makeRule({ id: 'a', matchType: 'origin', origin: 'https://example.com' })],
-        formState,
-      };
+      STATE.rules = [makeRule({ id: 'a', matchType: 'origin', origin: 'https://example.com' })];
       STATE.editingId = '';
 
       renderRules();
@@ -265,13 +235,10 @@ describe('rules/renderers/render-rules', () => {
     });
 
     it('uses /pattern/ as the section label for regexp rules, and the raw value for url/origin rules', () => {
-      STATE.saveData = {
-        rules: [
-          makeRule({ id: 'a', matchType: 'regexp', regexp: '^https://.*\\.example\\.com/' }),
-          makeRule({ id: 'b', matchType: 'url', url: 'https://example.com/path' }),
-        ],
-        formState,
-      };
+      STATE.rules = [
+        makeRule({ id: 'a', matchType: 'regexp', regexp: '^https://.*\\.example\\.com/' }),
+        makeRule({ id: 'b', matchType: 'url', url: 'https://example.com/path' }),
+      ];
 
       renderRules();
 
@@ -283,23 +250,20 @@ describe('rules/renderers/render-rules', () => {
     });
 
     it('merges a legacy punycode-saved origin rule with a unicode-saved origin rule into one section, preferring the unicode label', () => {
-      STATE.saveData = {
-        rules: [
-          makeRule({
-            id: 'a',
-            matchType: 'origin',
-            origin: 'https://xn--r8jz45g.com',
-            headerName: 'X-A',
-          }),
-          makeRule({
-            id: 'b',
-            matchType: 'origin',
-            origin: 'https://例え.com',
-            headerName: 'X-B',
-          }),
-        ],
-        formState,
-      };
+      STATE.rules = [
+        makeRule({
+          id: 'a',
+          matchType: 'origin',
+          origin: 'https://xn--r8jz45g.com',
+          headerName: 'X-A',
+        }),
+        makeRule({
+          id: 'b',
+          matchType: 'origin',
+          origin: 'https://例え.com',
+          headerName: 'X-B',
+        }),
+      ];
 
       renderRules();
 

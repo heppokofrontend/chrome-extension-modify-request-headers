@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 
-import type { SaveDataType } from '@/types';
+import type { SaveData } from '@/types';
 import popupHtml from '@package/popup.html?raw';
 
-const formState: SaveDataType['formState'] = {
+const formState: SaveData['formState'] = {
   matchType: 'url',
   operation: 'set',
 };
@@ -38,15 +38,15 @@ describe('form/handlers/on-submit-form/on-submit-form', () => {
   });
 
   beforeEach(() => {
-    // setSaveData は STATE.saveData ではなく storage の実値を previous として読み直すため、
-    // storage は常に STATE.saveData を反映している体でモックする。
-    storageGetMock.mockReset().mockImplementation(() => ({ saveData: STATE.saveData }));
+    // setStorage は STATE ではなく storage の実値を previous として読み直すため、
+    // storage は常に STATE の該当 key を反映している体でモックする。
+    storageGetMock.mockReset().mockImplementation((key: keyof SaveData) => ({ [key]: STATE[key] }));
     storageSetMock.mockReset().mockResolvedValue(undefined);
     tabsQueryMock.mockReset().mockResolvedValue([]);
     isRegexSupportedMock.mockReset().mockResolvedValue({ isSupported: true });
 
     STATE.editingId = '';
-    STATE.saveData = { rules: [], formState };
+    Object.assign(STATE, { rules: [], formState });
 
     UI.matchTypeSelect.value = 'url';
     applyMatchTypeVisibility('url');
@@ -65,7 +65,7 @@ describe('form/handlers/on-submit-form/on-submit-form', () => {
 
     await submit();
 
-    expect(STATE.saveData.rules).toHaveLength(0);
+    expect(STATE.rules).toHaveLength(0);
     expect(storageSetMock).not.toHaveBeenCalled();
   });
 
@@ -74,7 +74,7 @@ describe('form/handlers/on-submit-form/on-submit-form', () => {
 
     await submit();
 
-    expect(STATE.saveData.rules).toHaveLength(0);
+    expect(STATE.rules).toHaveLength(0);
     expect(storageSetMock).not.toHaveBeenCalled();
   });
 
@@ -84,7 +84,7 @@ describe('form/handlers/on-submit-form/on-submit-form', () => {
 
     await submit();
 
-    expect(STATE.saveData.rules).toHaveLength(0);
+    expect(STATE.rules).toHaveLength(0);
     expect(storageSetMock).not.toHaveBeenCalled();
   });
 
@@ -98,8 +98,8 @@ describe('form/handlers/on-submit-form/on-submit-form', () => {
 
     await submit();
 
-    expect(STATE.saveData.rules).toHaveLength(1);
-    expect(STATE.saveData.rules[0]).toMatchObject({
+    expect(STATE.rules).toHaveLength(1);
+    expect(STATE.rules[0]).toMatchObject({
       matchType: 'url',
       url: 'https://example.com/path',
       headerName: 'X-New',
@@ -116,7 +116,7 @@ describe('form/handlers/on-submit-form/on-submit-form', () => {
 
     await submit();
 
-    expect(STATE.saveData.rules[0]?.url).toBe('https://heppokofrontend.dev');
+    expect(STATE.rules[0]?.url).toBe('https://heppokofrontend.dev');
   });
 
   it('keeps a non-ASCII url input human-readable instead of saving the punycode-normalized form', async () => {
@@ -126,26 +126,23 @@ describe('form/handlers/on-submit-form/on-submit-form', () => {
 
     await submit();
 
-    expect(STATE.saveData.rules[0]?.url).toBe('https://例え.com');
+    expect(STATE.rules[0]?.url).toBe('https://例え.com');
   });
 
   it('reuses STATE.editingId as the saved rule id instead of generating a new one', async () => {
-    STATE.saveData = {
-      rules: [
-        {
-          id: 'existing-id',
-          matchType: 'url',
-          url: 'https://old.example.com/',
-          origin: '',
-          regexp: '',
-          headerName: 'X-Old',
-          operation: 'set',
-          value: 'old',
-          isActive: true,
-        },
-      ],
-      formState,
-    };
+    STATE.rules = [
+      {
+        id: 'existing-id',
+        matchType: 'url',
+        url: 'https://old.example.com/',
+        origin: '',
+        regexp: '',
+        headerName: 'X-Old',
+        operation: 'set',
+        value: 'old',
+        isActive: true,
+      },
+    ];
     STATE.editingId = 'existing-id';
 
     UI.matchTypeSelect.value = 'url';
@@ -155,8 +152,8 @@ describe('form/handlers/on-submit-form/on-submit-form', () => {
 
     await submit();
 
-    expect(STATE.saveData.rules.map((rule) => rule.id)).toStrictEqual(['existing-id']);
-    expect(STATE.saveData.rules[0]?.url).toBe('https://new.example.com/');
+    expect(STATE.rules.map((rule) => rule.id)).toStrictEqual(['existing-id']);
+    expect(STATE.rules[0]?.url).toBe('https://new.example.com/');
   });
 
   it('normalizes the origin field when matchType is origin', async () => {
@@ -167,8 +164,8 @@ describe('form/handlers/on-submit-form/on-submit-form', () => {
 
     await submit();
 
-    expect(STATE.saveData.rules).toHaveLength(1);
-    expect(STATE.saveData.rules[0]?.origin).toBe('https://example.com');
+    expect(STATE.rules).toHaveLength(1);
+    expect(STATE.rules[0]?.origin).toBe('https://example.com');
   });
 
   it('saves a regexp rule once chrome.declarativeNetRequest.isRegexSupported confirms RE2 support', async () => {
@@ -182,7 +179,7 @@ describe('form/handlers/on-submit-form/on-submit-form', () => {
     await submit();
 
     expect(isRegexSupportedMock).toHaveBeenCalledWith({ regex: '^https://example\\.com/' });
-    expect(STATE.saveData.rules).toHaveLength(1);
+    expect(STATE.rules).toHaveLength(1);
   });
 
   it('rejects a regexp rule that JS accepts but RE2 does not support, without saving', async () => {
@@ -195,7 +192,7 @@ describe('form/handlers/on-submit-form/on-submit-form', () => {
 
     await submit();
 
-    expect(STATE.saveData.rules).toHaveLength(0);
+    expect(STATE.rules).toHaveLength(0);
     expect(storageSetMock).not.toHaveBeenCalled();
   });
 });

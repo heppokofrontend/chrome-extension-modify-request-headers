@@ -1,4 +1,4 @@
-import type { SaveDataType } from '@/types';
+import type { HeaderRule } from '@/types';
 import { isMatchedRule } from '@/utils';
 
 const applyIconAndBadge = async (tabId: number, count: number) => {
@@ -11,7 +11,12 @@ const applyIconAndBadge = async (tabId: number, count: number) => {
   ]);
 };
 
-export const updateBadge = async (tabId: number, saveData: Required<SaveDataType>) => {
+interface Params {
+  tabId: number;
+  rules: HeaderRule[];
+}
+
+export const updateBadge = async ({ tabId, rules }: Params) => {
   const tab = await chrome.tabs.get(tabId).catch(() => undefined);
 
   if (tab?.url === undefined || tab.url === '') {
@@ -28,9 +33,7 @@ export const updateBadge = async (tabId: number, saveData: Required<SaveDataType
     return;
   }
 
-  const count = saveData.rules.filter(
-    (rule) => rule.isActive && isMatchedRule({ rule, url }),
-  ).length;
+  const count = rules.filter((rule) => rule.isActive && isMatchedRule({ rule, url })).length;
 
   await applyIconAndBadge(tabId, count);
 };

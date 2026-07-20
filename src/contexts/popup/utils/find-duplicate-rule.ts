@@ -7,7 +7,7 @@ import type { HeaderRule } from '@/types';
  * 同じ対象・同じヘッダーへの重複設定を保存前に弾くための判定用。
  */
 export const findDuplicateRule = (rule: HeaderRule) =>
-  STATE.saveData.rules.find(
+  STATE.rules.find(
     (existing) =>
       existing.id !== rule.id &&
       existing.matchType === rule.matchType &&

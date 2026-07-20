@@ -1,6 +1,6 @@
 import { applyMatchTypeVisibility } from '@/contexts/popup/components/form/effects';
 import { STATE } from '@/contexts/popup/state';
-import { isMatchType, setSaveData } from '@/utils';
+import { isMatchType, setStorage } from '@/utils';
 
 /** matchType の選択に応じて origin / regexp フィールドの表示を切り替えるだけ。 */
 export const onMatchTypeChange = (e: Event) => {
@@ -15,14 +15,14 @@ export const onMatchTypeChange = (e: Event) => {
   }
 
   applyMatchTypeVisibility(value);
-  void setSaveData((current) => ({
+  void setStorage('formState', (current) => ({
     ...current,
-    formState: { ...current.formState, matchType: value },
+    matchType: value,
   })).then((saved) => {
     if (saved === null) {
       return;
     }
 
-    STATE.saveData = saved;
+    STATE.formState = saved;
   });
 };

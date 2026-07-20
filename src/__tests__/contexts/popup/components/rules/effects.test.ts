@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 
-import type { HeaderRule, SaveDataType } from '@/types';
+import type { HeaderRule, SaveData } from '@/types';
 import popupHtml from '@package/popup.html?raw';
 
-const formState: SaveDataType['formState'] = {
+const formState: SaveData['formState'] = {
   matchType: 'url',
   operation: 'set',
 };
@@ -55,42 +55,42 @@ describe('rules/effects', () => {
   });
 
   beforeEach(() => {
-    // setSaveData は STATE.saveData ではなく storage の実値を previous として読み直すため、
-    // storage は常に STATE.saveData を反映している体でモックする。
-    storageGetMock.mockReset().mockImplementation(() => ({ saveData: STATE.saveData }));
+    // setStorage は STATE ではなく storage の実値を previous として読み直すため、
+    // storage は常に STATE の該当 key を反映している体でモックする。
+    storageGetMock.mockReset().mockImplementation((key: keyof SaveData) => ({ [key]: STATE[key] }));
     storageSetMock.mockReset().mockResolvedValue(undefined);
     tabsQueryMock.mockReset().mockResolvedValue([]);
     vi.spyOn(window, 'alert').mockImplementation(() => undefined);
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
     STATE.editingId = '';
-    STATE.saveData = {
+    Object.assign(STATE, {
       rules: [
         makeRule({ id: 'a', matchType: 'origin', origin: 'https://example.com', isActive: true }),
         makeRule({ id: 'b', matchType: 'origin', origin: 'https://example.com', isActive: true }),
       ],
       formState,
-    };
+    });
   });
 
   describe('toggleGroupActive', () => {
     it('sets isActive for the given ids, persists, and re-renders the list', async () => {
       await toggleGroupActive(['a'], false);
 
-      expect(STATE.saveData.rules.find((rule) => rule.id === 'a')?.isActive).toBe(false);
-      expect(STATE.saveData.rules.find((rule) => rule.id === 'b')?.isActive).toBe(true);
-      expect(storageSetMock).toHaveBeenCalledWith({ saveData: STATE.saveData });
+      expect(STATE.rules.find((rule) => rule.id === 'a')?.isActive).toBe(false);
+      expect(STATE.rules.find((rule) => rule.id === 'b')?.isActive).toBe(true);
+      expect(storageSetMock).toHaveBeenCalledWith({ rules: STATE.rules });
       expect(UI.rules.querySelector('section.rule')).not.toBeNull();
     });
 
     it('rolls back the saved data cache and alerts on save failure, without re-rendering', async () => {
-      const original = STATE.saveData;
+      const original = STATE.rules;
 
       storageSetMock.mockRejectedValueOnce(new Error('quota exceeded'));
 
       await toggleGroupActive(['a'], false);
 
-      expect(STATE.saveData).toStrictEqual(original);
+      expect(STATE.rules).toStrictEqual(original);
       expect(window.alert).toHaveBeenCalledWith('form_errSaveFailed');
       expect(console.error).toHaveBeenCalled();
     });
@@ -105,7 +105,7 @@ describe('rules/effects', () => {
       cancelButton?.click();
       await promise;
 
-      expect(STATE.saveData.rules.map((rule) => rule.id)).toStrictEqual(['a', 'b']);
+      expect(STATE.rules.map((rule) => rule.id)).toStrictEqual(['a', 'b']);
       expect(storageSetMock).not.toHaveBeenCalled();
     });
 
@@ -116,8 +116,8 @@ describe('rules/effects', () => {
       okButton?.click();
       await promise;
 
-      expect(STATE.saveData.rules.map((rule) => rule.id)).toStrictEqual(['b']);
-      expect(storageSetMock).toHaveBeenCalledWith({ saveData: STATE.saveData });
+      expect(STATE.rules.map((rule) => rule.id)).toStrictEqual(['b']);
+      expect(storageSetMock).toHaveBeenCalledWith({ rules: STATE.rules });
     });
 
     it('exits edit mode when the deleted ids include the rule currently being edited', async () => {
@@ -146,7 +146,7 @@ describe('rules/effects', () => {
     });
 
     it('rolls back the saved data cache and alerts on save failure, without exiting edit mode', async () => {
-      const original = STATE.saveData;
+      const original = STATE.rules;
 
       STATE.editingId = 'a';
       storageSetMock.mockRejectedValueOnce(new Error('quota exceeded'));
@@ -157,7 +157,7 @@ describe('rules/effects', () => {
       okButton?.click();
       await promise;
 
-      expect(STATE.saveData).toStrictEqual(original);
+      expect(STATE.rules).toStrictEqual(original);
       expect(STATE.editingId).toBe('a');
       expect(window.alert).toHaveBeenCalledWith('form_errSaveFailed');
     });

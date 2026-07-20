@@ -11,7 +11,7 @@ import { getMessage, isMatchedRule } from '@/utils';
  * 送信数は worker のバッジと同じ isMatchedRule を使うので、バッジの数字と一致する。
  */
 export const renderStatus = async () => {
-  const { rules } = STATE.saveData;
+  const { rules } = STATE;
   const patternCount = new Set(rules.map(getPatternGroupKey)).size;
   const activeCount = rules.filter((rule) => rule.isActive).length;
 

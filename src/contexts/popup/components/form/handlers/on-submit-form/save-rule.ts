@@ -10,7 +10,7 @@ import { renderStatus } from '@/contexts/popup/components/status';
 import { STATE } from '@/contexts/popup/state';
 import { findDuplicateRule } from '@/contexts/popup/utils';
 import type { HeaderRule } from '@/types';
-import { getMessage, setSaveData } from '@/utils';
+import { getMessage, setStorage } from '@/utils';
 
 /** 重複確認・保存確定・保存後のフォーム/一覧の後始末をまとめて行う。 */
 export const saveRule = async (candidate: HeaderRule) => {
@@ -40,20 +40,20 @@ export const saveRule = async (candidate: HeaderRule) => {
   const shouldDropEditingRule =
     Boolean(duplicate) && Boolean(STATE.editingId) && STATE.editingId !== duplicate?.id;
   const base = shouldDropEditingRule
-    ? STATE.saveData.rules.filter((rule) => rule.id !== STATE.editingId)
-    : STATE.saveData.rules;
+    ? STATE.rules.filter((rule) => rule.id !== STATE.editingId)
+    : STATE.rules;
   const nextRule = { ...candidate, id };
   const index = base.findIndex((rule) => rule.id === id);
   const nextRules =
     index === -1 ? [...base, nextRule] : base.map((rule, i) => (i === index ? nextRule : rule));
 
-  const saved = await setSaveData((current) => ({ ...current, rules: nextRules }));
+  const saved = await setStorage('rules', nextRules);
 
   if (saved === null) {
     return;
   }
 
-  STATE.saveData = saved;
+  STATE.rules = saved;
 
   renderRules();
   void renderStatus();

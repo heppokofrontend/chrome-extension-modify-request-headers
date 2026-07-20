@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 
-import type { HeaderRule, SaveDataType } from '@/types';
+import type { HeaderRule, SaveData } from '@/types';
 import popupHtml from '@package/popup.html?raw';
 
-const formState: SaveDataType['formState'] = {
+const formState: SaveData['formState'] = {
   matchType: 'url',
   operation: 'set',
 };
@@ -51,7 +51,7 @@ describe('status/renderers', () => {
     FILTER_STATE.textValue = '';
     FILTER_STATE.statusValue = 'all';
 
-    STATE.saveData = {
+    Object.assign(STATE, {
       rules: [
         makeRule({ id: 'a', matchType: 'origin', origin: 'https://a.example.com', isActive: true }),
         makeRule({
@@ -63,7 +63,7 @@ describe('status/renderers', () => {
         makeRule({ id: 'c', matchType: 'origin', origin: 'https://b.example.com', isActive: true }),
       ],
       formState,
-    };
+    });
   });
 
   it('queries the active tab in the current window', async () => {

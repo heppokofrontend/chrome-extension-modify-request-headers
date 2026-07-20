@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 
-import type { SaveDataType } from '@/types';
+import type { SaveData } from '@/types';
 import popupHtml from '@package/popup.html?raw';
 
-const formState: SaveDataType['formState'] = {
+const formState: SaveData['formState'] = {
   matchType: 'url',
   operation: 'set',
 };
@@ -31,12 +31,12 @@ describe('form/handlers/on-operation-change', () => {
   });
 
   beforeEach(() => {
-    // setSaveData は STATE.saveData ではなく storage の実値を previous として読み直すため、
-    // storage は常に STATE.saveData を反映している体でモックする。
-    storageGetMock.mockReset().mockImplementation(() => ({ saveData: STATE.saveData }));
+    // setStorage は STATE ではなく storage の実値を previous として読み直すため、
+    // storage は常に STATE の該当 key を反映している体でモックする。
+    storageGetMock.mockReset().mockImplementation((key: keyof SaveData) => ({ [key]: STATE[key] }));
     storageSetMock.mockReset().mockResolvedValue(undefined);
 
-    STATE.saveData = { rules: [], formState };
+    Object.assign(STATE, { rules: [], formState });
     UI.operationSelect.value = 'set';
   });
 
@@ -66,17 +66,17 @@ describe('form/handlers/on-operation-change', () => {
       expect(storageSetMock).toHaveBeenCalled();
     });
 
-    expect(STATE.saveData.formState.operation).toBe('remove');
-    expect(storageSetMock).toHaveBeenCalledWith({ saveData: STATE.saveData });
+    expect(STATE.formState.operation).toBe('remove');
+    expect(storageSetMock).toHaveBeenCalledWith({ formState: STATE.formState });
   });
 
-  it('leaves STATE.saveData untouched when persisting fails', async () => {
+  it('leaves STATE.formState untouched when persisting fails', async () => {
     const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => undefined);
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     storageSetMock.mockReset().mockRejectedValue(new Error('quota exceeded'));
 
     UI.operationSelect.value = 'remove';
-    const saveDataBefore = STATE.saveData;
+    const formStateBefore = STATE.formState;
 
     onOperationChange({ currentTarget: UI.operationSelect } as unknown as Event);
 
@@ -87,7 +87,7 @@ describe('form/handlers/on-operation-change', () => {
       expect(alertSpy).toHaveBeenCalled();
     });
 
-    expect(STATE.saveData).toBe(saveDataBefore);
+    expect(STATE.formState).toBe(formStateBefore);
 
     alertSpy.mockRestore();
     errorSpy.mockRestore();

@@ -51,7 +51,7 @@ export const applyHeaderRules = async (rules: HeaderRule[]) => {
       addRules = addRules.filter((rule) => rule.id !== rejectedId);
 
       // addRules が縮まらない = rejectedId が addRules 側に無い
-      // （deleteRuleIds 側の id、または並行呼び出しによるスナップショットのずれ）。
+      // （removeRuleIds 側の id、または並行呼び出しによるスナップショットのずれ）。
       // 同じエラーを繰り返す無限ループを避けるためここで打ち切る。
       if (addRules.length === before) {
         throw error;
@@ -64,7 +64,7 @@ export const applyHeaderRules = async (rules: HeaderRule[]) => {
 
 /**
  * getDynamicRules 取得〜updateDynamicRules 確定の間に別呼び出しが割り込むと
- * deleteRuleIds がずれて例外→打ち切りになる（apply-header-rules.ts 内コメント参照）。
+ * removeRuleIds がずれて例外→打ち切りになる（上記コメント参照）。
  * storage.onChanged は短時間に連続発火し得るため、呼び出し自体を1本のキューに
  * 直列化して重ならないようにする。前段が reject しても後続は止めたいので、
  * onFulfilled/onRejected の両方に run を渡している。

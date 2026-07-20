@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { refreshActiveTabBadges } from '@/contexts/worker/badge/refresh-active-tab-badges';
-import type { SaveDataType } from '@/types';
+import type { HeaderRule } from '@/types';
 
 const tabsQueryMock = vi.fn();
 const tabsGetMock = vi.fn();
@@ -20,16 +20,13 @@ beforeEach(() => {
   });
 });
 
-const saveData: Required<SaveDataType> = {
-  rules: [],
-  formState: { matchType: 'url', operation: 'set' },
-};
+const rules: HeaderRule[] = [];
 
 describe('refreshActiveTabBadges', () => {
   it('queries only active tabs and updates a badge for each one', async () => {
     tabsQueryMock.mockResolvedValue([{ id: 1 }, { id: 2 }]);
 
-    await refreshActiveTabBadges(saveData);
+    await refreshActiveTabBadges(rules);
 
     expect(tabsQueryMock).toHaveBeenCalledWith({ active: true });
     expect(tabsGetMock).toHaveBeenCalledWith(1);
@@ -39,7 +36,7 @@ describe('refreshActiveTabBadges', () => {
   it('skips tabs without an id', async () => {
     tabsQueryMock.mockResolvedValue([{ id: undefined }, { id: 3 }]);
 
-    await refreshActiveTabBadges(saveData);
+    await refreshActiveTabBadges(rules);
 
     expect(tabsGetMock).toHaveBeenCalledTimes(1);
     expect(tabsGetMock).toHaveBeenCalledWith(3);
