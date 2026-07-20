@@ -495,7 +495,7 @@
           background: var(--color-table-row-hover-bg);
         }
 
-        tr:has([data-edit='true']) {
+        tr:has([aria-pressed='true']) {
           background: var(--color-table-row-edit-bg);
         }
       }

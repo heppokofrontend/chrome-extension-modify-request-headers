@@ -93,9 +93,16 @@ export const resetFields = {
 };
 
 const clearEditButtonMark = () => {
-  UI.rules
-    .querySelector<HTMLButtonElement>(`button.${CLASS_NAMES.ruleEditButton}[data-edit="true"]`)
-    ?.removeAttribute('data-edit');
+  const button = UI.rules.querySelector<HTMLButtonElement>(
+    `button.${CLASS_NAMES.ruleEditButton}[aria-pressed="true"]`,
+  );
+
+  if (!button) {
+    return;
+  }
+
+  button.setAttribute('aria-pressed', 'false');
+  button.title = getMessage('rule_table_editTitle');
 };
 
 export const applyEditMode = {
@@ -107,11 +114,15 @@ export const applyEditMode = {
     STATE.editingId = rule.id;
 
     clearEditButtonMark();
-    UI.rules
-      .querySelector<HTMLButtonElement>(
-        `button.${CLASS_NAMES.ruleEditButton}[data-id="${rule.id}"]`,
-      )
-      ?.setAttribute('data-edit', 'true');
+
+    const editButton = UI.rules.querySelector<HTMLButtonElement>(
+      `button.${CLASS_NAMES.ruleEditButton}[data-id="${rule.id}"]`,
+    );
+
+    if (editButton) {
+      editButton.setAttribute('aria-pressed', 'true');
+      editButton.title = getMessage('rule_table_editAbortTitle');
+    }
 
     UI.form.dataset['mode'] = 'edit';
     UI.matchTypeSelect.value = rule.matchType;
@@ -130,7 +141,7 @@ export const applyEditMode = {
 
   /**
    * フォームを「新規作成中」の状態に戻す。renderRules() を経由しないキャンセル操作
-   * （on-edit-abort-click.ts）では一覧の DOM が作り直されず data-edit 属性が残り続けるため、
+   * （on-edit-abort-click.ts）では一覧の DOM が作り直されず aria-pressed 属性が残り続けるため、
    * ここで明示的に外す（delete 側は renderRules() で一覧ごと作り直されるため実質無害）。
    */
   end: () => {
@@ -146,6 +157,19 @@ export const focusRuleButton = (id: string) => {
   UI.rules
     .querySelector<HTMLButtonElement>(`button.${CLASS_NAMES.ruleEditButton}[data-id="${id}"]`)
     ?.focus();
+};
+
+/** 編集中のルールがなければ何もしない。あれば入力欄を空にして編集モードを終了し、編集ボタンにフォーカスを戻す。 */
+export const editAbort = () => {
+  const { editingId } = STATE;
+
+  if (!editingId) {
+    return;
+  }
+
+  resetFields.all();
+  applyEditMode.end();
+  focusRuleButton(editingId);
 };
 
 /**

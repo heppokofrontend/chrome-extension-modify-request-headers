@@ -44,7 +44,7 @@ describe('form/handlers/on-edit-abort-click', () => {
     const button = document.createElement('button');
     button.className = CLASS_NAMES.ruleEditButton;
     button.dataset['id'] = 'target';
-    button.setAttribute('data-edit', 'true');
+    button.setAttribute('aria-pressed', 'true');
     UI.rules.append(button);
 
     click();
@@ -54,7 +54,7 @@ describe('form/handlers/on-edit-abort-click', () => {
     expect(UI.matchTypeSelect.value).toBe('url');
     expect(UI.urlInput.value).toBe('');
     expect(UI.headerNameInput.value).toBe('');
-    expect(button.hasAttribute('data-edit')).toBe(false);
+    expect(button.getAttribute('aria-pressed')).toBe('false');
     expect(document.activeElement).toBe(button);
   });
 });

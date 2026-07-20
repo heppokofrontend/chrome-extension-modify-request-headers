@@ -1,5 +1,6 @@
-import { applyEditMode } from '@/contexts/popup/components/form';
+import { applyEditMode, editAbort } from '@/contexts/popup/components/form';
 import { CLASS_NAMES } from '@/contexts/popup/constants';
+import { STATE } from '@/contexts/popup/state';
 import type { HeaderRule } from '@/types';
 import { getMessage } from '@/utils';
 
@@ -26,12 +27,18 @@ const buildRuleRow = (rule: HeaderRule) => {
   button.className = CLASS_NAMES.ruleEditButton;
   button.dataset['id'] = rule.id;
   button.title = getMessage('rule_table_editTitle');
+  button.setAttribute('aria-pressed', 'false');
   button.setAttribute(
     'aria-label',
     getMessage('rule_table_edit', `${rule.headerName}${statusText}`),
   );
   button.append(statusIcon, ` ${rule.headerName}`);
   button.addEventListener('click', () => {
+    if (STATE.editingId === rule.id) {
+      editAbort();
+      return;
+    }
+
     applyEditMode.start(rule);
   });
   th.append(button);

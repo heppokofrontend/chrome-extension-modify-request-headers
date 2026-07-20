@@ -92,6 +92,9 @@
       }
     }
   },
+  "rule_table_editAbortTitle": {
+    "message": "Click to cancel editing"
+  },
   "rule_table_editTitle": {
     "message": "Click to edit"
   },

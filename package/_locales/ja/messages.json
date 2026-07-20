@@ -92,6 +92,9 @@
       }
     }
   },
+  "rule_table_editAbortTitle": {
+    "message": "クリックで編集をキャンセル"
+  },
   "rule_table_editTitle": {
     "message": "クリックして編集する"
   },

@@ -225,10 +225,36 @@ describe('rules/renderers/render-rules', () => {
 
       renderRules();
 
-      UI.rules.querySelector<HTMLButtonElement>(`button.${CLASS_NAMES.ruleEditButton}`)?.click();
+      const button = UI.rules.querySelector<HTMLButtonElement>(
+        `button.${CLASS_NAMES.ruleEditButton}`,
+      );
+
+      button?.click();
 
       expect(STATE.editingId).toBe('a');
       expect(UI.form.dataset['mode']).toBe('edit');
+      expect(button?.getAttribute('aria-pressed')).toBe('true');
+      expect(button?.title).toBe('rule_table_editAbortTitle:');
+    });
+
+    it('cancels edit mode when the same edit button is clicked again', () => {
+      STATE.rules = [makeRule({ id: 'a', matchType: 'prefix', url: 'https://example.com' })];
+      STATE.editingId = '';
+
+      renderRules();
+
+      const button = UI.rules.querySelector<HTMLButtonElement>(
+        `button.${CLASS_NAMES.ruleEditButton}`,
+      );
+
+      button?.click();
+      button?.click();
+
+      expect(STATE.editingId).toBe('');
+      expect(UI.form.dataset['mode']).toBe('create');
+      expect(button?.getAttribute('aria-pressed')).toBe('false');
+      expect(button?.title).toBe('rule_table_editTitle:');
+      expect(document.activeElement).toBe(button);
     });
 
     it('uses /pattern/ as the section label for regexp rules, and the raw value for url/prefix rules', () => {

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 // rules/renderers/render-rules.ts（className付与）と form/effects.ts（querySelector）の
 // 両方から同じ文字列で参照されるため、片方だけの変更で壊れないようここに集約する。
-export const CLASS_NAMES = { ruleEditButton: 'rule__edit' };
+export const CLASS_NAMES = { ruleEditButton: 'rule__edit' } as const;
 
 // popup.html は静的なマークアップなので、要素の存在は保証されている前提で
 // ここで一括して取得する。呼び出し側で毎回 null チェックをしなくて済むようにするため。
