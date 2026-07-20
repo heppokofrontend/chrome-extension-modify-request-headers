@@ -108,4 +108,25 @@ describe('status/renderers', () => {
     // a.example.com グループは2件中1件だけ isActive: true。
     expect(UI.status.textContent).toBe('status_sending:1');
   });
+
+  it('discards a stale call that resolves after a newer call', async () => {
+    let resolveStale: (tabs: unknown[]) => void = () => {};
+    const stale = new Promise<unknown[]>((resolve) => {
+      resolveStale = resolve;
+    });
+
+    tabsQueryMock.mockReturnValueOnce(stale);
+    const stalePromise = renderStatus();
+
+    tabsQueryMock.mockResolvedValueOnce([{ id: 2, url: 'https://a.example.com/path' }]);
+    await renderStatus();
+
+    expect(UI.status.textContent).toBe('status_sending:1');
+
+    resolveStale([{ id: 1, url: 'https://b.example.com/path' }]);
+    await stalePromise;
+
+    // 後発の呼び出しが先に解決していた表示を、先発（古い）呼び出しの結果で上書きしないこと。
+    expect(UI.status.textContent).toBe('status_sending:1');
+  });
 });

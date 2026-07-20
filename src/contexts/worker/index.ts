@@ -1,12 +1,13 @@
 import { queueApplyHeaderRules } from '@/contexts/worker/apply-header-rules';
 import { refreshActiveTabBadges, updateBadge } from '@/contexts/worker/badge';
+import { BADGE_BACKGROUND_COLOR } from '@/contexts/worker/constants';
 import { getStorage } from '@/utils';
 
 const init = async () => {
   const saveData = await getStorage();
 
   await queueApplyHeaderRules(saveData.rules);
-  await chrome.action.setBadgeBackgroundColor({ color: '#f7e500' });
+  await chrome.action.setBadgeBackgroundColor({ color: BADGE_BACKGROUND_COLOR });
   await refreshActiveTabBadges(saveData.rules);
 };
 

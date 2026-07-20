@@ -1,3 +1,4 @@
+import { BADGE_ICON_PATHS } from '@/contexts/worker/constants';
 import type { HeaderRule } from '@/types';
 import { isMatchedRule } from '@/utils';
 
@@ -6,7 +7,7 @@ const applyIconAndBadge = async (tabId: number, count: number) => {
     chrome.action.setBadgeText({ tabId, text: count > 0 ? String(count) : '' }),
     chrome.action.setIcon({
       tabId,
-      path: count > 0 ? 'images/icon-active.png' : 'images/icon.png',
+      path: count > 0 ? BADGE_ICON_PATHS.active : BADGE_ICON_PATHS.inactive,
     }),
   ]);
 };
