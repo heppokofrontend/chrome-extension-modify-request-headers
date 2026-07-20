@@ -6,9 +6,7 @@ import { STATE } from '@/contexts/popup/state';
 import { getRuleById } from '@/contexts/popup/utils';
 import { getMessage, setStorage } from '@/utils';
 
-export const onDeleteClick = async (e: Event) => {
-  e.preventDefault();
-
+export const deleteRule = async () => {
   if (!STATE.editingId) {
     return;
   }
@@ -44,4 +42,9 @@ export const onDeleteClick = async (e: Event) => {
 
   refreshRulesViews();
   applyEditMode.end();
+};
+
+export const onDeleteClick = (e: Event) => {
+  e.preventDefault();
+  void deleteRule();
 };

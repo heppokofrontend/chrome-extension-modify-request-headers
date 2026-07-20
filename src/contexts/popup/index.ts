@@ -23,9 +23,7 @@ const addListener = () => {
 
   UI.matchTypeSelect.addEventListener('change', onMatchTypeChange);
   UI.operationSelect.addEventListener('change', onOperationChange);
-  UI.deleteButton.addEventListener('click', (e) => {
-    void onDeleteClick(e);
-  });
+  UI.deleteButton.addEventListener('click', onDeleteClick);
   UI.editAbortButton.addEventListener('click', onEditAbortClick);
 
   UI.urlInput.addEventListener('change', onUrlChange);

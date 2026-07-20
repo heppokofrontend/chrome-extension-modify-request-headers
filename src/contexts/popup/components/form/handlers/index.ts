@@ -1,4 +1,4 @@
-export * from './on-delete-click';
+export { onDeleteClick } from './on-delete-click';
 export * from './on-edit-abort-click';
 export * from './on-field-input';
 export { onFormSubmit } from './on-form-submit';

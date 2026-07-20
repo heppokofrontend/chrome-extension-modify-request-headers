@@ -22,19 +22,19 @@ const makeRule = (
 describe('form/handlers/on-delete-click', () => {
   let UI: typeof import('@/contexts/popup/constants').UI;
   let STATE: typeof import('@/contexts/popup/state').STATE;
-  let onDeleteClick: typeof import('@/contexts/popup/components/form/handlers/on-delete-click').onDeleteClick;
+  let deleteRule: typeof import('@/contexts/popup/components/form/handlers/on-delete-click').deleteRule;
 
   const storageGetMock = vi.fn();
   const storageSetMock = vi.fn();
   const tabsQueryMock = vi.fn();
 
-  const click = () => onDeleteClick({ preventDefault: vi.fn() } as unknown as Event);
+  const click = () => deleteRule();
 
   beforeAll(async () => {
     document.documentElement.innerHTML = popupHtml;
 
     // jsdom does not implement HTMLDialogElement's showModal/close; confirmModal (used by
-    // onDeleteClick) depends only on the `open` attribute, so polyfill that much.
+    // deleteRule) depends only on the `open` attribute, so polyfill that much.
     HTMLDialogElement.prototype.showModal = function (this: HTMLDialogElement) {
       this.setAttribute('open', '');
     };
@@ -50,7 +50,7 @@ describe('form/handlers/on-delete-click', () => {
 
     ({ UI } = await import('@/contexts/popup/constants'));
     ({ STATE } = await import('@/contexts/popup/state'));
-    ({ onDeleteClick } = await import('@/contexts/popup/components/form/handlers/on-delete-click'));
+    ({ deleteRule } = await import('@/contexts/popup/components/form/handlers/on-delete-click'));
   });
 
   beforeEach(() => {
