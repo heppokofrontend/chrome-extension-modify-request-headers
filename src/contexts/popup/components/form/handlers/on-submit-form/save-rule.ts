@@ -65,6 +65,5 @@ export const saveRule = async (candidate: HeaderRule) => {
   }
 
   resetFields.header(candidate);
-
   applyEditMode.end();
 };
