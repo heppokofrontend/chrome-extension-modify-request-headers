@@ -182,7 +182,15 @@
   "modal_heading": {
     "message": "ご確認"
   },
-  "modal_messageConfirmDelete": {
+  "modal_messageConfirmDeleteSingle": {
+    "message": "このパターンにマッチする$COUNT$件のルールを削除しますか？",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "modal_messageConfirmDeleteMultiple": {
     "message": "このパターンにマッチする$COUNT$件のルールをすべて削除しますか？",
     "placeholders": {
       "count": {

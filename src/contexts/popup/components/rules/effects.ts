@@ -22,7 +22,9 @@ export const toggleGroupActive = async (ids: readonly string[], isActive: boolea
 /** グループ内のルールを confirm 後にまとめて削除する。編集中のルールが含まれる場合は編集状態も解除する。 */
 export const deleteGroup = async (ids: readonly string[], ruleLabel: string) => {
   const confirmed = await confirmModal(
-    getMessage('modal_messageConfirmDelete', ids.length),
+    ids.length === 1
+      ? getMessage('modal_messageConfirmDeleteSingle', ids.length)
+      : getMessage('modal_messageConfirmDeleteMultiple', ids.length),
     ruleLabel,
   );
 

@@ -182,8 +182,16 @@
   "modal_heading": {
     "message": "Confirm"
   },
-  "modal_messageConfirmDelete": {
-    "message": "Delete all $COUNT$ rule(s) matched by this pattern?",
+  "modal_messageConfirmDeleteSingle": {
+    "message": "Delete $COUNT$ rule matched by this pattern?",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "modal_messageConfirmDeleteMultiple": {
+    "message": "Delete all $COUNT$ rules matched by this pattern?",
     "placeholders": {
       "count": {
         "content": "$1"
