@@ -62,7 +62,7 @@ describe('form/handlers/on-form-submit/save-rule', () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
     STATE.editingId = '';
-    Object.assign(STATE, { rules: [], formState });
+    Object.assign(STATE, { rules: [], formState: { ...formState, isDirty: true } });
     UI.headerNameInput.value = 'stale';
     UI.form.dataset['mode'] = 'edit';
   });
@@ -262,5 +262,54 @@ describe('form/handlers/on-form-submit/save-rule', () => {
     expect(STATE.editingId).toBe('x');
     expect(window.alert).toHaveBeenCalledWith('form_errSaveFailed');
     expect(console.error).toHaveBeenCalled();
+  });
+
+  describe('formState.isDirty', () => {
+    it('resets isDirty to false after saving a new rule in create mode', async () => {
+      const candidate = makeRule({
+        id: 'new-id',
+        matchType: 'prefix',
+        url: 'https://example.com',
+      });
+
+      await saveRule(candidate);
+
+      expect(STATE.formState.isDirty).toBe(false);
+    });
+
+    it('resets isDirty to false after overwriting an existing rule in edit mode', async () => {
+      STATE.rules = [makeRule({ id: 'a', matchType: 'prefix', url: 'https://a.example.com' })];
+      STATE.editingId = 'a';
+
+      const candidate = makeRule({
+        id: 'a',
+        matchType: 'prefix',
+        url: 'https://a.example.com',
+        value: 'updated',
+      });
+
+      await saveRule(candidate);
+
+      expect(STATE.formState.isDirty).toBe(false);
+    });
+
+    it('keeps isDirty true when the save fails', async () => {
+      STATE.rules = [
+        makeRule({ id: 'existing', matchType: 'prefix', url: 'https://kept.example.com' }),
+      ];
+      STATE.editingId = 'x';
+
+      storageSetMock.mockRejectedValueOnce(new Error('quota exceeded'));
+
+      const candidate = makeRule({
+        id: 'new-id',
+        matchType: 'prefix',
+        url: 'https://example.com',
+      });
+
+      await saveRule(candidate);
+
+      expect(STATE.formState.isDirty).toBe(true);
+    });
   });
 });

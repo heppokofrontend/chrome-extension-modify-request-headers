@@ -140,6 +140,7 @@ export const applyEditMode = {
    */
   start: (rule: HeaderRule) => {
     STATE.editingId = rule.id;
+    STATE.formState.isDirty = false;
 
     clearEditButtonMark();
 
@@ -177,6 +178,7 @@ export const applyEditMode = {
     STATE.editingId = '';
     UI.form.dataset['mode'] = 'create';
 
+    STATE.formState.isDirty = false;
     clearEditButtonMark();
   },
 };
