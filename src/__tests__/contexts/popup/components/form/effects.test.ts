@@ -21,6 +21,7 @@ describe('form/effects', () => {
   let resetFields: typeof import('@/contexts/popup/components/form/effects').resetFields;
   let applyEditMode: typeof import('@/contexts/popup/components/form/effects').applyEditMode;
   let setCustomValidities: typeof import('@/contexts/popup/components/form/effects').setCustomValidities;
+  let renderMatchDatalists: typeof import('@/contexts/popup/components/form/effects').renderMatchDatalists;
 
   beforeAll(async () => {
     document.documentElement.innerHTML = popupHtml;
@@ -28,12 +29,13 @@ describe('form/effects', () => {
 
     ({ UI } = await import('@/contexts/popup/constants'));
     ({ STATE } = await import('@/contexts/popup/state'));
-    ({ resetFields, applyEditMode, setCustomValidities } =
+    ({ resetFields, applyEditMode, setCustomValidities, renderMatchDatalists } =
       await import('@/contexts/popup/components/form/effects'));
   });
 
   beforeEach(() => {
     STATE.editingId = '';
+    STATE.rules = [];
     UI.matchTypeSelect.value = 'url';
     UI.urlInput.value = '';
     UI.regexpInput.value = '';
@@ -188,6 +190,12 @@ describe('form/effects', () => {
         isActive: false,
       });
 
+      // 一覧の中の1件をクリックして編集開始する想定なので、対象ルール自身も STATE.rules に含める。
+      STATE.rules = [
+        makeRule({ id: 'other', matchType: 'regexp', regexp: '^https://other\\.example\\.com/' }),
+        rule,
+      ];
+
       applyEditMode.start(rule);
 
       expect(STATE.editingId).toBe('a');
@@ -201,6 +209,13 @@ describe('form/effects', () => {
       expect(UI.operationSelect.value).toBe('remove');
       expect(UI.valueInput.value).toBe('bar');
       expect(document.activeElement).toBe(UI.matchTypeSelect);
+
+      // regexp モードなので regexp 側の datalist だけ候補が入り、url 側は空になる。
+      expect([...UI.regexpDatalist.options].map((option) => option.value)).toEqual([
+        '^https://other\\.example\\.com/',
+        '^https://.*\\.example\\.com/',
+      ]);
+      expect(UI.urlDatalist.options).toHaveLength(0);
     });
 
     it('applyEditMode clears editingId and switches back to create mode', () => {
@@ -215,6 +230,10 @@ describe('form/effects', () => {
 
   describe('resetFields', () => {
     it('match() resets matchType to url and clears url/regexp inputs', () => {
+      STATE.rules = [
+        makeRule({ id: 'a', matchType: 'url', url: 'https://example.com' }),
+        makeRule({ id: 'b', matchType: 'regexp', regexp: '^foo$' }),
+      ];
       UI.matchTypeSelect.value = 'regexp';
       UI.urlInput.value = 'https://example.com';
       UI.regexpInput.value = '^foo$';
@@ -226,6 +245,12 @@ describe('form/effects', () => {
       expect(UI.regexpInput.value).toBe('');
       expect(UI.urlInput.required).toBe(true);
       expect(UI.regexpInput.required).toBe(false);
+
+      // デフォルトの matchType は url なので url 側の datalist だけ候補が入る。
+      expect([...UI.urlDatalist.options].map((option) => option.value)).toEqual([
+        'https://example.com',
+      ]);
+      expect(UI.regexpDatalist.options).toHaveLength(0);
     });
 
     it('header() resets headerName/isActive/operation/value to their defaults', () => {
@@ -240,6 +265,51 @@ describe('form/effects', () => {
       expect(UI.isActiveSelect.value).toBe('true');
       expect(UI.operationSelect.value).toBe('set');
       expect(UI.valueInput.value).toBe('');
+    });
+  });
+
+  describe('renderMatchDatalists', () => {
+    it('fills the url datalist with unique, non-empty url values regardless of each rule matchType', () => {
+      STATE.rules = [
+        makeRule({ id: 'a', matchType: 'url', url: 'https://a.example.com' }),
+        makeRule({ id: 'b', matchType: 'prefix', url: 'https://a.example.com' }),
+        makeRule({ id: 'c', matchType: 'prefix', url: 'https://b.example.com/api' }),
+        makeRule({ id: 'd', matchType: 'regexp', regexp: '^https://c\\.example\\.com/' }),
+        makeRule({ id: 'e', matchType: 'url', url: '' }),
+      ];
+
+      renderMatchDatalists('url');
+
+      expect([...UI.urlDatalist.options].map((option) => option.value)).toEqual([
+        'https://a.example.com',
+        'https://b.example.com/api',
+      ]);
+      expect(UI.regexpDatalist.options).toHaveLength(0);
+    });
+
+    it('shares the url datalist between matchType url and prefix', () => {
+      STATE.rules = [makeRule({ id: 'a', matchType: 'prefix', url: 'https://a.example.com/api' })];
+
+      renderMatchDatalists('prefix');
+
+      expect([...UI.urlDatalist.options].map((option) => option.value)).toEqual([
+        'https://a.example.com/api',
+      ]);
+    });
+
+    it('fills the regexp datalist and clears the url datalist when matchType is regexp', () => {
+      STATE.rules = [
+        makeRule({ id: 'a', matchType: 'regexp', regexp: '^https://a\\.example\\.com/' }),
+        makeRule({ id: 'b', matchType: 'url', url: 'https://b.example.com' }),
+      ];
+      renderMatchDatalists('url');
+
+      renderMatchDatalists('regexp');
+
+      expect([...UI.regexpDatalist.options].map((option) => option.value)).toEqual([
+        '^https://a\\.example\\.com/',
+      ]);
+      expect(UI.urlDatalist.options).toHaveLength(0);
     });
   });
 });
