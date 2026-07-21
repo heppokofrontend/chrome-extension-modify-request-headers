@@ -546,7 +546,8 @@
   }
 
   .modal {
-    max-width: 25rem;
+    width: 17.5rem;
+    max-width: min(100%, 25rem);
     padding: 1rem 1.5rem;
     color: var(--color-text);
     text-align: center;
