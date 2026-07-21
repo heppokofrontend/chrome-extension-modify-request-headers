@@ -7,11 +7,11 @@ import { getRuleById } from '@/contexts/popup/utils';
 import { getMessage, setStorage } from '@/utils';
 
 export const deleteRule = async () => {
-  if (!STATE.editingId) {
+  if (STATE.formState.editingId === '') {
     return;
   }
 
-  const rule = getRuleById(STATE.editingId);
+  const rule = getRuleById(STATE.formState.editingId);
 
   if (rule === null) {
     return;
@@ -29,7 +29,7 @@ export const deleteRule = async () => {
   }
 
   const saved = await setStorage('rules', (current) =>
-    current.filter((r) => r.id !== STATE.editingId),
+    current.filter((r) => r.id !== STATE.formState.editingId),
   );
 
   if (saved === null) {

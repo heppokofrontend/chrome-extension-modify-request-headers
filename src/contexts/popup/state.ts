@@ -1,12 +1,18 @@
 import type { HeaderRule } from '@/types';
-import { getDefaultFormState } from '@/utils';
+import { getDefaultLastInput } from '@/utils';
 
 export const STATE = {
-  /** 現在フォームで編集中のルールの id プロパティの値。空文字なら「新規作成中」。 */
-  editingId: '',
   rules: [] as HeaderRule[],
+  /**
+   * フォームの入力値と編集セッションの状態。chrome.storage.local に永続化されるのは
+   * matchType/operation の2つのみ（SaveData['lastInput']、UX向上のため最後に選んだ値を
+   * 次回起動時にも復元する）。editingId/isDirty はポップアップを開いている間だけの
+   * 状態で永続化しない。
+   */
   formState: {
-    ...getDefaultFormState(),
+    ...getDefaultLastInput(),
+    /** 現在フォームで編集中のルールの id プロパティの値。空文字なら「新規作成中」。 */
+    editingId: '',
     isDirty: false,
   },
 };

@@ -45,7 +45,12 @@ const addListener = () => {
 };
 
 const init = async () => {
-  Object.assign(STATE, await getStorage());
+  const { rules, lastInput } = await getStorage();
+
+  STATE.rules = rules;
+  // getStorage() が返す lastInput は永続化対象の matchType/operation のみ。
+  // editingId/isDirty は非永続のセッション状態なので、丸ごと置き換えず既定値を残す。
+  STATE.formState = { ...STATE.formState, ...lastInput };
 
   const { matchType, operation } = STATE.formState;
 

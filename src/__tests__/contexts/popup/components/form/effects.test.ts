@@ -34,7 +34,7 @@ describe('form/effects', () => {
   });
 
   beforeEach(() => {
-    STATE.editingId = '';
+    STATE.formState.editingId = '';
     STATE.rules = [];
     UI.matchTypeSelect.value = 'url';
     UI.urlInput.value = '';
@@ -198,7 +198,7 @@ describe('form/effects', () => {
 
       applyEditMode.start(rule);
 
-      expect(STATE.editingId).toBe('a');
+      expect(STATE.formState.editingId).toBe('a');
       expect(UI.form.dataset['mode']).toBe('edit');
       expect(UI.matchTypeSelect.value).toBe('regexp');
       expect(UI.regexpInput.value).toBe('^https://.*\\.example\\.com/');
@@ -223,7 +223,7 @@ describe('form/effects', () => {
 
       applyEditMode.end();
 
-      expect(STATE.editingId).toBe('');
+      expect(STATE.formState.editingId).toBe('');
       expect(UI.form.dataset['mode']).toBe('create');
     });
   });

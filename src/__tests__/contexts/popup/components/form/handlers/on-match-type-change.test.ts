@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import type { HeaderRule, SaveData } from '@/types';
 import popupHtml from '@package/popup.html?raw';
 
-const formState: SaveData['formState'] = {
+const lastInput: SaveData['lastInput'] = {
   matchType: 'url',
   operation: 'set',
 };
@@ -44,11 +44,17 @@ describe('form/handlers/on-match-type-change', () => {
 
   beforeEach(() => {
     // setStorage は STATE ではなく storage の実値を previous として読み直すため、
-    // storage は常に STATE の該当 key を反映している体でモックする。
-    storageGetMock.mockReset().mockImplementation((key: keyof SaveData) => ({ [key]: STATE[key] }));
+    // storage は常に STATE.formState を反映している体でモックする。
+    // SaveData の key は 'lastInput' だが STATE 側の対応するプロパティ名は
+    // 'formState'（editingId/isDirty も含む広い概念）なので、ここだけ key 名を読み替える。
+    storageGetMock
+      .mockReset()
+      .mockImplementation((key: keyof SaveData) =>
+        key === 'lastInput' ? { lastInput: STATE.formState } : { [key]: STATE[key] },
+      );
     storageSetMock.mockReset().mockResolvedValue(undefined);
 
-    Object.assign(STATE, { rules: [], formState });
+    Object.assign(STATE, { rules: [], formState: lastInput });
     UI.matchTypeSelect.value = 'url';
   });
 
@@ -88,7 +94,7 @@ describe('form/handlers/on-match-type-change', () => {
     });
 
     expect(STATE.formState.matchType).toBe('regexp');
-    expect(storageSetMock).toHaveBeenCalledWith({ formState: STATE.formState });
+    expect(storageSetMock).toHaveBeenCalledWith({ lastInput: STATE.formState });
   });
 
   it('leaves STATE.formState untouched when persisting fails', async () => {

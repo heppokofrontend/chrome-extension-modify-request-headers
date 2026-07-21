@@ -139,7 +139,7 @@ export const applyEditMode = {
    * （url / headerName をここで変えても rename として扱われ、複製にならない）。
    */
   start: (rule: HeaderRule) => {
-    STATE.editingId = rule.id;
+    STATE.formState.editingId = rule.id;
     STATE.formState.isDirty = false;
 
     clearEditButtonMark();
@@ -175,7 +175,7 @@ export const applyEditMode = {
    * ここで明示的に外す（delete 側は renderRules() で一覧ごと作り直されるため実質無害）。
    */
   end: () => {
-    STATE.editingId = '';
+    STATE.formState.editingId = '';
     UI.form.dataset['mode'] = 'create';
 
     STATE.formState.isDirty = false;
@@ -192,9 +192,9 @@ export const focusRuleButton = (id: string) => {
 
 /** 編集中のルールがなければ何もしない。あれば入力欄を空にして編集モードを終了し、編集ボタンにフォーカスを戻す。 */
 export const editAbort = () => {
-  const { editingId } = STATE;
+  const { editingId } = STATE.formState;
 
-  if (!editingId) {
+  if (editingId === '') {
     return;
   }
 

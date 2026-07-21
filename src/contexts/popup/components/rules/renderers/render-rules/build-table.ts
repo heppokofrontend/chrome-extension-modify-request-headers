@@ -35,7 +35,7 @@ const buildRuleRow = (rule: HeaderRule) => {
   );
   button.append(statusIcon, ` ${rule.headerName}`);
   button.addEventListener('click', () => {
-    const isAborting = STATE.editingId === rule.id;
+    const isAborting = STATE.formState.editingId === rule.id;
 
     const updateEditState = () => {
       if (isAborting) {
@@ -56,7 +56,8 @@ const buildRuleRow = (rule: HeaderRule) => {
         return getMessage('form_confirmCancelEdit');
       }
 
-      return STATE.editingId
+      const isEditing = STATE.formState.editingId !== '';
+      return isEditing
         ? getMessage('form_confirmDiscardChangesEditing')
         : getMessage('form_confirmDiscardChangesCreating');
     })();

@@ -20,7 +20,7 @@ export const onMatchTypeChange = (e: Event) => {
   applyMatchTypeVisibility(value);
   renderMatchDatalists(value);
 
-  void setStorage('formState', (current) => ({
+  void setStorage('lastInput', (current) => ({
     ...current,
     matchType: value,
   })).then((saved) => {

@@ -31,15 +31,17 @@ export const saveRule = async (candidate: HeaderRule) => {
   // 重複を上書き確定した場合は、重複先ルールの id に一本化する。
   // 別ルールを編集中にその重複先へ書き換えていたなら、編集元の古いルールは消す。
   const id = duplicate ? duplicate.id : candidate.id;
-  const wasEditing = Boolean(STATE.editingId);
+  const wasEditing = Boolean(STATE.formState.editingId);
 
   // 編集元の除去とcandidateのupsertを1つのrules配列にまとめてから1回だけpersistする。
   // deleteRule → upsertRule の2回書き込みだと、1回目成功・2回目失敗のケースで
   // メモリとストレージが食い違ってしまうため。
   const shouldDropEditingRule =
-    Boolean(duplicate) && Boolean(STATE.editingId) && STATE.editingId !== duplicate?.id;
+    Boolean(duplicate) &&
+    Boolean(STATE.formState.editingId) &&
+    STATE.formState.editingId !== duplicate?.id;
   const base = shouldDropEditingRule
-    ? STATE.rules.filter((rule) => rule.id !== STATE.editingId)
+    ? STATE.rules.filter((rule) => rule.id !== STATE.formState.editingId)
     : STATE.rules;
   const nextRule = { ...candidate, id };
   const index = base.findIndex((rule) => rule.id === id);
