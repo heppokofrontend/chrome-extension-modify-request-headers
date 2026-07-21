@@ -23,6 +23,6 @@ export const onOperationChange = (e: Event) => {
       return;
     }
 
-    STATE.formState = saved;
+    STATE.formState = { ...STATE.formState, ...saved };
   });
 };

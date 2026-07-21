@@ -113,6 +113,15 @@
   "form_buttonUpdate": {
     "message": "上書き保存"
   },
+  "form_confirmCancelEdit": {
+    "message": "内容が変更されています。\n編集を中止してよろしいですか？"
+  },
+  "form_confirmDiscardChangesEditing": {
+    "message": "現在ルールを編集中です。\n入力内容を破棄してよろしいですか？"
+  },
+  "form_confirmDiscardChangesCreating": {
+    "message": "現在ルールを作成中です。\n入力内容を破棄してよろしいですか？"
+  },
   "form_confirmOverwriteRule": {
     "message": "同じ対象・ヘッダー名のルールが既に存在します。\n上書きしますか？"
   },

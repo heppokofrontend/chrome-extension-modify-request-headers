@@ -63,7 +63,7 @@ describe('form/handlers/on-delete-click', () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
     STATE.editingId = '';
-    Object.assign(STATE, { rules: [], formState });
+    Object.assign(STATE, { rules: [], formState: { ...formState, isDirty: true } });
     UI.form.dataset['mode'] = 'edit';
   });
 
@@ -134,5 +134,35 @@ describe('form/handlers/on-delete-click', () => {
     expect(STATE.editingId).toBe('target');
     expect(UI.form.dataset['mode']).toBe('edit');
     expect(window.alert).toHaveBeenCalledWith('form_errSaveFailed');
+  });
+
+  describe('formState.isDirty', () => {
+    it('resets isDirty to false after deleting the rule being edited', async () => {
+      STATE.rules = [makeRule({ id: 'target', matchType: 'prefix', url: 'https://example.com' })];
+      STATE.editingId = 'target';
+
+      const promise = click();
+
+      const [okButton] = UI.modalButtonsContainer.children as HTMLCollectionOf<HTMLButtonElement>;
+      okButton?.click();
+      await promise;
+
+      expect(STATE.formState.isDirty).toBe(false);
+    });
+
+    it('keeps isDirty true when the delete save fails', async () => {
+      STATE.rules = [makeRule({ id: 'target', matchType: 'prefix', url: 'https://example.com' })];
+      STATE.editingId = 'target';
+
+      storageSetMock.mockRejectedValueOnce(new Error('quota exceeded'));
+
+      const promise = click();
+
+      const [okButton] = UI.modalButtonsContainer.children as HTMLCollectionOf<HTMLButtonElement>;
+      okButton?.click();
+      await promise;
+
+      expect(STATE.formState.isDirty).toBe(true);
+    });
   });
 });
