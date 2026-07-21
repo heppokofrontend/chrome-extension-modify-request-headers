@@ -269,7 +269,20 @@ describe('rules/renderers/render-rules', () => {
         section.getAttribute('data-rule'),
       );
 
-      expect(labels).toStrictEqual(['/^https://.*\\.example\\.com//', 'https://example.com/path']);
+      expect(labels).toStrictEqual([
+        '/^https:\\/\\/.*\\.example\\.com\\//',
+        'https://example.com/path',
+      ]);
+    });
+
+    it('escapes a lone "/" regexp value so the label is not ambiguous with the delimiters', () => {
+      STATE.rules = [makeRule({ id: 'a', matchType: 'regexp', regexp: '/' })];
+
+      renderRules();
+
+      const label = UI.rules.querySelector('section.rule')?.getAttribute('data-rule');
+
+      expect(label).toBe('/\\//');
     });
 
     it('merges a legacy punycode-saved prefix rule with a unicode-saved prefix rule into one section, preferring the unicode label', () => {
