@@ -113,6 +113,15 @@
   "form_buttonUpdate": {
     "message": "Update"
   },
+  "form_confirmCancelEdit": {
+    "message": "Your changes haven't been saved.\nCancel editing?"
+  },
+  "form_confirmDiscardChangesEditing": {
+    "message": "You're currently editing a rule. \nDiscard your changes?"
+  },
+  "form_confirmDiscardChangesCreating": {
+    "message": "You're currently creating a rule. \nDiscard your changes?"
+  },
   "form_confirmOverwriteRule": {
     "message": "A rule for this header on this target already exists.\nOverwrite it?"
   },

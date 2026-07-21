@@ -3,6 +3,7 @@ import {
   onDeleteClick,
   onEditAbortClick,
   onFieldInput,
+  onFormChange,
   onFormSubmit,
   onMatchTypeChange,
   onOperationChange,
@@ -20,6 +21,7 @@ const addListener = () => {
   // 非同期の chrome.storage.local.set が完了前に消える。save ボタン（type="submit"）押下も
   // 同じ submit イベントで拾えるので、ここに一本化する。
   UI.form.addEventListener('submit', onFormSubmit);
+  UI.form.addEventListener('change', onFormChange);
 
   UI.matchTypeSelect.addEventListener('change', onMatchTypeChange);
   UI.operationSelect.addEventListener('change', onOperationChange);
