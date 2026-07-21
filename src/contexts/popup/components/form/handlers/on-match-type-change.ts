@@ -1,8 +1,11 @@
-import { applyMatchTypeVisibility } from '@/contexts/popup/components/form/effects';
+import {
+  applyMatchTypeVisibility,
+  renderMatchDatalists,
+} from '@/contexts/popup/components/form/effects';
 import { STATE } from '@/contexts/popup/state';
 import { isMatchType, setStorage } from '@/utils';
 
-/** matchType の選択に応じて url / prefix / regexp フィールドの表示を切り替えるだけ。 */
+/** matchType の選択に応じて url / prefix / regexp フィールドの表示と候補の datalist を切り替える。 */
 export const onMatchTypeChange = (e: Event) => {
   if (!(e.currentTarget instanceof HTMLSelectElement)) {
     return;
@@ -15,6 +18,8 @@ export const onMatchTypeChange = (e: Event) => {
   }
 
   applyMatchTypeVisibility(value);
+  renderMatchDatalists(value);
+
   void setStorage('formState', (current) => ({
     ...current,
     matchType: value,

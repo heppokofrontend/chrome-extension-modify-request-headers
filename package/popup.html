@@ -75,9 +75,10 @@
                   id="input-url"
                   placeholder="https://api.example.com/v1/users"
                   autocomplete="off"
-                  required
+                  list="datalist-url"
                 />
               </label>
+              <datalist id="datalist-url"></datalist>
             </p>
 
             <p class="field-regexp">
@@ -88,8 +89,10 @@
                   id="input-regexp"
                   placeholder="^https://.*\.example\.com/"
                   autocomplete="off"
+                  list="datalist-regexp"
                 />
               </label>
+              <datalist id="datalist-regexp"></datalist>
             </p>
             <p>
               <label>
