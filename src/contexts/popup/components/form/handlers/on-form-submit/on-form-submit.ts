@@ -45,7 +45,7 @@ export const submitForm = async () => {
   }
 
   await saveRule({
-    id: STATE.editingId || crypto.randomUUID(),
+    id: STATE.formState.editingId || crypto.randomUUID(),
     matchType,
     // matchType が何であっても、2種類すべての入力値をそのまま保持する
     // （フラグを切り替えても入力し直さずに済むようにするため）。

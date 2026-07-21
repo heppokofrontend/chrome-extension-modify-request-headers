@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import type { HeaderRule, SaveData } from '@/types';
 import popupHtml from '@package/popup.html?raw';
 
-const formState: SaveData['formState'] = {
+const lastInput: SaveData['lastInput'] = {
   matchType: 'url',
   operation: 'set',
 };
@@ -56,19 +56,22 @@ describe('rules/effects', () => {
   beforeEach(() => {
     // setStorage は STATE ではなく storage の実値を previous として読み直すため、
     // storage は常に STATE の該当 key を反映している体でモックする。
-    storageGetMock.mockReset().mockImplementation((key: keyof SaveData) => ({ [key]: STATE[key] }));
+    storageGetMock
+      .mockReset()
+      .mockImplementation((key: keyof SaveData) =>
+        key === 'lastInput' ? { lastInput: STATE.formState } : { [key]: STATE[key] },
+      );
     storageSetMock.mockReset().mockResolvedValue(undefined);
     tabsQueryMock.mockReset().mockResolvedValue([]);
     vi.spyOn(window, 'alert').mockImplementation(() => undefined);
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
-    STATE.editingId = '';
     Object.assign(STATE, {
       rules: [
         makeRule({ id: 'a', matchType: 'prefix', url: 'https://example.com', isActive: true }),
         makeRule({ id: 'b', matchType: 'prefix', url: 'https://example.com', isActive: true }),
       ],
-      formState,
+      formState: { ...lastInput, editingId: '', isDirty: false },
     });
   });
 
@@ -120,7 +123,7 @@ describe('rules/effects', () => {
     });
 
     it('exits edit mode when the deleted ids include the rule currently being edited', async () => {
-      STATE.editingId = 'a';
+      STATE.formState.editingId = 'a';
 
       const promise = deleteGroup(['a'], 'https://example.com');
 
@@ -128,12 +131,12 @@ describe('rules/effects', () => {
       okButton?.click();
       await promise;
 
-      expect(STATE.editingId).toBe('');
+      expect(STATE.formState.editingId).toBe('');
       expect(UI.form.dataset['mode']).toBe('create');
     });
 
     it('does not touch edit mode when the deleted ids do not include the rule being edited', async () => {
-      STATE.editingId = 'b';
+      STATE.formState.editingId = 'b';
 
       const promise = deleteGroup(['a'], 'https://example.com');
 
@@ -141,13 +144,13 @@ describe('rules/effects', () => {
       okButton?.click();
       await promise;
 
-      expect(STATE.editingId).toBe('b');
+      expect(STATE.formState.editingId).toBe('b');
     });
 
     it('rolls back the saved data cache and alerts on save failure, without exiting edit mode', async () => {
       const original = STATE.rules;
 
-      STATE.editingId = 'a';
+      STATE.formState.editingId = 'a';
       storageSetMock.mockRejectedValueOnce(new Error('quota exceeded'));
 
       const promise = deleteGroup(['a'], 'https://example.com');
@@ -157,7 +160,7 @@ describe('rules/effects', () => {
       await promise;
 
       expect(STATE.rules).toStrictEqual(original);
-      expect(STATE.editingId).toBe('a');
+      expect(STATE.formState.editingId).toBe('a');
       expect(window.alert).toHaveBeenCalledWith('form_errSaveFailed');
     });
   });

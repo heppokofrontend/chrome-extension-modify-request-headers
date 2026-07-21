@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import type { HeaderRule, SaveData } from '@/types';
 import popupHtml from '@package/popup.html?raw';
 
-const formState: SaveData['formState'] = {
+const lastInput: SaveData['lastInput'] = {
   matchType: 'url',
   operation: 'set',
 };
@@ -59,17 +59,20 @@ describe('rules/handlers', () => {
   beforeEach(() => {
     // setStorage は STATE ではなく storage の実値を previous として読み直すため、
     // storage は常に STATE の該当 key を反映している体でモックする。
-    storageGetMock.mockReset().mockImplementation((key: keyof SaveData) => ({ [key]: STATE[key] }));
+    storageGetMock
+      .mockReset()
+      .mockImplementation((key: keyof SaveData) =>
+        key === 'lastInput' ? { lastInput: STATE.formState } : { [key]: STATE[key] },
+      );
     storageSetMock.mockReset().mockResolvedValue(undefined);
     tabsQueryMock.mockReset().mockResolvedValue([]);
 
-    STATE.editingId = '';
     Object.assign(STATE, {
       rules: [
         makeRule({ id: 'a', matchType: 'prefix', url: 'https://example.com', isActive: true }),
         makeRule({ id: 'b', matchType: 'prefix', url: 'https://example.com', isActive: true }),
       ],
-      formState,
+      formState: { ...lastInput, editingId: '', isDirty: false },
     });
   });
 

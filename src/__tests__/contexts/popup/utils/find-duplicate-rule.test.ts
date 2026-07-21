@@ -4,7 +4,7 @@ import { STATE } from '@/contexts/popup/state';
 import { findDuplicateRule } from '@/contexts/popup/utils';
 import type { HeaderRule, SaveData } from '@/types';
 
-const formState: SaveData['formState'] = {
+const lastInput: SaveData['lastInput'] = {
   matchType: 'url',
   operation: 'set',
 };
@@ -22,7 +22,7 @@ const makeRule = (
 
 describe('findDuplicateRule', () => {
   beforeEach(() => {
-    Object.assign(STATE, { rules: [], formState });
+    Object.assign(STATE, { rules: [], formState: lastInput });
   });
 
   it('finds an existing rule with the same matchType, matching value, and headerName', () => {
@@ -32,7 +32,7 @@ describe('findDuplicateRule', () => {
       url: 'https://example.com',
       headerName: 'X-Foo',
     });
-    Object.assign(STATE, { rules: [existing], formState });
+    Object.assign(STATE, { rules: [existing], formState: lastInput });
 
     const candidate = makeRule({
       id: 'b',
@@ -51,7 +51,7 @@ describe('findDuplicateRule', () => {
       url: 'https://example.com',
       headerName: 'X-Foo',
     });
-    Object.assign(STATE, { rules: [rule], formState });
+    Object.assign(STATE, { rules: [rule], formState: lastInput });
 
     expect(findDuplicateRule(rule)).toBeNull();
   });
@@ -61,7 +61,7 @@ describe('findDuplicateRule', () => {
       rules: [
         makeRule({ id: 'a', matchType: 'url', url: 'https://example.com', headerName: 'X-Foo' }),
       ],
-      formState,
+      formState: lastInput,
     });
 
     const candidate = makeRule({
@@ -84,7 +84,7 @@ describe('findDuplicateRule', () => {
           headerName: 'X-Foo',
         }),
       ],
-      formState,
+      formState: lastInput,
     });
 
     const candidate = makeRule({
@@ -107,7 +107,7 @@ describe('findDuplicateRule', () => {
           headerName: 'X-Foo',
         }),
       ],
-      formState,
+      formState: lastInput,
     });
 
     const candidate = makeRule({
@@ -127,7 +127,7 @@ describe('findDuplicateRule', () => {
       url: 'https://example.com/path',
       headerName: 'X-Foo',
     });
-    Object.assign(STATE, { rules: [existing], formState });
+    Object.assign(STATE, { rules: [existing], formState: lastInput });
 
     const candidate = makeRule({
       id: 'b',
@@ -146,7 +146,7 @@ describe('findDuplicateRule', () => {
       url: 'https://xn--r8jz45g.com',
       headerName: 'X-Foo',
     });
-    Object.assign(STATE, { rules: [existing], formState });
+    Object.assign(STATE, { rules: [existing], formState: lastInput });
 
     const candidate = makeRule({
       id: 'b',

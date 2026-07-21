@@ -42,7 +42,7 @@ export const deleteGroup = async (ids: readonly string[], ruleLabel: string) => 
 
   STATE.rules = saved;
 
-  if (ids.includes(STATE.editingId)) {
+  if (ids.includes(STATE.formState.editingId)) {
     applyEditMode.end();
   }
 

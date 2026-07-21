@@ -23,7 +23,7 @@ describe('form/handlers/on-edit-abort-click', () => {
   });
 
   beforeEach(() => {
-    STATE.editingId = '';
+    STATE.formState.editingId = '';
     UI.form.dataset['mode'] = 'edit';
     UI.matchTypeSelect.value = 'regexp';
     UI.urlInput.value = 'https://example.com';
@@ -39,7 +39,7 @@ describe('form/handlers/on-edit-abort-click', () => {
   });
 
   it('resets the fields, ends edit mode, and returns focus to the rule button being edited', () => {
-    STATE.editingId = 'target';
+    STATE.formState.editingId = 'target';
 
     const button = document.createElement('button');
     button.className = CLASS_NAMES.ruleEditButton;
@@ -49,7 +49,7 @@ describe('form/handlers/on-edit-abort-click', () => {
 
     click();
 
-    expect(STATE.editingId).toBe('');
+    expect(STATE.formState.editingId).toBe('');
     expect(UI.form.dataset['mode']).toBe('create');
     expect(UI.matchTypeSelect.value).toBe('url');
     expect(UI.urlInput.value).toBe('');
