@@ -25,7 +25,8 @@ export type HeaderRule = {
 
 export type SaveData = {
   rules: HeaderRule[];
-  formState: {
+  /** 最後に選んだ matchType/operation の記録。次回起動時の初期値として復元するための値。 */
+  lastInput: {
     matchType: MatchType;
     operation: OperationType;
   };

@@ -4,6 +4,7 @@ import type { OperationType, HeaderRule, MatchType } from '@/types';
 import { getMessage } from '@/utils';
 import { isSafeUrl, isValidRegexp } from '@/validators';
 
+import { buildDatalistOptions } from './renderers';
 import { isValidHeaderName, isValidHeaderValue } from './validators';
 
 // matchType ごとにどの入力欄が必須になるかのマッピング。prefix は url 欄を共有するため、
@@ -39,6 +40,32 @@ export const applyMatchTypeVisibility = (matchType: MatchType) => {
 };
 
 /**
+ * 選択中の matchType に対応する入力欄（url/prefix なら url、regexp なら regexp）の
+ * datalist を、STATE.rules に保存済みの値から再構築する。表示されていない側の
+ * datalist は空にする（隠れた入力欄の古い候補を持ち続けても使い道がないため）。
+ */
+export const renderMatchDatalists = (matchType: MatchType) => {
+  UI.urlDatalist.replaceChildren();
+  UI.regexpDatalist.replaceChildren();
+
+  const { datalist, values } = (() => {
+    if (matchType === 'regexp') {
+      return {
+        datalist: UI.regexpDatalist,
+        values: STATE.rules.map(({ regexp }) => regexp),
+      };
+    }
+
+    return {
+      datalist: UI.urlDatalist,
+      values: STATE.rules.map(({ url }) => url),
+    };
+  })();
+
+  datalist.append(...buildDatalistOptions(values));
+};
+
+/**
  * 選択中の operation を form 要素の data-operation 属性へ反映するだけ。表示の出し分け
  * （value 入力要素を remove のとき隠す）は CSS 側（`[data-operation='remove']`）が担う。
  */
@@ -64,6 +91,7 @@ export const resetFields = {
 
     UI.matchTypeSelect.value = matchType;
     applyMatchTypeVisibility(matchType);
+    renderMatchDatalists(matchType);
 
     UI.urlInput.value = '';
     UI.regexpInput.value = '';
@@ -111,7 +139,8 @@ export const applyEditMode = {
    * （url / headerName をここで変えても rename として扱われ、複製にならない）。
    */
   start: (rule: HeaderRule) => {
-    STATE.editingId = rule.id;
+    STATE.formState.editingId = rule.id;
+    STATE.formState.isDirty = false;
 
     clearEditButtonMark();
 
@@ -129,6 +158,7 @@ export const applyEditMode = {
     UI.urlInput.value = rule.url;
     UI.regexpInput.value = rule.regexp;
     applyMatchTypeVisibility(rule.matchType);
+    renderMatchDatalists(rule.matchType);
 
     UI.headerNameInput.value = rule.headerName;
     UI.isActiveSelect.value = String(rule.isActive);
@@ -145,9 +175,10 @@ export const applyEditMode = {
    * ここで明示的に外す（delete 側は renderRules() で一覧ごと作り直されるため実質無害）。
    */
   end: () => {
-    STATE.editingId = '';
+    STATE.formState.editingId = '';
     UI.form.dataset['mode'] = 'create';
 
+    STATE.formState.isDirty = false;
     clearEditButtonMark();
   },
 };
@@ -161,9 +192,9 @@ export const focusRuleButton = (id: string) => {
 
 /** 編集中のルールがなければ何もしない。あれば入力欄を空にして編集モードを終了し、編集ボタンにフォーカスを戻す。 */
 export const editAbort = () => {
-  const { editingId } = STATE;
+  const { editingId } = STATE.formState;
 
-  if (!editingId) {
+  if (editingId === '') {
     return;
   }
 

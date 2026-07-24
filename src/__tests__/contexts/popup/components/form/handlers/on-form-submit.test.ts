@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import type { SaveData } from '@/types';
 import popupHtml from '@package/popup.html?raw';
 
-const formState: SaveData['formState'] = {
+const lastInput: SaveData['lastInput'] = {
   matchType: 'url',
   operation: 'set',
 };
@@ -41,13 +41,16 @@ describe('form/handlers/on-form-submit/on-form-submit', () => {
   beforeEach(() => {
     // setStorage は STATE ではなく storage の実値を previous として読み直すため、
     // storage は常に STATE の該当 key を反映している体でモックする。
-    storageGetMock.mockReset().mockImplementation((key: keyof SaveData) => ({ [key]: STATE[key] }));
+    storageGetMock
+      .mockReset()
+      .mockImplementation((key: keyof SaveData) =>
+        key === 'lastInput' ? { lastInput: STATE.formState } : { [key]: STATE[key] },
+      );
     storageSetMock.mockReset().mockResolvedValue(undefined);
     tabsQueryMock.mockReset().mockResolvedValue([]);
     isRegexSupportedMock.mockReset().mockResolvedValue({ isSupported: true });
 
-    STATE.editingId = '';
-    Object.assign(STATE, { rules: [], formState });
+    Object.assign(STATE, { rules: [], formState: { ...lastInput, editingId: '', isDirty: false } });
 
     UI.matchTypeSelect.value = 'url';
     applyMatchTypeVisibility('url');
@@ -164,7 +167,7 @@ describe('form/handlers/on-form-submit/on-form-submit', () => {
     expect(STATE.rules[0]?.url).toBe('https://例え.com');
   });
 
-  it('reuses STATE.editingId as the saved rule id instead of generating a new one', async () => {
+  it('reuses STATE.formState.editingId as the saved rule id instead of generating a new one', async () => {
     STATE.rules = [
       {
         id: 'existing-id',
@@ -177,7 +180,7 @@ describe('form/handlers/on-form-submit/on-form-submit', () => {
         isActive: true,
       },
     ];
-    STATE.editingId = 'existing-id';
+    STATE.formState.editingId = 'existing-id';
 
     UI.matchTypeSelect.value = 'url';
     UI.urlInput.value = 'https://new.example.com/';

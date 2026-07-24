@@ -8,7 +8,7 @@
 
 ## ダウンロード
 
-[![Available in the Chrome Web Store](./images/iNEddTyWiMfLSwFD6qGq.png)](#)
+[![Available in the Chrome Web Store](./images/iNEddTyWiMfLSwFD6qGq.png)](https://chromewebstore.google.com/detail/cmbechjncgniomlnlgjljkedpkhniiaa)
 
 ## 使い方
 

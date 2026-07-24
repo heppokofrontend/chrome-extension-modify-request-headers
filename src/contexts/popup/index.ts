@@ -3,6 +3,7 @@ import {
   onDeleteClick,
   onEditAbortClick,
   onFieldInput,
+  onFormChange,
   onFormSubmit,
   onMatchTypeChange,
   onOperationChange,
@@ -20,6 +21,7 @@ const addListener = () => {
   // 非同期の chrome.storage.local.set が完了前に消える。save ボタン（type="submit"）押下も
   // 同じ submit イベントで拾えるので、ここに一本化する。
   UI.form.addEventListener('submit', onFormSubmit);
+  UI.form.addEventListener('change', onFormChange);
 
   UI.matchTypeSelect.addEventListener('change', onMatchTypeChange);
   UI.operationSelect.addEventListener('change', onOperationChange);
@@ -43,7 +45,12 @@ const addListener = () => {
 };
 
 const init = async () => {
-  Object.assign(STATE, await getStorage());
+  const { rules, lastInput } = await getStorage();
+
+  STATE.rules = rules;
+  // getStorage() が返す lastInput は永続化対象の matchType/operation のみ。
+  // editingId/isDirty は非永続のセッション状態なので、丸ごと置き換えず既定値を残す。
+  STATE.formState = { ...STATE.formState, ...lastInput };
 
   const { matchType, operation } = STATE.formState;
 

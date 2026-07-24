@@ -1,12 +1,24 @@
 import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 
-import type { SaveData } from '@/types';
+import type { HeaderRule, SaveData } from '@/types';
 import popupHtml from '@package/popup.html?raw';
 
-const formState: SaveData['formState'] = {
+const lastInput: SaveData['lastInput'] = {
   matchType: 'url',
   operation: 'set',
 };
+
+const makeRule = (
+  overrides: Partial<HeaderRule> & Pick<HeaderRule, 'id' | 'matchType'>,
+): HeaderRule => ({
+  url: '',
+  regexp: '',
+  headerName: 'X-Test',
+  operation: 'set',
+  value: '',
+  isActive: true,
+  ...overrides,
+});
 
 describe('form/handlers/on-match-type-change', () => {
   let UI: typeof import('@/contexts/popup/constants').UI;
@@ -32,11 +44,17 @@ describe('form/handlers/on-match-type-change', () => {
 
   beforeEach(() => {
     // setStorage は STATE ではなく storage の実値を previous として読み直すため、
-    // storage は常に STATE の該当 key を反映している体でモックする。
-    storageGetMock.mockReset().mockImplementation((key: keyof SaveData) => ({ [key]: STATE[key] }));
+    // storage は常に STATE.formState を反映している体でモックする。
+    // SaveData の key は 'lastInput' だが STATE 側の対応するプロパティ名は
+    // 'formState'（editingId/isDirty も含む広い概念）なので、ここだけ key 名を読み替える。
+    storageGetMock
+      .mockReset()
+      .mockImplementation((key: keyof SaveData) =>
+        key === 'lastInput' ? { lastInput: STATE.formState } : { [key]: STATE[key] },
+      );
     storageSetMock.mockReset().mockResolvedValue(undefined);
 
-    Object.assign(STATE, { rules: [], formState });
+    Object.assign(STATE, { rules: [], formState: lastInput });
     UI.matchTypeSelect.value = 'url';
   });
 
@@ -56,6 +74,9 @@ describe('form/handlers/on-match-type-change', () => {
   });
 
   it('applies visibility for the new matchType and persists it to formState', async () => {
+    STATE.rules = [
+      makeRule({ id: 'a', matchType: 'regexp', regexp: '^https://.*\\.example\\.com/' }),
+    ];
     UI.matchTypeSelect.value = 'regexp';
 
     onMatchTypeChange({ currentTarget: UI.matchTypeSelect } as unknown as Event);
@@ -63,13 +84,17 @@ describe('form/handlers/on-match-type-change', () => {
     expect(UI.form.dataset['matchType']).toBe('regexp');
     expect(UI.regexpInput.required).toBe(true);
     expect(UI.urlInput.required).toBe(false);
+    expect([...UI.regexpDatalist.options].map((option) => option.value)).toEqual([
+      '^https://.*\\.example\\.com/',
+    ]);
+    expect(UI.urlDatalist.options).toHaveLength(0);
 
     await vi.waitFor(() => {
       expect(storageSetMock).toHaveBeenCalled();
     });
 
     expect(STATE.formState.matchType).toBe('regexp');
-    expect(storageSetMock).toHaveBeenCalledWith({ formState: STATE.formState });
+    expect(storageSetMock).toHaveBeenCalledWith({ lastInput: STATE.formState });
   });
 
   it('leaves STATE.formState untouched when persisting fails', async () => {

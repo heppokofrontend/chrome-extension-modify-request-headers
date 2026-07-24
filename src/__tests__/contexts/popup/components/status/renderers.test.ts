@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import type { HeaderRule, SaveData } from '@/types';
 import popupHtml from '@package/popup.html?raw';
 
-const formState: SaveData['formState'] = {
+const lastInput: SaveData['lastInput'] = {
   matchType: 'url',
   operation: 'set',
 };
@@ -57,7 +57,7 @@ describe('status/renderers', () => {
         }),
         makeRule({ id: 'c', matchType: 'prefix', url: 'https://b.example.com', isActive: true }),
       ],
-      formState,
+      formState: lastInput,
     });
   });
 

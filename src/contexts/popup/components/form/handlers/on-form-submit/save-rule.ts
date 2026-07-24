@@ -11,6 +11,8 @@ import { findDuplicateRule } from '@/contexts/popup/utils';
 import type { HeaderRule } from '@/types';
 import { getMessage, setStorage } from '@/utils';
 
+import { upsertRule } from './utils';
+
 /** 重複確認・保存確定・保存後のフォーム/一覧の後始末をまとめて行う。 */
 export const saveRule = async (candidate: HeaderRule) => {
   // 同じ対象（matchType + 値）に同じヘッダー名がすでにあれば、サイレントに
@@ -28,23 +30,15 @@ export const saveRule = async (candidate: HeaderRule) => {
     }
   }
 
-  // 重複を上書き確定した場合は、重複先ルールの id に一本化する。
-  // 別ルールを編集中にその重複先へ書き換えていたなら、編集元の古いルールは消す。
-  const id = duplicate ? duplicate.id : candidate.id;
-  const wasEditing = Boolean(STATE.editingId);
+  const wasEditing = STATE.formState.editingId !== '';
 
-  // 編集元の除去とcandidateのupsertを1つのrules配列にまとめてから1回だけpersistする。
-  // deleteRule → upsertRule の2回書き込みだと、1回目成功・2回目失敗のケースで
-  // メモリとストレージが食い違ってしまうため。
-  const shouldDropEditingRule =
-    Boolean(duplicate) && Boolean(STATE.editingId) && STATE.editingId !== duplicate?.id;
-  const base = shouldDropEditingRule
-    ? STATE.rules.filter((rule) => rule.id !== STATE.editingId)
-    : STATE.rules;
-  const nextRule = { ...candidate, id };
-  const index = base.findIndex((rule) => rule.id === id);
-  const nextRules =
-    index === -1 ? [...base, nextRule] : base.map((rule, i) => (i === index ? nextRule : rule));
+  // 編集元ルールの削除とcandidateの追加/上書きを別々に2回persistすると、
+  // 1回目成功・2回目失敗のケースでメモリとストレージが食い違ってしまうため、
+  // 1つのrules配列にまとめてから1回だけpersistする。
+  const { nextRules, id } = upsertRule(STATE.rules, candidate, {
+    editingId: STATE.formState.editingId,
+    duplicate,
+  });
 
   const saved = await setStorage('rules', nextRules);
 

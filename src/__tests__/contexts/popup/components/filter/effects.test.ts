@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import type { HeaderRule, SaveData } from '@/types';
 import popupHtml from '@package/popup.html?raw';
 
-const formState: SaveData['formState'] = {
+const lastInput: SaveData['lastInput'] = {
   matchType: 'url',
   operation: 'set',
 };
@@ -47,7 +47,7 @@ describe('filter/effects', () => {
     FILTER_STATE.textValue = '';
     FILTER_STATE.statusValue = 'all';
     FILTER_STATE.defaultResultText = '';
-    Object.assign(STATE, { rules: [], formState });
+    Object.assign(STATE, { rules: [], formState: lastInput });
 
     UI.rules.innerHTML = `
       <section data-rule="X-Foo" data-group-status="active">

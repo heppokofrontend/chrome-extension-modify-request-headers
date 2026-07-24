@@ -3,13 +3,13 @@ import type { HeaderRule, SaveData } from '@/types';
 import { getMessage } from './i18n';
 import { isHeaderRule, isMatchType, isOperationType, isRecord } from './type-guards';
 
-const defaultFormState = {
+const defaultLastInput = {
   matchType: 'url',
   operation: 'set',
-} as const satisfies SaveData['formState'];
+} as const satisfies SaveData['lastInput'];
 
-export const getDefaultFormState = (): SaveData['formState'] => ({
-  ...defaultFormState,
+export const getDefaultLastInput = (): SaveData['lastInput'] => ({
+  ...defaultLastInput,
 });
 
 // key ごとに chrome.storage.local の別々のトップレベルエントリとして永続化するため、
@@ -28,18 +28,18 @@ const sanitize: { [K in keyof SaveData]: (value: unknown) => SaveData[K] } = {
       return false;
     });
   },
-  formState: (formState: unknown): SaveData['formState'] => {
-    if (!isRecord(formState)) {
-      return { ...defaultFormState };
+  lastInput: (lastInput: unknown): SaveData['lastInput'] => {
+    if (!isRecord(lastInput)) {
+      return { ...defaultLastInput };
     }
 
     return {
-      matchType: isMatchType(formState['matchType'])
-        ? formState['matchType']
-        : defaultFormState.matchType,
-      operation: isOperationType(formState['operation'])
-        ? formState['operation']
-        : defaultFormState.operation,
+      matchType: isMatchType(lastInput['matchType'])
+        ? lastInput['matchType']
+        : defaultLastInput.matchType,
+      operation: isOperationType(lastInput['operation'])
+        ? lastInput['operation']
+        : defaultLastInput.operation,
     };
   },
 };
@@ -54,10 +54,10 @@ export async function getStorage<K extends keyof SaveData>(
     return sanitize[key](stored[key]);
   }
 
-  const stored = await chrome.storage.local.get(['rules', 'formState']);
+  const stored = await chrome.storage.local.get(['rules', 'lastInput']);
   return {
     rules: sanitize.rules(stored['rules']),
-    formState: sanitize.formState(stored['formState']),
+    lastInput: sanitize.lastInput(stored['lastInput']),
   };
 }
 

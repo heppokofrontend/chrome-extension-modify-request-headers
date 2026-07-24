@@ -1,5 +1,6 @@
 import { applyEditMode, editAbort } from '@/contexts/popup/components/form';
-import { CLASS_NAMES } from '@/contexts/popup/constants';
+import { confirmModal } from '@/contexts/popup/components/modal';
+import { CLASS_NAMES, UI } from '@/contexts/popup/constants';
 import { STATE } from '@/contexts/popup/state';
 import type { HeaderRule } from '@/types';
 import { getMessage } from '@/utils';
@@ -34,12 +35,43 @@ const buildRuleRow = (rule: HeaderRule) => {
   );
   button.append(statusIcon, ` ${rule.headerName}`);
   button.addEventListener('click', () => {
-    if (STATE.editingId === rule.id) {
-      editAbort();
+    const isAborting = STATE.formState.editingId === rule.id;
+
+    const updateEditState = () => {
+      if (isAborting) {
+        editAbort();
+        return;
+      }
+
+      applyEditMode.start(rule);
+    };
+
+    if (!STATE.formState.isDirty) {
+      updateEditState();
       return;
     }
 
-    applyEditMode.start(rule);
+    const message = (() => {
+      if (isAborting) {
+        return getMessage('form_confirmCancelEdit');
+      }
+
+      const isEditing = STATE.formState.editingId !== '';
+      return isEditing
+        ? getMessage('form_confirmDiscardChangesEditing')
+        : getMessage('form_confirmDiscardChangesCreating');
+    })();
+
+    void confirmModal(message).then((isConfirm) => {
+      if (isConfirm) {
+        updateEditState();
+        return;
+      }
+
+      queueMicrotask(() => {
+        UI.matchTypeSelect.focus();
+      });
+    });
   });
   th.append(button);
 

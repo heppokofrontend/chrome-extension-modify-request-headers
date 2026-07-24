@@ -15,7 +15,7 @@ export const onOperationChange = (e: Event) => {
   }
 
   applyOperationVisibility(value);
-  void setStorage('formState', (current) => ({
+  void setStorage('lastInput', (current) => ({
     ...current,
     operation: value,
   })).then((saved) => {
@@ -23,6 +23,6 @@ export const onOperationChange = (e: Event) => {
       return;
     }
 
-    STATE.formState = saved;
+    STATE.formState = { ...STATE.formState, ...saved };
   });
 };

@@ -221,7 +221,7 @@ describe('rules/renderers/render-rules', () => {
 
     it('enters edit mode for the clicked rule when its edit button is clicked', () => {
       STATE.rules = [makeRule({ id: 'a', matchType: 'prefix', url: 'https://example.com' })];
-      STATE.editingId = '';
+      STATE.formState.editingId = '';
 
       renderRules();
 
@@ -231,7 +231,7 @@ describe('rules/renderers/render-rules', () => {
 
       button?.click();
 
-      expect(STATE.editingId).toBe('a');
+      expect(STATE.formState.editingId).toBe('a');
       expect(UI.form.dataset['mode']).toBe('edit');
       expect(button?.getAttribute('aria-pressed')).toBe('true');
       expect(button?.title).toBe('rule_table_editAbortTitle:');
@@ -239,7 +239,7 @@ describe('rules/renderers/render-rules', () => {
 
     it('cancels edit mode when the same edit button is clicked again', () => {
       STATE.rules = [makeRule({ id: 'a', matchType: 'prefix', url: 'https://example.com' })];
-      STATE.editingId = '';
+      STATE.formState.editingId = '';
 
       renderRules();
 
@@ -250,7 +250,7 @@ describe('rules/renderers/render-rules', () => {
       button?.click();
       button?.click();
 
-      expect(STATE.editingId).toBe('');
+      expect(STATE.formState.editingId).toBe('');
       expect(UI.form.dataset['mode']).toBe('create');
       expect(button?.getAttribute('aria-pressed')).toBe('false');
       expect(button?.title).toBe('rule_table_editTitle:');

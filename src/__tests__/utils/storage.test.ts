@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 
-import { getDefaultFormState, getStorage, setStorage } from '@/utils';
+import { getDefaultLastInput, getStorage, setStorage } from '@/utils';
 
-const getDefaultSaveData = () => ({ rules: [], formState: getDefaultFormState() });
+const getDefaultSaveData = () => ({ rules: [], lastInput: getDefaultLastInput() });
 
 const mockStoredData = (data: Record<string, unknown>) => {
   const get = vi.fn().mockImplementation((keys: unknown) => {
@@ -26,7 +26,7 @@ describe('getStorage', () => {
   });
 
   it('falls back to defaults for null stored values', async () => {
-    mockStoredData({ rules: null, formState: null });
+    mockStoredData({ rules: null, lastInput: null });
     expect(await getStorage()).toStrictEqual(getDefaultSaveData());
   });
 
@@ -48,46 +48,46 @@ describe('getStorage', () => {
     expect(await getStorage()).toStrictEqual({ ...getDefaultSaveData(), rules });
   });
 
-  it('falls back to default rules when rules is not an array, while keeping a valid formState', async () => {
+  it('falls back to default rules when rules is not an array, while keeping a valid lastInput', async () => {
     mockStoredData({
       rules: { 'https://api.example.com': { headerName: 'X-Debug' } },
-      formState: { matchType: 'regexp', operation: 'append' },
+      lastInput: { matchType: 'regexp', operation: 'append' },
     });
 
     expect(await getStorage()).toStrictEqual({
       rules: [],
-      formState: { matchType: 'regexp', operation: 'append' },
+      lastInput: { matchType: 'regexp', operation: 'append' },
     });
   });
 
-  it('falls back to default formState when the stored value is null or malformed', async () => {
+  it('falls back to default lastInput when the stored value is null or malformed', async () => {
     mockStoredData({
       rules: [],
-      formState: null,
+      lastInput: null,
     });
 
     expect(await getStorage()).toStrictEqual(getDefaultSaveData());
   });
 
-  it('falls back per-field to defaults when formState fields are present but not valid values', async () => {
+  it('falls back per-field to defaults when lastInput fields are present but not valid values', async () => {
     mockStoredData({
       rules: [],
-      formState: { matchType: 'bogus', operation: 'append' },
+      lastInput: { matchType: 'bogus', operation: 'append' },
     });
 
     expect(await getStorage()).toStrictEqual({
       rules: [],
-      formState: { matchType: 'url', operation: 'append' },
+      lastInput: { matchType: 'url', operation: 'append' },
     });
 
     mockStoredData({
       rules: [],
-      formState: { matchType: 'prefix', operation: 'bogus' },
+      lastInput: { matchType: 'prefix', operation: 'bogus' },
     });
 
     expect(await getStorage()).toStrictEqual({
       rules: [],
-      formState: { matchType: 'prefix', operation: 'set' },
+      lastInput: { matchType: 'prefix', operation: 'set' },
     });
   });
 
@@ -118,7 +118,7 @@ describe('getStorage', () => {
     mockStoredData({});
 
     const result = await getStorage();
-    result.formState.matchType = 'regexp';
+    result.lastInput.matchType = 'regexp';
     result.rules.push({
       id: 'rule-1',
       matchType: 'url',
@@ -150,7 +150,7 @@ describe('getStorage', () => {
 
     mockStoredData({ rules });
     expect(await getStorage('rules')).toStrictEqual(rules);
-    expect(await getStorage('formState')).toStrictEqual(getDefaultSaveData().formState);
+    expect(await getStorage('lastInput')).toStrictEqual(getDefaultSaveData().lastInput);
   });
 });
 
@@ -268,20 +268,20 @@ describe('setStorage', () => {
         });
       }
 
-      events.push('formState:start');
-      events.push('formState:end');
+      events.push('lastInput:start');
+      events.push('lastInput:end');
       return Promise.resolve();
     });
     vi.stubGlobal('chrome', { storage: { local: { get: vi.fn(), set } } });
 
     const rulesWrite = setStorage('rules', []);
-    const formStateWrite = setStorage('formState', { ...getDefaultSaveData().formState });
+    const lastInputWrite = setStorage('lastInput', { ...getDefaultSaveData().lastInput });
 
-    await formStateWrite;
-    expect(events).toStrictEqual(['rules:start', 'formState:start', 'formState:end']);
+    await lastInputWrite;
+    expect(events).toStrictEqual(['rules:start', 'lastInput:start', 'lastInput:end']);
 
     releaseRulesSet();
     await rulesWrite;
-    expect(events).toStrictEqual(['rules:start', 'formState:start', 'formState:end', 'rules:end']);
+    expect(events).toStrictEqual(['rules:start', 'lastInput:start', 'lastInput:end', 'rules:end']);
   });
 });

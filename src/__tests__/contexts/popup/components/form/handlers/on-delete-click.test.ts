@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import type { HeaderRule, SaveData } from '@/types';
 import popupHtml from '@package/popup.html?raw';
 
-const formState: SaveData['formState'] = {
+const lastInput: SaveData['lastInput'] = {
   matchType: 'url',
   operation: 'set',
 };
@@ -56,14 +56,17 @@ describe('form/handlers/on-delete-click', () => {
   beforeEach(() => {
     // setStorage は STATE ではなく storage の実値を previous として読み直すため、
     // storage は常に STATE の該当 key を反映している体でモックする。
-    storageGetMock.mockReset().mockImplementation((key: keyof SaveData) => ({ [key]: STATE[key] }));
+    storageGetMock
+      .mockReset()
+      .mockImplementation((key: keyof SaveData) =>
+        key === 'lastInput' ? { lastInput: STATE.formState } : { [key]: STATE[key] },
+      );
     storageSetMock.mockReset().mockResolvedValue(undefined);
     tabsQueryMock.mockReset().mockResolvedValue([]);
     vi.spyOn(window, 'alert').mockImplementation(() => undefined);
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
-    STATE.editingId = '';
-    Object.assign(STATE, { rules: [], formState });
+    Object.assign(STATE, { rules: [], formState: { ...lastInput, editingId: '', isDirty: true } });
     UI.form.dataset['mode'] = 'edit';
   });
 
@@ -75,7 +78,7 @@ describe('form/handlers/on-delete-click', () => {
 
   it('does nothing when the rule being edited no longer exists', async () => {
     STATE.rules = [makeRule({ id: 'other', matchType: 'prefix', url: 'https://other.com' })];
-    STATE.editingId = 'missing';
+    STATE.formState.editingId = 'missing';
 
     await click();
 
@@ -85,7 +88,7 @@ describe('form/handlers/on-delete-click', () => {
 
   it('does not delete when the confirmation is cancelled', async () => {
     STATE.rules = [makeRule({ id: 'target', matchType: 'prefix', url: 'https://example.com' })];
-    STATE.editingId = 'target';
+    STATE.formState.editingId = 'target';
 
     const promise = click();
 
@@ -103,7 +106,7 @@ describe('form/handlers/on-delete-click', () => {
       makeRule({ id: 'target', matchType: 'prefix', url: 'https://example.com' }),
       makeRule({ id: 'other', matchType: 'prefix', url: 'https://other.com' }),
     ];
-    STATE.editingId = 'target';
+    STATE.formState.editingId = 'target';
 
     const promise = click();
 
@@ -113,13 +116,13 @@ describe('form/handlers/on-delete-click', () => {
 
     expect(STATE.rules.map((rule) => rule.id)).toStrictEqual(['other']);
     expect(storageSetMock).toHaveBeenCalledWith({ rules: STATE.rules });
-    expect(STATE.editingId).toBe('');
+    expect(STATE.formState.editingId).toBe('');
     expect(UI.form.dataset['mode']).toBe('create');
   });
 
   it('rolls back and stays in edit mode when the delete save fails', async () => {
     STATE.rules = [makeRule({ id: 'target', matchType: 'prefix', url: 'https://example.com' })];
-    STATE.editingId = 'target';
+    STATE.formState.editingId = 'target';
     const original = STATE.rules;
 
     storageSetMock.mockRejectedValueOnce(new Error('quota exceeded'));
@@ -131,8 +134,38 @@ describe('form/handlers/on-delete-click', () => {
     await promise;
 
     expect(STATE.rules).toStrictEqual(original);
-    expect(STATE.editingId).toBe('target');
+    expect(STATE.formState.editingId).toBe('target');
     expect(UI.form.dataset['mode']).toBe('edit');
     expect(window.alert).toHaveBeenCalledWith('form_errSaveFailed');
+  });
+
+  describe('formState.isDirty', () => {
+    it('resets isDirty to false after deleting the rule being edited', async () => {
+      STATE.rules = [makeRule({ id: 'target', matchType: 'prefix', url: 'https://example.com' })];
+      STATE.formState.editingId = 'target';
+
+      const promise = click();
+
+      const [okButton] = UI.modalButtonsContainer.children as HTMLCollectionOf<HTMLButtonElement>;
+      okButton?.click();
+      await promise;
+
+      expect(STATE.formState.isDirty).toBe(false);
+    });
+
+    it('keeps isDirty true when the delete save fails', async () => {
+      STATE.rules = [makeRule({ id: 'target', matchType: 'prefix', url: 'https://example.com' })];
+      STATE.formState.editingId = 'target';
+
+      storageSetMock.mockRejectedValueOnce(new Error('quota exceeded'));
+
+      const promise = click();
+
+      const [okButton] = UI.modalButtonsContainer.children as HTMLCollectionOf<HTMLButtonElement>;
+      okButton?.click();
+      await promise;
+
+      expect(STATE.formState.isDirty).toBe(true);
+    });
   });
 });

@@ -1,7 +1,7 @@
 {
   "name": "chrome-extension-modify-request-headers",
   "description": "This is a Google Chrome extension that modifies request headers.",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "author": "heppokofrontend",
   "allowScripts": {
     "esbuild@0.28.1": true

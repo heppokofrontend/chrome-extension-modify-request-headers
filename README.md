@@ -8,7 +8,7 @@ It is a browser extension that adds, overwrites, or removes request headers for 
 
 ## Download
 
-[![Available in the Chrome Web Store](./images/iNEddTyWiMfLSwFD6qGq.png)](#)
+[![Available in the Chrome Web Store](./images/iNEddTyWiMfLSwFD6qGq.png)](https://chromewebstore.google.com/detail/cmbechjncgniomlnlgjljkedpkhniiaa)
 
 ## How to use
 
